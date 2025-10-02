@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Notifications & Reminders</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        .notifications-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
+            padding: 40px 32px;
+        }
+        .notifications-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .notifications-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .notification-card {
+            background: #f9f9fc;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .notification-message {
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        .notification-actions button {
+            margin-left: 10px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .accept-btn { background: #28a745; color: white; }
+        .accept-btn:hover { background: #218838; }
+        .reject-btn { background: #e74c3c; color: white; }
+        .reject-btn:hover { background: #c0392b; }
+        .back-link { color:#357abd;text-decoration:none;font-weight:600; }
+    </style>
+</head>
+<body>
+    <div class="notifications-container">
+        <div class="notifications-header">
+            <div class="notifications-title">Notifications & Reminders</div>
+            <a href="lawyer-dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+        </div>
+        <div id="notificationList" class="notification-list"></div>
+    </div>
+    <script>
+        // Simulated API endpoints for demonstration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let loggedInLawyer = null;
+        try {
+            loggedInLawyer = JSON.parse(localStorage.getItem('lawyerInfo'));
+        } catch {}
+        const loggedInId = loggedInLawyer?._id || loggedInLawyer?.id || null;
+
+        // Fetch notifications for the logged-in lawyer
+        async function fetchNotifications() {
+            try {
+                // Replace with real API call
+                const response = await fetch(`${API_BASE_URL}/notifications?lawyerId=${loggedInId}`);
+                const result = await response.json();
+                if (result.success) {
+                    renderNotifications(result.notifications || []);
+                } else {
+                    document.getElementById('notificationList').innerHTML = '<div style="color:#c00;">Failed to load notifications.</div>';
+                }
+            } catch (error) {
+                document.getElementById('notificationList').innerHTML = '<div style="color:#c00;">Error loading notifications.</div>';
+            }
+        }
+
+        // Render notifications
+        function renderNotifications(notifications) {
+            const container = document.getElementById('notificationList');
+            if (!notifications.length) {
+                container.innerHTML = '<div style="color:#888;">No notifications or reminders.</div>';
+                return;
+            }
+            container.innerHTML = notifications.map(n => {
+                let actions = '';
+                if (n.type === 'connection_request' && n.status === 'pending') {
+                    actions = `<span class="notification-actions">
+                        <button class="accept-btn" onclick="respondConnection('${n._id}','accepted')">Accept</button>
+                        <button class="reject-btn" onclick="respondConnection('${n._id}','rejected')">Reject</button>
+                    </span>`;
+                } else if (n.type === 'connection_request' && n.status === 'accepted') {
+                    actions = '<span style="color:#28a745;font-weight:600;">Accepted</span>';
+                } else if (n.type === 'connection_request' && n.status === 'rejected') {
+                    actions = '<span style="color:#e74c3c;font-weight:600;">Rejected</span>';
+                }
+                // If message contains 'by the lawyer', replace with lawyer name if available
+                let message = n.message;
+                if (message && message.includes('by the lawyer') && n.fromLawyerName) {
+                    message = message.replace('by the lawyer', `by ${n.fromLawyerName}`);
+                }
+                return `<div class="notification-card">
+                    <div class="notification-message">${message}</div>
+                    ${actions}
+                </div>`;
+            }).join('');
+        }
+
+        // Respond to connection request
+        async function respondConnection(notificationId, response) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/notifications/respond`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notificationId, response })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    fetchNotifications();
+                } else {
+                    alert(result.error || 'Failed to respond.');
+                }
+            } catch (error) {
+                alert('Failed to respond.');
+            }
+        }
+
+        // Initial load
+        fetchNotifications();
+    </script>
+</body>
+</html>

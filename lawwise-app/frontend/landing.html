@@ -1,0 +1,666 @@
+// ...existing code from index.html...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Lawyer Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 90%;
+            max-width: 900px;
+            min-height: 600px;
+            display: flex;
+        }
+
+        .left-panel {
+            background: linear-gradient(45deg, #d4a574, #c19651);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .brand-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+        }
+
+        .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            margin-bottom: 40px;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e8ecf0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 1.1rem;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #4a90e2;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #5a6c7d;
+        }
+
+        .forgot-link {
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .signup-link a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+            
+            .left-panel {
+                min-height: 150px;
+            }
+            
+            .brand-title {
+                font-size: 2rem;
+            }
+            
+            .right-panel {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="brand-content">
+                <div class="brand-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 3L20 9v12a2 2 0 01-2 2H6a2 2 0 01-2-2V9l8-6z"/>
+                        <path d="M9 21V12h6v9"/>
+                        <circle cx="12" cy="8" r="2"/>
+                    </svg>
+                </div>
+                <h1 class="brand-title">Lawwise</h1>
+                <p class="brand-subtitle">Secure Legal Access for Lawyers</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="login-header">
+                <h2 class="login-title">Welcome to Lawwise</h2>
+                <p class="login-subtitle">Your gateway to a smarter legal practice</p>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <div class="input-icon">📧</div>
+                    <input type="email" class="form-input" id="email" placeholder="Professional Email" required>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon">🔒</div>
+                    <input type="password" class="form-input" id="password" placeholder="Password" required>
+                </div>
+
+                <div class="form-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember" class="checkbox">
+                        <label for="remember" class="checkbox-label">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Log In to Dashboard
+                </button>
+            </form>
+
+            <div class="signup-link">
+                Don't have a lawyer account? <a href="#" onclick="showRegister()">Register Here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // API Service
+        class ApiService {
+            static async makeRequest(endpoint, options = {}) {
+                const url = `${API_BASE_URL}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                const token = this.getToken();
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('API Request failed:', error);
+                    throw error;
+                }
+            }
+
+            static async login(email, password) {
+                return await this.makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+            }
+
+            static async register(userData) {
+                return await this.makeRequest('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(userData)
+                });
+            }
+
+            static async getProfile() {
+                return await this.makeRequest('/auth/profile');
+            }
+
+            static async logout() {
+                try {
+                    await this.makeRequest('/auth/logout', { method: 'POST' });
+                } catch (error) {
+                    console.error('Logout API call failed:', error);
+                }
+                this.clearToken();
+            }
+
+            static setToken(token, remember = false) {
+                if (remember) {
+                    localStorage.setItem('lawyerToken', token);
+                } else {
+                    sessionStorage.setItem('lawyerToken', token);
+                }
+            }
+
+            static getToken() {
+                return localStorage.getItem('lawyerToken') || sessionStorage.getItem('lawyerToken');
+            }
+
+            static clearToken() {
+                localStorage.removeItem('lawyerToken');
+                sessionStorage.removeItem('lawyerToken');
+                localStorage.removeItem('lawyerInfo');
+            }
+
+            static isLoggedIn() {
+                return !!this.getToken();
+            }
+        }
+
+        // DOM elements
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('remember');
+        const loginBtn = document.getElementById('loginBtn');
+        const alertDiv = document.getElementById('alert');
+
+        // Form submission handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Show loading state
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+            hideAlert();
+
+            try {
+                const result = await ApiService.login(email, password);
+                
+                if (result.success) {
+                    // Store token
+                    ApiService.setToken(result.token, rememberCheckbox.checked);
+                    // Store lawyer info
+                    localStorage.setItem('lawyerInfo', JSON.stringify(result.lawyer));
+                    showAlert(result.message, 'success');
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'lawyer-dashboard.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                showAlert(error.message, 'error');
+            } finally {
+                loginBtn.textContent = 'Log In to Dashboard';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Utility functions
+        function showAlert(message, type) {
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+        }
+
+        function hideAlert() {
+            alertDiv.style.display = 'none';
+        }
+
+        function showForgotPassword() {
+            alert('Password reset functionality is available through the backend API.\nContact your system administrator for password reset.');
+        }
+
+        function showRegister() {
+            document.body.innerHTML = `
+                <div class="container">
+                    <div class="left-panel">
+                        <div class="brand-content">
+                            <div class="brand-icon">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                    <path d="M12 3L20 9v12a2 2 0 01-2 2H6a2 2 0 01-2-2V9l8-6z"/>
+                                    <path d="M9 21V12h6v9"/>
+                                    <circle cx="12" cy="8" r="2"/>
+                                </svg>
+                            </div>
+                            <h1 class="brand-title">Lawwise</h1>
+                            <p class="brand-subtitle">Join Our Legal Network</p>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="login-header">
+                            <h2 class="login-title">Create Lawyer Account</h2>
+                            <p class="login-subtitle">Register to access your legal practice dashboard</p>
+                        </div>
+
+                        <div id="alert" class="alert"></div>
+
+                        <form id="signupForm">
+                            <div class="form-group">
+                                <div class="input-icon">👤</div>
+                                <input type="text" class="form-input" id="fullName" placeholder="Full Name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-icon">📧</div>
+                                <input type="email" class="form-input" id="email" placeholder="Professional Email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-icon">⚖️</div>
+                                <input type="text" class="form-input" id="barNumber" placeholder="Bar Registration Number" required>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-icon">🏛️</div>
+                                <select class="form-input" id="specialization" required style="padding-left: 50px;">
+                                    <option value="">Select Specialization</option>
+                                    <option value="Criminal Law">Criminal Law</option>
+                                    <option value="Corporate Law">Corporate Law</option>
+                                    <option value="Family Law">Family Law</option>
+                                    <option value="Immigration Law">Immigration Law</option>
+                                    <option value="Property Law">Property Law</option>
+                                    <option value="Tax Law">Tax Law</option>
+                                    <option value="Labor Law">Labor Law</option>
+                                    <option value="Constitutional Law">Constitutional Law</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-icon">🔒</div>
+                                <input type="password" class="form-input" id="password" placeholder="Password (min 8 characters)" required minlength="8">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-icon">🔒</div>
+                                <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm Password" required>
+                            </div>
+
+                            <div class="form-options">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="terms" class="checkbox" required>
+                                    <label for="terms" class="checkbox-label">I agree to Terms & Conditions</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="login-btn" id="signupBtn">
+                                Create Account
+                            </button>
+                        </form>
+
+                        <div class="signup-link">
+                            Already have an account? <a href="#" onclick="showLogin()">Login Here</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            initializeSignupForm();
+        }
+
+        function showLogin() {
+            location.reload();
+        }
+
+        function initializeSignupForm() {
+            const signupForm = document.getElementById('signupForm');
+            const signupBtn = document.getElementById('signupBtn');
+            const alertDiv = document.getElementById('alert');
+
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    barNumber: document.getElementById('barNumber').value.trim(),
+                    specialization: document.getElementById('specialization').value,
+                    password: document.getElementById('password').value,
+                    confirmPassword: document.getElementById('confirmPassword').value
+                };
+
+                // Basic validation
+                if (!formData.fullName || !formData.email || !formData.barNumber || 
+                    !formData.specialization || !formData.password || !formData.confirmPassword) {
+                    showSignupAlert('Please fill in all fields', 'error');
+                    return;
+                }
+
+                if (formData.password !== formData.confirmPassword) {
+                    showSignupAlert('Passwords do not match', 'error');
+                    return;
+                }
+
+                if (formData.password.length < 8) {
+                    showSignupAlert('Password must be at least 8 characters long', 'error');
+                    return;
+                }
+
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.email)) {
+                    showSignupAlert('Please enter a valid email address', 'error');
+                    return;
+                }
+
+                // Show loading state
+                signupBtn.textContent = 'Creating Account...';
+                signupBtn.disabled = true;
+
+                try {
+                    const result = await ApiService.register(formData);
+                    
+                    if (result.success) {
+                        showSignupAlert(result.message, 'success');
+                        
+                        // Auto-login after successful registration
+                        setTimeout(() => {
+                            ApiService.setToken(result.token, false);
+                            localStorage.setItem('lawyerInfo', JSON.stringify(result.lawyer));
+                            // Redirect to dashboard
+                            window.location.href = 'lawyer-dashboard.html';
+                        }, 2000);
+                    }
+                    
+                } catch (error) {
+                    showSignupAlert(error.message, 'error');
+                } finally {
+                    signupBtn.textContent = 'Create Account';
+                    signupBtn.disabled = false;
+                }
+            });
+
+            function showSignupAlert(message, type) {
+                alertDiv.textContent = message;
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.style.display = 'block';
+            }
+        }
+
+        // Remove dashboard rendering code from index.html
+        // The dashboard code (showDashboard, renderProfileCard, etc.) should be moved to lawyer-dashboard.html
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                ApiService.logout();
+                location.reload();
+            }
+        }
+
+        // Auto-show dashboard if #dashboard is present in URL
+        if (window.location.hash === '#dashboard') {
+            try {
+                // Try to get lawyer info from localStorage
+                let lawyer = null;
+                if (localStorage.getItem('lawyerInfo')) {
+                    lawyer = JSON.parse(localStorage.getItem('lawyerInfo'));
+                }
+                if (!lawyer && sessionStorage.getItem('lawyerInfo')) {
+                    lawyer = JSON.parse(sessionStorage.getItem('lawyerInfo'));
+                }
+                if (lawyer) {
+                    // Wait for DOMContentLoaded if needed
+                    if (typeof showDashboard === 'function') {
+                        showDashboard(lawyer);
+                    } else {
+                        window.addEventListener('DOMContentLoaded', function() {
+                            if (typeof showDashboard === 'function') showDashboard(lawyer);
+                        });
+                    }
+                }
+            } catch (e) {
+                // Fallback: do nothing, user can log in again
+            }
+        }
+    </script>
+</body>
+</html>

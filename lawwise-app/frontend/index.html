@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Welcome</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .front-container {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
+            padding: 60px 48px 48px 48px;
+            text-align: center;
+            min-width: 340px;
+            max-width: 400px;
+            position: relative;
+        }
+        .front-logo {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #4a90e2 60%, #ffd200 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(74,144,226,0.12);
+        }
+        .front-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .front-subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+        .front-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px;
+            margin: 18px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+        }
+        .front-btn.lawyer { background: linear-gradient(135deg, #4a90e2, #357abd); color: white; }
+        .front-btn.lawyer:hover { box-shadow: 0 6px 18px #4a90e2a0; transform: translateY(-2px); }
+        .front-btn.client { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #222; }
+        .front-btn.client:hover { box-shadow: 0 6px 18px #43e97ba0; transform: translateY(-2px); }
+        .front-btn.student { background: linear-gradient(135deg, #f7971e, #ffd200); color: #222; }
+        .front-btn.student:hover { box-shadow: 0 6px 18px #f7971ea0; transform: translateY(-2px); }
+        @media (max-width: 500px) {
+            .front-container {
+                padding: 32px 10px;
+                min-width: unset;
+                max-width: 98vw;
+            }
+            .front-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="front-container">
+        <div class="front-logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M12 3L20 9v12a2 2 0 01-2 2H6a2 2 0 01-2-2V9l8-6z"/>
+                <path d="M9 21V12h6v9"/>
+                <circle cx="12" cy="8" r="2"/>
+            </svg>
+        </div>
+        <div class="front-title">Welcome to Lawwise</div>
+        <div class="front-subtitle">Choose your portal to get started</div>
+        <button class="front-btn lawyer" onclick="window.location.href='lawyer-portal.html'">
+            <span>👨‍⚖️</span> Lawyer Portal
+        </button>
+        <button class="front-btn client" onclick="window.location.href='client-portal.html'">
+            <span>🧑‍💼</span> Client Portal
+        </button>
+        <button class="front-btn student" onclick="window.location.href='student-portal.html'">
+            <span>🎓</span> Student Portal
+        </button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - Lawwise</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dashboard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            padding: 48px 36px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #c19651;
+            margin-bottom: 18px;
+        }
+        p {
+            color: #444;
+            font-size: 1.1rem;
+        }
+        .logout-btn {
+            margin-top: 32px;
+            padding: 12px 32px;
+            background: linear-gradient(90deg, #d4a574, #c19651);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(90deg, #c19651, #d4a574);
+        }
+        .modules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 32px 0;
+        }
+        .module {
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px #0001;
+            text-align: center;
+        }
+        .module div {
+            margin-top: 10px;
+        }
+        .module .icon {
+            font-size: 2.2rem;
+        }
+        .module .title {
+            font-weight: 600;
+        }
+        .module .description {
+            font-size: 0.95rem;
+            color: #555;
+        }
+        .notifications {
+            background: #e3f2fd;
+        }
+        .e-filing {
+            background: #fff3e0;
+        }
+        .lawyer-filtering {
+            background: #e8f5e9;
+        }
+        .lawyer-reviews {
+            background: #fce4ec;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Welcome to Client Dashboard</h1>
+        <div class="modules">
+            <div class="module notifications">
+                <div class="icon">🔔</div>
+                <div class="title">Notifications</div>
+                <div class="description">View important messages</div>
+            </div>
+            <div class="module e-filing">
+                <div class="icon">📤</div>
+                <div class="title">E-Filing Case</div>
+                <div class="description">Upload your case files</div>
+            </div>
+            <div class="module lawyer-filtering">
+                <div class="icon">🧑‍⚖️</div>
+                <div class="title">Lawyer Filtering</div>
+                <div class="description">Search and filter lawyers</div>
+            </div>
+            <div class="module lawyer-reviews">
+                <div class="icon">⭐</div>
+                <div class="title">Lawyer Reviews</div>
+                <div class="description">Read and write reviews</div>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="window.location.href='client-portal.html'">Logout</button>
+    </div>
+</body>
+</html>

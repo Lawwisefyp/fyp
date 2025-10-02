@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Lawyer Dashboard</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
+            padding: 40px 32px;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .dashboard-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        .dashboard-welcome {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 16px;
+        }
+        .dashboard-btn {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .dashboard-btn:hover {
+            box-shadow: 0 6px 18px #4a90e2a0;
+            transform: translateY(-2px);
+        }
+        .dashboard-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 28px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-title {
+            color: #1976d2;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .feature-desc {
+            color: #0d47a1;
+            font-size: 1rem;
+        }
+        @media (max-width: 600px) {
+            .dashboard-container {
+                padding: 16px 4px;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
+    <style>
+        /* Simple Lawyer Chatbot Styles */
+        #lawyer-chatbot-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+        }
+        #lawyer-chatbot-fab svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+        #lawyer-chatbot-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 32px;
+            width: 350px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px #0002;
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+        }
+        #lawyer-chatbot-header {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: #fff;
+            padding: 16px;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #lawyer-chatbot-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        #lawyer-chatbot-messages {
+            padding: 16px;
+            height: 220px;
+            overflow-y: auto;
+            font-size: 0.98rem;
+        }
+        #lawyer-chatbot-input {
+            display: flex;
+            border-top: 1px solid #eee;
+        }
+        #lawyer-chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-bottom-left-radius: 16px;
+            font-size: 1rem;
+        }
+        #lawyer-chatbot-input button {
+            background: #357abd;
+            color: #fff;
+            border: none;
+            padding: 0 18px;
+            border-bottom-right-radius: 16px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .lawyer-chatbot-msg-user {
+            text-align: right;
+            margin-bottom: 8px;
+            color: #357abd;
+        }
+        .lawyer-chatbot-msg-bot {
+            text-align: left;
+            margin-bottom: 8px;
+            color: #222;
+        }
+    </style>
+    <style>
+        /* Chatbot Icon Styles */
+        #chatbot-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        #chatbot-fab:hover {
+            box-shadow: 0 8px 24px #4a90e2a0;
+            transform: translateY(-2px);
+        }
+        #chatbot-fab svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Lawyer Chatbot Floating Action Button -->
+    <div id="lawyer-chatbot-fab" title="Chat with Lawyer Bot" style="position: fixed; bottom: 32px; right: 32px; width: 60px; height: 60px; background: linear-gradient(135deg, #4a90e2, #357abd); border-radius: 50%; box-shadow: 0 4px 16px rgba(44,62,80,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9999; transition: box-shadow 0.2s, transform 0.2s;" onclick="window.location.href='lawyer-chatbot.html'">
+        <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#4a90e2"/>
+            <ellipse cx="8.5" cy="11" rx="1.5" ry="2" fill="#fff"/>
+            <ellipse cx="15.5" cy="11" rx="1.5" ry="2" fill="#fff"/>
+            <path d="M8 16c1.333 1 4.667 1 6 0" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+    </div>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <div class="dashboard-title">Lawwise Dashboard</div>
+                <div class="dashboard-welcome">Welcome back, Lawyer!</div>
+            </div>
+            <div class="dashboard-actions">
+                <button class="dashboard-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        <div style='text-align:center; margin-bottom:30px;'>
+            <a href='lawyer-profile.html' id='editProfileBtn' class='login-btn' style='display:inline-block; width:auto; padding:10px 24px; background:linear-gradient(135deg, #4a90e2, #357abd); color:white; border-radius:8px; font-weight:600; text-decoration:none;'>Edit My Profile</a>
+        </div>
+        <div id="profileCardContainer"></div>
+        <!-- Dashboard Features -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px;">
+            <!-- 1. Digital Guidance for Lawyers (Video Support Feature) -->
+            <div style="background: linear-gradient(135deg, #e1f5fe, #b3e5fc); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='lawyer-digital-guidance.html'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #0288d1; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">🎥</div>
+                    <h3 style="color: #0288d1; margin: 0;">Digital Guidance for Lawyers</h3>
+                </div>
+                <p style="color: #01579b; margin: 0;">Tutorial videos to guide lawyers on using the app's features, such as e-filing, case management, and communication tools.</p>
+            </div>
+            <!-- 2. Local Mini-Law Library with AI-Based Explanations -->
+            <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #7b1fa2; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">�</div>
+                    <h3 style="color: #7b1fa2; margin: 0;">Mini-Law Library (AI)</h3>
+                </div>
+                <p style="color: #4148cc; margin: 0;">A library with statutes, rules, and cases, and an AI-powered chatbot for explanations.</p>
+            </div>
+            <!-- 3. AI Chatbot Integration -->
+            <div style="background: linear-gradient(135deg, #e8f5e8, #c8e6c9); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #388e3c; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">🤖</div>
+                    <h3 style="color: #388e3c; margin: 0;">AI Chatbot</h3>
+                </div>
+                <p style="color: #1b5e20; margin: 0;">A chatbot to provide instant assistance, answer queries, and offer legal advice.</p>
+            </div>
+            <!-- 4. Case History and Tracking -->
+            <div style="background: linear-gradient(135deg, #fff3e0, #ffcc02); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='lawyer-case-history.html'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #f57c00; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">�</div>
+                    <h3 style="color: #f57c00; margin: 0;">Case History & Tracking</h3>
+                </div>
+                <p style="color: #e65100; margin: 0;">Track the history and progress of legal cases from start to finish.</p>
+            </div>
+            <!-- 5. Dashboard -->
+            <div style="background: linear-gradient(135deg, #fce4ec, #f8bbd9); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #c2185b; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">�</div>
+                    <h3 style="color: #c2185b; margin: 0;">Dashboard</h3>
+                </div>
+                <p style="color: #880e4f; margin: 0;">A personalized dashboard for users to view their case details, appointments, and notifications.</p>
+            </div>
+            <!-- 6. Notifications & Reminders -->
+            <div style="background: linear-gradient(135deg, #ffe082, #ffd54f); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='lawyer-notifications.html'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #ffb300; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">🔔</div>
+                    <h3 style="color: #ffb300; margin: 0;">Notifications & Reminders</h3>
+                </div>
+                <p style="color: #b28704; margin: 0;">Push notifications to keep users informed of important case updates, meetings, and deadlines.</p>
+            </div>
+            <!-- 7. Communication and Appointment Scheduling -->
+            <div style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #00796b; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">💬</div>
+                    <h3 style="color: #00796b; margin: 0;">Communication & Appointments</h3>
+                </div>
+                <p style="color: #004d40; margin: 0;">Secure messaging and appointment scheduling between lawyers and clients.</p>
+            </div>
+            <!-- 8. AI-Based Drafting -->
+            <div style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #ff9800; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">📝</div>
+                    <h3 style="color: #ff9800; margin: 0;">AI-Based Drafting</h3>
+                </div>
+                <p style="color: #e65100; margin: 0;">Generate legal documents (notices, contracts, petitions) based on user input, reducing errors and saving time.</p>
+            </div>
+            <!-- 9. Deadline Reminders -->
+            <div style="background: linear-gradient(135deg, #fce4ec, #f8bbd9); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #c2185b; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">⏰</div>
+                    <h3 style="color: #c2185b; margin: 0;">Deadline Reminders</h3>
+                </div>
+                <p style="color: #880e4f; margin: 0;">Sends reminders to users about upcoming deadlines for filings, hearings, or case-related tasks.</p>
+            </div>
+            <!-- 10. Professional Networking -->
+            <div style="background: linear-gradient(135deg, #f1f8e9, #aed581); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='lawyer-networking.html'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #689f38; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">🤝</div>
+                    <h3 style="color: #689f38; margin: 0;">Professional Networking</h3>
+                </div>
+                <p style="color: #33691e; margin: 0;">A platform for lawyers to connect, network, and collaborate with other professionals.</p>
+            </div>
+            <!-- 11. Lawyer Profile Management -->
+            <div style="background: linear-gradient(135deg, #e1f5fe, #b3e5fc); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='lawyer-profile.html'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="background: #1976d2; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px;">👤</div>
+                    <h3 style="color: #1976d2; margin: 0;">Lawyer Profile Management</h3>
+                </div>
+                <p style="color: #0d47a1; margin: 0;">Update your professional profile, certifications, and case history for clients to view.</p>
+            </div>
+        </div>
+        <!-- Quick Actions -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">Quick Actions</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <button style="background: #4a90e2; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#357abd'" onmouseout="this.style.background='#4a90e2'">New Case</button>
+                <button style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">Add Client</button>
+                <button style="background: #17a2b8; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#138496'" onmouseout="this.style.background='#17a2b8'">Upload Document</button>
+                <button style="background: #ffc107; color: #212529; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#e0a800'" onmouseout="this.style.background='#ffc107'">Schedule Meeting</button>
+                <button style="background: #6f42c1; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#5a32a3'" onmouseout="this.style.background='#6f42c1'">Generate Report</button>
+                <button id="connectionsBtn" style="background: #ff7043; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#d84315'" onmouseout="this.style.background='#ff7043'">Connections</button>
+            </div>
+        </div>
+        <!-- Connections Section (inline, not popup) -->
+        <div id="connectionsSection" style="display:none; margin: 30px 0 0 0; background: #fff3e0; border-radius: 15px; box-shadow: 0 2px 10px #0001; padding: 28px 24px; position: relative; max-width: 600px;">
+            <span id="closeConnections" style="position:absolute; top:14px; right:18px; font-size:1.4rem; color:#888; cursor:pointer; font-weight:bold;">&times;</span>
+            <h2 style="color:#2c3e50; margin-top:0;">My Connections</h2>
+            <div id="connectionsList" style="margin-top:18px; color:#333;">
+                <!-- Example connections, replace with dynamic content as needed -->
+                <div style='padding:10px 0; border-bottom:1px solid #eee;'>John Doe <span style='color:#888;'>(Corporate Law)</span></div>
+                <div style='padding:10px 0; border-bottom:1px solid #eee;'>Jane Smith <span style='color:#888;'>(Family Law)</span></div>
+                <div style='padding:10px 0;'>Michael Brown <span style='color:#888;'>(Criminal Law)</span></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function logout() {
+            localStorage.removeItem('lawyerToken');
+            localStorage.removeItem('lawyerInfo');
+            sessionStorage.removeItem('lawyerToken');
+            window.location.href = 'lawyer-portal.html';
+        }
+        document.getElementById('editProfileBtn').onclick = function(e) {
+            e.preventDefault();
+            window.location.href = 'lawyer-profile.html';
+        };
+        // Show all profile fields as a card on the dashboard
+        function renderDashboardProfileCard() {
+            const lawyerInfo = localStorage.getItem('lawyerInfo');
+            if (lawyerInfo) {
+                const lawyer = JSON.parse(lawyerInfo);
+                const container = document.getElementById('profileCardContainer');
+                let html = `<div style='background:#fff;border-radius:16px;box-shadow:0 2px 16px #0002;padding:36px;max-width:600px;margin:40px auto;'>`;
+                html += `<h2 style='color:#3377cc; margin-bottom:22px;'><span style='font-size:2rem;'>👩‍⚖️</span> My Profile</h2>`;
+                html += `<div style='display:flex;flex-wrap:wrap;gap:32px;'>`;
+                html += `<div style='flex:1;'>`;
+                html += `<p><b>Full Name:</b><br>${lawyer.firstName || lawyer.personalInfo?.firstName || lawyer.fullName || lawyer.name || ''} ${lawyer.lastName || lawyer.personalInfo?.lastName || ''}</p>`;
+                html += `<p><b>Specialization:</b><br>${lawyer.specialization || lawyer.professionalInfo?.specialization || ''}</p>`;
+                html += `<p><b>Phone:</b><br>${lawyer.phone || lawyer.personalInfo?.phone || ''}</p>`;
+                html += `<p><b>Province/State:</b><br>${lawyer.state || lawyer.personalInfo?.state || ''}</p>`;
+                html += `<p><b>Hourly Rate:</b><br>${lawyer.hourlyRate || lawyer.professionalInfo?.hourlyRate || ''}</p>`;
+                html += `<p><b>Available:</b><br>${(lawyer.isAvailable || lawyer.professionalInfo?.isAvailable) ? 'Yes' : 'No'}</p>`;
+                html += `<p><b>Bio:</b><br>${lawyer.bio || lawyer.personalInfo?.bio || ''}</p>`;
+                html += `<p><b>Qualifications:</b><br>${(lawyer.qualifications || []).map(q => `${q.degree} from ${q.institution} (${q.year || ''})`).join('<br>')}</p>`;
+                html += `<p><b>Experience:</b><br>${(lawyer.experience || []).map(exp => `${exp.title} at ${exp.organization} (${exp.startDate || ''} - ${exp.isCurrent ? 'Present' : (exp.endDate || '')})<br>${exp.description || ''}`).join('<br>')}</p>`;
+                html += `</div>`;
+                html += `<div style='flex:1;'>`;
+                html += `<p><b>Email:</b><br>${lawyer.email || lawyer.personalInfo?.email || ''}</p>`;
+                html += `<p><b>Bar Number:</b><br>${lawyer.barRegistrationNumber || lawyer.professionalInfo?.barRegistrationNumber || lawyer.barNumber || ''}</p>`;
+                html += `<p><b>City:</b><br>${lawyer.city || lawyer.personalInfo?.city || ''}</p>`;
+                html += `<p><b>Years of Experience:</b><br>${lawyer.yearsOfExperience || lawyer.professionalInfo?.yearsOfExperience || ''}</p>`;
+                html += `<p><b>Practice Areas:</b><br>${(lawyer.practiceAreas || lawyer.professionalInfo?.practiceAreas || []).join(', ')}</p>`;
+                html += `</div>`;
+                html += `</div></div>`;
+                container.innerHTML = html;
+            }
+        }
+        renderDashboardProfileCard();
+        // Connections section logic (inline)
+        document.getElementById('connectionsBtn').onclick = function() {
+            document.getElementById('connectionsSection').style.display = 'block';
+            fetchConnections();
+        };
+        document.getElementById('closeConnections').onclick = function() {
+            document.getElementById('connectionsSection').style.display = 'none';
+        };
+
+        // Fetch accepted connections for the logged-in lawyer from notifications and reminders
+        async function fetchConnections() {
+            const lawyerInfo = localStorage.getItem('lawyerInfo');
+            let loggedInId = null;
+            if (lawyerInfo) {
+                const lawyer = JSON.parse(lawyerInfo);
+                loggedInId = lawyer._id || lawyer.id;
+            }
+            if (!loggedInId) return;
+            try {
+                const response = await fetch(`http://localhost:5000/api/notifications/connections?lawyerId=${loggedInId}`);
+                const result = await response.json();
+                if (result.success) {
+                    renderConnections(result.connections || []);
+                } else {
+                    document.getElementById('connectionsList').innerHTML = '<div style="color:#c00;">Failed to load connections.</div>';
+                }
+            } catch (error) {
+                document.getElementById('connectionsList').innerHTML = '<div style="color:#c00;">Error loading connections.</div>';
+            }
+        }
+        // Render connections list
+        function renderConnections(connections) {
+            const container = document.getElementById('connectionsList');
+            if (!connections.length) {
+                container.innerHTML = '<div style="color:#888;">No connections yet.</div>';
+                return;
+            }
+            container.innerHTML = connections.map(conn => {
+                return `<div style='padding:10px 0; border-bottom:1px solid #eee;'>${conn.name} <span style='color:#888;'>${conn.specialization ? '(' + conn.specialization + ')' : ''}</span></div>`;
+            }).join('');
+        }
+    </script>
+</body>
+</body>
+<!-- Botpress Chatbot Embed (hidden by default, toggled by icon) -->
+<script src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"></script>
+<script>
+    window.botpressWebChatConfig = {
+        "botId": "YQQHBCBL", // Your bot ID from the embed URL
+        "hostUrl": "https://cdn.botpress.cloud/webchat/v3",
+        "messagingUrl": "https://messaging.botpress.cloud",
+        "clientId": "YQQHBCBL",
+        "webhookId": "default",
+        "containerWidth": "400px",
+        "layoutWidth": "400px",
+        "hideWidget": true, // Hide default widget button
+        "showCloseButton": true,
+        "disableAnimations": false,
+        "autoShow": false // Do not show automatically
+    };
+</script>
+<script src="https://files.bpcontent.cloud/2025/09/23/15/20250923151537-YQQHBCBL.js" defer></script>
+<script>
+    // Toggle Botpress widget with custom icon
+    window.toggleChatbot = function() {
+        if (window.botpressWebChat) {
+            const isOpen = window.botpressWebChat.isOpen();
+            if (isOpen) {
+                window.botpressWebChat.close();
+            } else {
+                window.botpressWebChat.open();
+            }
+        }
+    };
+    // Ensure widget is closed on load
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.name === 'webchatLoaded') {
+            window.botpressWebChat.close();
+        }
+    });
+</script>
+</html>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Client Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 90%;
+            max-width: 900px;
+            min-height: 600px;
+            display: flex;
+        }
+        .left-panel {
+            background: linear-gradient(45deg, #d4a574, #c19651);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+        .brand-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+        }
+        .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+        }
+        .brand-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .brand-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        .right-panel {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-header {
+            margin-bottom: 40px;
+        }
+        .login-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .login-subtitle {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .form-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e8ecf0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 1.1rem;
+        }
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #4a90e2;
+        }
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #5a6c7d;
+        }
+        .forgot-link {
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .signup-link {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        .signup-link a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+            .left-panel { min-height: 150px; }
+            .brand-title { font-size: 2rem; }
+            .right-panel { padding: 40px 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="brand-content">
+                <div class="brand-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                    </svg>
+                </div>
+                <h1 class="brand-title">Lawwise</h1>
+                <p class="brand-subtitle">Client Portal</p>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="login-header">
+                <h2 class="login-title">Client Login</h2>
+                <p class="login-subtitle">Access your client dashboard</p>
+            </div>
+            <div id="alert" class="alert"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <div class="input-icon">📧</div>
+                    <input type="email" class="form-input" id="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <div class="input-icon">🔒</div>
+                    <input type="password" class="form-input" id="password" placeholder="Password" required>
+                </div>
+                <div class="form-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember" class="checkbox">
+                        <label for="remember" class="checkbox-label">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot password?</a>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Log In to Dashboard</button>
+            </form>
+            <div class="signup-link">
+                Don't have a client account? <a href="#" onclick="showRegister()">Register Here</a>
+            </div>
+            <div class="back-link" style="text-align:center;margin-top:18px;">
+                <a href="index.html" style="color:#1976d2;font-weight:600;font-size:1rem;text-decoration:underline;cursor:pointer;">BACK TO MAIN PAGE</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showForgotPassword() {
+            alert('Password reset functionality is available through the backend API. Contact your system administrator for password reset.');
+        }
+        function showRegister() {
+            document.querySelector('.right-panel').innerHTML = `
+                <div class="login-header">
+                    <h2 class="login-title">Client Signup</h2>
+                    <p class="login-subtitle">Create your client account</p>
+                </div>
+                <div id="alert" class="alert"></div>
+                <form id="signupForm">
+                    <div class="form-group">
+                        <div class="input-icon">👤</div>
+                        <input type="text" class="form-input" id="fullName" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">📧</div>
+                        <input type="email" class="form-input" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" class="form-input" id="password" placeholder="Password (min 8 characters)" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                    <div class="form-options">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms" class="checkbox" required>
+                            <label for="terms" class="checkbox-label">I agree to Terms & Conditions</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn" id="signupBtn">Create Account</button>
+                </form>
+                <div class="signup-link">
+                    Already have an account? <a href="#" onclick="showLogin()">Back to Login</a>
+                </div>
+            `;
+            initializeSignupForm();
+        }
+        function showLogin() {
+            location.reload();
+        }
+        function initializeSignupForm() {
+            const signupForm = document.getElementById('signupForm');
+            const signupBtn = document.getElementById('signupBtn');
+            const alertDiv = document.getElementById('alert');
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('fullName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (!fullName || !email || !password || !confirmPassword) {
+                    showSignupAlert('Please fill in all fields', 'error');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showSignupAlert('Passwords do not match', 'error');
+                    return;
+                }
+                if (password.length < 8) {
+                    showSignupAlert('Password must be at least 8 characters long', 'error');
+                    return;
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showSignupAlert('Please enter a valid email address', 'error');
+                    return;
+                }
+                signupBtn.textContent = 'Creating Account...';
+                signupBtn.disabled = true;
+                try {
+                    const response = await fetch('http://localhost:5000/api/clients/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fullName, email, password })
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showSignupAlert('Account created successfully! You can now log in.', 'success');
+                        setTimeout(() => showLogin(), 1500);
+                    } else {
+                        showSignupAlert(result.error || 'Registration failed', 'error');
+                    }
+                } catch (error) {
+                    showSignupAlert('Registration failed. Please try again.', 'error');
+                } finally {
+                    signupBtn.textContent = 'Create Account';
+                    signupBtn.disabled = false;
+                }
+            });
+            function showSignupAlert(message, type) {
+                alertDiv.textContent = message;
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.style.display = 'block';
+            }
+        }
+        // Add client login logic
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const alertDiv = document.getElementById('alert');
+            if (!email || !password) {
+                alertDiv.textContent = 'Please fill in all fields';
+                alertDiv.className = 'alert alert-error';
+                alertDiv.style.display = 'block';
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:5000/api/clients/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = 'client-dashboard.html';
+                } else {
+                    alertDiv.textContent = result.error || 'Login failed';
+                    alertDiv.className = 'alert alert-error';
+                    alertDiv.style.display = 'block';
+                }
+            } catch (err) {
+                alertDiv.textContent = 'Login failed. Please try again.';
+                alertDiv.className = 'alert alert-error';
+                alertDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

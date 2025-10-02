@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Case Tracking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Real-Time Case Tracking</h1>
+                        <p class="text-gray-600 mt-1">Automated progress monitoring and notifications</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="lawyer-notifications.html" class="relative flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
+                            <span>🔔</span>
+                            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </a>
+                        <button onclick="showNewCaseModal()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            <span>+</span> New Case
+                        </button>
+                    </div>
+                </div>
+
+                <div id="notificationsPanel" class="hidden mt-4 space-y-2">
+                    <h3 class="font-semibold text-gray-900 mb-2">Active Notifications</h3>
+                    <div id="notificationsList"></div>
+                </div>
+
+                <div class="flex gap-4 mt-4">
+                    <div class="flex-1 relative">
+                        <input type="text" id="searchInput" placeholder="Search cases..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg" oninput="filterCases()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="casesList" class="space-y-4"></div>
+            <div id="caseDetail" class="hidden space-y-6"></div>
+        </div>
+    </div>
+
+    <div id="newCaseModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-screen overflow-y-auto">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Create New Case</h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Case Title *</label>
+                        <input type="text" id="newCaseTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Filing Date *</label>
+                        <input type="date" id="newCaseFilingDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
+                        <input type="text" id="newCaseClient" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Opposing Party</label>
+                        <input type="text" id="newCaseOpposing" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Lawyer</label>
+                        <input type="text" id="newCaseLawyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Court *</label>
+                        <input type="text" id="newCaseCourt" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Judge Name</label>
+                        <input type="text" id="newCaseJudge" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jurisdiction</label>
+                        <select id="newCaseJurisdiction" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="Civil">Civil</option>
+                            <option value="Criminal">Criminal</option>
+                            <option value="Family">Family</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Next Hearing Date</label>
+                    <input type="date" id="newCaseHearing" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="createCase()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Create Case</button>
+                    <button onclick="closeNewCaseModal()" class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        const STAGES = [
+            { id: 1, name: 'Case Filed', duration: 0, desc: 'Initial petition filed' },
+            { id: 2, name: 'Case Admitted', duration: 30, desc: 'Court admits the case' },
+            { id: 3, name: 'Notice Issued', duration: 15, desc: 'Notice served to opposing party' },
+            { id: 4, name: 'Written Statement Filed', duration: 30, desc: 'Defendant submits response' },
+            { id: 5, name: 'Issues Framed', duration: 45, desc: 'Court frames issues for trial' },
+            { id: 6, name: 'Evidence Stage', duration: 90, desc: 'Parties present evidence' },
+            { id: 7, name: 'Arguments Stage', duration: 60, desc: 'Final arguments presented' },
+            { id: 8, name: 'Judgment Reserved', duration: 30, desc: 'Court reserves judgment' },
+            { id: 9, name: 'Judgment Pronounced', duration: 0, desc: 'Final verdict delivered' }
+        ];
+
+        let cases = [];
+
+        let notifications = [];
+        let currentView = 'list';
+        let selectedCaseId = null;
+
+        // Get logged-in lawyer info
+        function getLawyerInfo() {
+            try {
+                return JSON.parse(localStorage.getItem('lawyerInfo'));
+            } catch {
+                return null;
+            }
+        }
+
+        // Send notification to backend API
+        async function sendNotificationToAPI(notification) {
+            try {
+                const lawyerInfo = getLawyerInfo();
+                const lawyerId = lawyerInfo?._id || lawyerInfo?.id;
+                if (!lawyerId) return;
+                // Ensure correct lawyerId is sent
+                const notifPayload = {
+                    lawyerId: lawyerId,
+                    type: notification.type || 'case_reminder',
+                    message: notification.message,
+                    caseId: notification.caseId,
+                    status: notification.status || 'pending'
+                };
+                console.log('Sending notification to API:', notifPayload); // Debug log
+                await fetch(`${API_BASE_URL}/notifications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(notifPayload)
+                });
+            } catch (error) {
+                console.error('Failed to send notification to API:', error);
+            }
+        }
+
+        function init() {
+            document.getElementById('newCaseFilingDate').valueAsDate = new Date();
+            // Fetch cases from backend
+            fetch('http://localhost:5000/api/cases')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success && Array.isArray(data.cases)) {
+                        cases = data.cases;
+                    }
+                    renderCases();
+                    checkNotifications();
+                })
+                .catch(function(err) {
+                    renderCases();
+                    checkNotifications();
+                });
+            setInterval(checkNotifications, 60000);
+        }
+
+        function checkNotifications() {
+            const today = new Date();
+            notifications = [];
+
+            cases.forEach(c => {
+                if (c.nextHearingDate) {
+                    const hearingDate = new Date(c.nextHearingDate);
+                    const days = Math.ceil((hearingDate - today) / 86400000);
+
+                    let notif = null;
+                    if (days === 7) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-7days',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": Hearing in 7 days (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 3) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-3days',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": URGENT - Hearing in 3 days! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 1) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-tomorrow',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": CRITICAL - Hearing TOMORROW! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 0) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-today',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": URGENT - Hearing TODAY! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    }
+
+                    if (notif) {
+                        notifications.push(notif);
+                        sendNotificationToAPI(notif);
+                    }
+                }
+
+                // Check for stage delays
+                const currentStageInfo = STAGES.find(s => s.id === c.currentStage);
+                if (currentStageInfo && c.lastUpdateDate && currentStageInfo.duration > 0) {
+                    const lastUpdate = new Date(c.lastUpdateDate);
+                    const daysSinceUpdate = Math.ceil((today - lastUpdate) / 86400000);
+                    
+                    if (daysSinceUpdate > currentStageInfo.duration * 1.5) {
+                        const delayNotif = {
+                            id: 'delay-' + c.id + '-' + c.currentStage,
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": Stage "' + currentStageInfo.name + '" is taking longer than expected (' + daysSinceUpdate + ' days vs expected ' + currentStageInfo.duration + ' days)'
+                        };
+                        notifications.push(delayNotif);
+                        sendNotificationToAPI(delayNotif);
+                    }
+                }
+            });
+
+            updateNotificationBadge();
+            renderNotifications();
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsPanel').classList.toggle('hidden');
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-sm">No active notifications</p>';
+                return;
+            }
+            list.innerHTML = notifications.map(n => {
+                const isUrgent = n.message.includes('URGENT') || n.message.includes('CRITICAL') || n.message.includes('TODAY');
+                const isWarning = n.message.includes('longer than expected');
+                const color = isUrgent ? 'bg-red-100 border-red-500 text-red-800' :
+                              isWarning ? 'bg-yellow-100 border-yellow-500 text-yellow-800' :
+                              'bg-blue-100 border-blue-500 text-blue-800';
+                return `<div class="p-3 border-l-4 rounded ${color}"><p class="text-sm font-medium">${n.message}</p></div>`;
+            }).join('');
+        }
+
+        function calcProgress(c) {
+            return Math.min(Math.round(((c.completedStages.length + 0.5) / STAGES.length) * 100), 100);
+        }
+
+        function calcEndDate(c) {
+            const d = new Date(c.filingDate);
+            let total = 0;
+            STAGES.forEach(s => total += s.duration);
+            d.setDate(d.getDate() + total);
+            return d;
+        }
+
+        function getDays(date) {
+            return Math.ceil((new Date(date) - new Date()) / 86400000);
+        }
+
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-GB');
+        }
+
+        function filterCases() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = cases.filter(c =>
+                c.title.toLowerCase().includes(term) ||
+                c.id.toLowerCase().includes(term) ||
+                c.client.toLowerCase().includes(term) ||
+                c.court.toLowerCase().includes(term)
+            );
+            renderCases(filtered);
+        }
+
+        function renderCases(list = cases) {
+            if (currentView !== 'list') {
+                document.getElementById('casesList').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('casesList').classList.remove('hidden');
+            document.getElementById('caseDetail').classList.add('hidden');
+
+            document.getElementById('casesList').innerHTML = list.map(c => {
+                const prog = calcProgress(c);
+                const endD = calcEndDate(c);
+                const stage = STAGES.find(s => s.id === c.currentStage);
+                const days = c.nextHearingDate ? getDays(c.nextHearingDate) : null;
+
+                return '<div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">' +
+                    '<div class="flex items-start justify-between">' +
+                    '<div class="flex-1">' +
+                    '<div class="flex items-center gap-3 mb-2">' +
+                    '<h3 class="text-xl font-semibold">' + c.title + '</h3>' +
+                    '<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">' + (stage ? stage.name : 'Completed') + '</span>' +
+                    '</div>' +
+                    '<p class="text-sm text-gray-600 mb-3">Case ID: ' + c.id + '</p>' +
+                    '<div class="grid grid-cols-3 gap-4 text-sm mb-4">' +
+                    '<div><p class="text-gray-500">Client</p><p class="font-medium">' + c.client + '</p></div>' +
+                    '<div><p class="text-gray-500">Court</p><p class="font-medium">' + c.court + '</p></div>' +
+                    '<div><p class="text-gray-500">Expected End</p><p class="font-medium">' + formatDate(endD) + '</p></div>' +
+                    '</div>' +
+                    (c.nextHearingDate ? '<div class="mb-4 text-sm"><span class="font-medium text-blue-600">Next Hearing: ' + formatDate(c.nextHearingDate) + '</span> <span class="' + (days <= 3 ? 'text-red-600 font-bold' : 'text-gray-500') + '">(' + days + ' days)</span></div>' : '') +
+                    '<div><div class="flex justify-between text-xs text-gray-600 mb-1"><span>Progress</span><span>' + prog + '%</span></div>' +
+                    '<div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-blue-600 h-3 rounded-full" style="width:' + prog + '%"></div></div>' +
+                    '<p class="text-xs text-gray-500 mt-1">' + c.completedStages.length + ' of ' + STAGES.length + ' stages</p></div>' +
+                    '</div>' +
+                    '<button onclick="showDetail(\'' + c.id + '\')" class="ml-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Details</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function showDetail(id) {
+            selectedCaseId = id;
+            currentView = 'detail';
+            const c = cases.find(x => x.id === id);
+            
+            document.getElementById('casesList').classList.add('hidden');
+            const detail = document.getElementById('caseDetail');
+            detail.classList.remove('hidden');
+
+            const prog = calcProgress(c);
+            const endD = calcEndDate(c);
+            const elapsed = Math.ceil((new Date() - new Date(c.filingDate)) / 86400000);
+            const toEnd = getDays(endD.toISOString().split('T')[0]);
+
+            detail.innerHTML = '<button onclick="backToCases()" class="text-blue-600 hover:text-blue-700">← Back</button>' +
+                '<div class="bg-white rounded-lg shadow-sm p-6">' +
+                '<div class="flex justify-between mb-4">' +
+                '<div><h2 class="text-2xl font-bold">' + c.title + '</h2><p class="text-gray-600">ID: ' + c.id + '</p></div>' +
+                '<div class="text-right"><div class="text-3xl font-bold text-blue-600">' + prog + '%</div><p class="text-sm text-gray-600">Complete</p></div>' +
+                '</div>' +
+                '<div class="grid grid-cols-2 gap-6 mt-6">' +
+                '<div><h4 class="text-sm font-medium text-gray-500 mb-3">Case Info</h4>' +
+                '<div class="space-y-2 text-sm">' +
+                '<div class="flex justify-between"><span class="text-gray-600">Client:</span><span>' + c.client + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Opposing:</span><span>' + c.opposingParty + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Lawyer:</span><span>' + c.lawyer + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Filed:</span><span>' + formatDate(c.filingDate) + '</span></div>' +
+                '</div></div>' +
+                '<div><h4 class="text-sm font-medium text-gray-500 mb-3">Court Details</h4>' +
+                '<div class="space-y-2 text-sm">' +
+                '<div class="flex justify-between"><span class="text-gray-600">Court:</span><span>' + c.court + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Judge:</span><span>' + c.judge + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Type:</span><span>' + c.jurisdiction + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-gray-600">Expected End:</span><span>' + formatDate(endD) + '</span></div>' +
+                '</div></div>' +
+                '</div>' +
+                '<div class="mt-6 pt-6 border-t">' +
+                '<label class="block text-sm font-medium mb-2">Next Hearing Date</label>' +
+                '<input type="date" id="hearingDateInput" value="' + (c.nextHearingDate || '') + '" onchange="updateHearing()" class="px-3 py-2 border rounded-lg">' +
+                '</div>' +
+                '</div>' +
+                '<div class="bg-white rounded-lg shadow-sm p-6">' +
+                '<h3 class="text-lg font-semibold mb-4">Case Stages</h3>' +
+                '<div class="space-y-4">' + renderStages(c) + '</div>' +
+                '</div>' +
+                '<div class="bg-white rounded-lg shadow-sm p-6">' +
+                '<h3 class="text-lg font-semibold mb-4">Analytics</h3>' +
+                '<div class="grid grid-cols-3 gap-4">' +
+                '<div class="bg-blue-50 p-4 rounded-lg"><span class="text-sm text-gray-600">Stages Done</span><p class="text-2xl font-bold text-blue-600">' + c.completedStages.length + '/' + STAGES.length + '</p></div>' +
+                '<div class="bg-green-50 p-4 rounded-lg"><span class="text-sm text-gray-600">Days Elapsed</span><p class="text-2xl font-bold text-green-600">' + elapsed + '</p></div>' +
+                '<div class="bg-purple-50 p-4 rounded-lg"><span class="text-sm text-gray-600">Days to End</span><p class="text-2xl font-bold text-purple-600">' + toEnd + '</p></div>' +
+                '</div></div>';
+        }
+
+        function renderStages(c) {
+            return STAGES.map((s, i) => {
+                const done = c.completedStages.includes(s.id);
+                const curr = c.currentStage === s.id;
+                const hist = c.stageHistory.find(h => h.stageId === s.id);
+                const color = done ? 'bg-green-500 text-white' : curr ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500';
+                
+                return '<div class="flex gap-4">' +
+                    '<div class="flex flex-col items-center">' +
+                    '<div class="w-10 h-10 rounded-full flex items-center justify-center ' + color + '">' + (done ? '✓' : s.id) + '</div>' +
+                    (i < STAGES.length - 1 ? '<div class="w-0.5 h-16 ' + (done ? 'bg-green-500' : 'bg-gray-200') + '"></div>' : '') +
+                    '</div>' +
+                    '<div class="flex-1 pb-4">' +
+                    '<div class="flex justify-between mb-1">' +
+                    '<h4 class="font-medium">' + s.name + '</h4>' +
+                    '<div>' +
+                    (done && hist ? '<span class="text-xs text-gray-500">Done: ' + formatDate(hist.completedDate) + ' (' + hist.actualDuration + ' days)</span>' : '') +
+                    (curr && !done ? '<button onclick="completeStage(' + s.id + ')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Mark Done</button>' : '') +
+                    '</div></div>' +
+                    '<p class="text-sm text-gray-600">' + s.desc + '</p>' +
+                    '<p class="text-xs text-gray-500">Expected: ' + s.duration + ' days' + (curr ? ' ← Current' : '') + '</p>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function completeStage(stageId) {
+            const c = cases.find(x => x.id === selectedCaseId);
+            const today = new Date().toISOString().split('T')[0];
+            let dur = 0;
+            if (c.stageHistory.length > 0) {
+                const last = c.stageHistory[c.stageHistory.length - 1];
+                dur = Math.ceil((new Date(today) - new Date(last.completedDate)) / 86400000);
+            } else {
+                dur = Math.ceil((new Date(today) - new Date(c.filingDate)) / 86400000);
+            }
+
+            c.completedStages.push(stageId);
+            c.currentStage = stageId + 1;
+            c.lastUpdateDate = today;
+            c.stageHistory.push({ stageId: stageId, completedDate: today, actualDuration: dur });
+
+            const stage = STAGES.find(s => s.id === stageId);
+            if (stage) {
+                const notif = {
+                    caseId: c.id,
+                    type: 'case_update',
+                    message: 'Case "' + c.title + '": Stage "' + stage.name + '" completed on ' + formatDate(today)
+                };
+                sendNotificationToAPI(notif);
+            }
+
+            showDetail(selectedCaseId);
+            checkNotifications();
+        }
+
+        function updateHearing() {
+            const c = cases.find(x => x.id === selectedCaseId);
+            const newDate = document.getElementById('hearingDateInput').value;
+            c.nextHearingDate = newDate;
+            
+            if (newDate) {
+                const notif = {
+                    caseId: c.id,
+                    type: 'case_reminder',
+                    message: 'Case "' + c.title + '": Hearing date set for ' + formatDate(newDate)
+                };
+                sendNotificationToAPI(notif);
+            }
+            
+            checkNotifications();
+        }
+
+        function backToCases() {
+            currentView = 'list';
+            renderCases();
+        }
+
+        function showNewCaseModal() {
+            document.getElementById('newCaseModal').classList.remove('hidden');
+        }
+
+        function closeNewCaseModal() {
+            document.getElementById('newCaseModal').classList.add('hidden');
+        }
+
+        function createCase() {
+            const title = document.getElementById('newCaseTitle').value;
+            const client = document.getElementById('newCaseClient').value;
+            const court = document.getElementById('newCaseCourt').value;
+
+            if (!title || !client || !court) {
+                alert('Please fill required fields');
+                return;
+            }
+
+            // Generate a unique id using timestamp and random number
+            const uniqueId = 'CASE-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+
+            const newCase = {
+                id: uniqueId,
+                title: title,
+                client: client,
+                opposingParty: document.getElementById('newCaseOpposing').value,
+                lawyer: document.getElementById('newCaseLawyer').value,
+                court: court,
+                judge: document.getElementById('newCaseJudge').value,
+                jurisdiction: document.getElementById('newCaseJurisdiction').value,
+                filingDate: document.getElementById('newCaseFilingDate').value,
+                nextHearingDate: document.getElementById('newCaseHearing').value,
+                currentStage: 1,
+                completedStages: [],
+                stageHistory: [],
+                lastUpdateDate: document.getElementById('newCaseFilingDate').value
+            };
+
+            // Disable button to prevent double submit
+            const createBtn = document.querySelector('button[onclick="createCase()"]');
+            if (createBtn) createBtn.disabled = true;
+
+            // Save to MongoDB via backend API (use full URL for cross-origin)
+            fetch('http://localhost:5000/api/cases', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newCase)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to save case to database: ' + (data.message || 'Unknown error'));
+                } else {
+                    // Refetch cases from backend to update UI with latest data
+                    fetch('http://localhost:5000/api/cases')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && Array.isArray(data.cases)) {
+                                cases = data.cases;
+                                renderCases();
+                                checkNotifications();
+                            }
+                            closeNewCaseModal();
+                            // Re-enable button
+                            if (createBtn) createBtn.disabled = false;
+                            document.getElementById('newCaseTitle').value = '';
+                            document.getElementById('newCaseClient').value = '';
+                            document.getElementById('newCaseOpposing').value = '';
+                            document.getElementById('newCaseLawyer').value = '';
+                            document.getElementById('newCaseCourt').value = '';
+                            document.getElementById('newCaseJudge').value = '';
+                            document.getElementById('newCaseHearing').value = '';
+                        });
+                }
+            })
+            .catch(err => {
+                alert('Error saving case to database: ' + err);
+                if (createBtn) createBtn.disabled = false;
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

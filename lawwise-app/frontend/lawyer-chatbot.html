@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise Chatbot</title>
+</head>
+
+
+<body style="background: linear-gradient(135deg, #f7f7fa 60%, #e3eafc 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;">
+    <div style="display: flex; width: 100%; max-width: 900px; min-height: 600px; background: none;">
+        <!-- Sidebar for Previous Chats -->
+        <div id="chat-sidebar" style="background: #fff; border-radius: 22px 0 0 22px; box-shadow: 0 8px 32px #4a90e220; width: 240px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: linear-gradient(90deg, #4a90e2 60%, #357abd 100%); padding: 24px 0 18px 0; text-align: center; border-bottom: 1px solid #e3eafc;">
+                <div style="color: #fff; font-size: 1.2rem; font-weight: 600; letter-spacing: 1px;">Previous Chats</div>
+            </div>
+            <div id="chat-history-list" style="flex:1; overflow-y:auto; padding: 12px 0;">
+                <!-- Chat history items will be injected here -->
+            </div>
+            <div style="padding: 12px 0; text-align: center; border-top: 1px solid #e3eafc;">
+                <button onclick="startNewChat()" style="background: #4a90e2; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 8px #357abd22;">+ New Chat</button>
+            </div>
+        </div>
+        <!-- Main Chatbot Card -->
+        <div style="background: #fff; border-radius: 0 22px 22px 0; box-shadow: 0 8px 32px #4a90e220; max-width: 500px; width: 100%; margin: auto; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="background: linear-gradient(90deg, #4a90e2 60%, #357abd 100%); padding: 28px 0 18px 0; text-align: center; border-bottom: 1px solid #e3eafc;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="background: #fff; border-radius: 50%; width: 64px; height: 64px; box-shadow: 0 2px 8px #357abd22; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="Chatbot Avatar" style="width: 44px; height: 44px;">
+                    </div>
+                    <div style="color: #fff; font-size: 1.7rem; font-weight: 700; letter-spacing: 1px;">Lawwise Chatbot</div>
+                    <div style="color: #e3eafc; font-size: 1rem; margin-top: 4px;">Your AI Legal Assistant</div>
+                </div>
+            </div>
+            <div style="padding: 0 0 0 0; background: #f7f7fa; min-height: 500px; display: flex; flex-direction: column; justify-content: flex-end;">
+                <div style="padding: 24px 18px 18px 18px;">
+                    <div id="chtl-inline-bot" style="width: 100%; height: 420px; border-radius: 16px; box-shadow: 0 2px 12px #357abd18;"></div>
+                </div>
+            </div>
+            <div style="background: #f7f7fa; padding: 18px 18px 22px 18px; border-top: 1px solid #e3eafc; text-align: center;">
+                <span style="color: #357abd; font-size: 0.95rem;">Powered by <b>Chatling</b> • Lawwise</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Chatling embed
+        window.chtlConfig = { chatbotId: "3428724799", display: "page_inline" };
+    </script>
+    <script async data-id="3428724799" data-display="page_inline" id="chtl-script" type="text/javascript" src="https://chatling.ai/js/embed.js"></script>
+    <script>
+        // Demo: Store/retrieve previous chats in localStorage
+        function getChatHistory() {
+            return JSON.parse(localStorage.getItem('lawwiseChatHistory') || '[]');
+        }
+        function saveChatHistory(history) {
+            localStorage.setItem('lawwiseChatHistory', JSON.stringify(history));
+        }
+        function renderChatHistoryList() {
+            const list = document.getElementById('chat-history-list');
+            const history = getChatHistory();
+            if (!history.length) {
+                list.innerHTML = '<div style="color:#888; text-align:center; padding:24px 0;">No previous chats yet.</div>';
+                return;
+            }
+            list.innerHTML = history.map((chat, idx) => {
+                return `<div style='position:relative; padding:12px 18px; margin:0 8px 8px 8px; background:#f7f7fa; border-radius:8px; box-shadow:0 2px 8px #357abd11; color:#357abd; font-weight:500; transition:background 0.2s;'>
+                    <span onclick="loadChat(${idx})" style='display:block; cursor:pointer;'>
+                        <span style='font-size:1.1rem;'>🗨️ Chat ${idx+1}</span><br>
+                        <span style='font-size:0.9rem; color:#888;'>${chat.date}</span>
+                    </span>
+                    <button onclick="deleteChat(event, ${idx})" title="Delete chat" style='position:absolute; top:10px; right:10px; background:#ff4d4f; color:#fff; border:none; border-radius:6px; padding:2px 8px; font-size:0.9rem; cursor:pointer;'>🗑️</button>
+                </div>`;
+            }).join('');
+        }
+
+        function deleteChat(e, idx) {
+            e.stopPropagation();
+            let history = getChatHistory();
+            history.splice(idx, 1);
+            saveChatHistory(history);
+            renderChatHistoryList();
+        }
+        function startNewChat() {
+            let history = getChatHistory();
+            // Mark previous chat inactive
+            if (history.length) history[history.length-1].active = false;
+            // Add new chat session
+            history.push({ date: new Date().toLocaleString(), active: true, messages: [] });
+            saveChatHistory(history);
+            window.location.reload();
+        }
+        function loadChat(idx) {
+            alert('Demo: Loading previous chat #' + (idx+1) + '. (Chatling does not support restoring chat context via embed)');
+            // In a real app, you would restore the chat context here
+        }
+        // On page load, add a new chat session if none exists
+        window.addEventListener('DOMContentLoaded', function() {
+            let history = getChatHistory();
+            // Always start a new chat session on page load
+            if (history.length) history[history.length-1].active = false;
+            history.push({ date: new Date().toLocaleString(), active: true, messages: [] });
+            saveChatHistory(history);
+            renderChatHistoryList();
+        });
+    </script>
+</body>
+</html>
