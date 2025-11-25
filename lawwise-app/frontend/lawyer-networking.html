@@ -5,146 +5,840 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lawwise - Professional Networking</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
+            padding: 20px;
         }
         .networking-container {
-            max-width: 1100px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
-            padding: 40px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            backdrop-filter: blur(10px);
         }
         .networking-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
         }
         .networking-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        .back-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+        
+        /* Lawyer List View */
         .lawyer-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 24px;
         }
-        .lawyer-card {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            padding: 28px;
-            border-radius: 15px;
+        .lawyer-item {
+            background: linear-gradient(135deg, #ffffff, #f8f9ff);
+            padding: 24px;
+            border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
             cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
-        .lawyer-card:hover {
-            transform: translateY(-5px);
+        .lawyer-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s;
         }
-        .connect-btn {
-            background: linear-gradient(135deg, #4a90e2, #357abd);
+        .lawyer-item:hover::before {
+            transform: scaleX(1);
+        }
+        .lawyer-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(102,126,234,0.3);
+            border-color: #667eea;
+        }
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 22px;
-            font-size: 1rem;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-right: 16px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+        .lawyer-info {
+            flex: 1;
+        }
+        .lawyer-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin: 0 0 6px 0;
+        }
+        .lawyer-spec {
+            font-size: 0.95rem;
+            color: #667eea;
             font-weight: 600;
-            cursor: pointer;
+            margin: 0;
+        }
+        .rating-container {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 8px;
+        }
+        .stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        .rating-text {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-top: 12px;
         }
+        .tag {
+            background: linear-gradient(135deg, #e8eeff, #dce4ff);
+            color: #667eea;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .modal.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .modal-header-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 40px;
+            border-radius: 24px 24px 0 0;
+            text-align: center;
+            color: white;
+        }
+        .modal-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+        }
+        .modal-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        .modal-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-stars {
+            color: #ffc107;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+            line-height: 1;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 32px 40px;
+        }
+        .detail-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        .detail-label {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-value {
+            color: #2c3e50;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 32px;
+        }
+        .connect-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
         .connect-btn:hover {
-            box-shadow: 0 6px 18px #4a90e2a0;
-            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+            transform: translateY(-3px);
+        }
+        .message-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .message-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+        .no-lawyers {
+            text-align: center;
+            color: #888;
+            font-size: 1.2rem;
+            padding: 60px;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        /* Messaging Modal */
+        .messaging-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .messaging-modal.active {
+            display: flex;
+        }
+        .messaging-container {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 700px;
+            height: 80vh;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            animation: slideUp 0.4s ease-out;
+            overflow: hidden;
+        }
+        .messaging-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .messaging-user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .messaging-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .messaging-user-details h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        .messaging-user-details p {
+            margin: 4px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        .messages-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #f8f9ff;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .message {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            animation: messageSlide 0.3s ease-out;
+        }
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+        }
+        .message.received {
+            align-self: flex-start;
+            background: white;
+            color: #2c3e50;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px 16px 16px 4px;
+        }
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 6px;
+        }
+        .message-input-area {
+            padding: 20px 24px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .message-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .message-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+        .send-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+        .empty-messages {
+            text-align: center;
+            color: #888;
+            font-size: 1.1rem;
+            margin: auto;
         }
     </style>
 </head>
 <body>
     <div class="networking-container">
         <div class="networking-header">
-            <div class="networking-title">Professional Networking</div>
-            <a href="lawyer-dashboard.html" style="color:#357abd;text-decoration:none;font-weight:600;">&larr; Back to Dashboard</a>
+            <div class="networking-title">🤝 Professional Network</div>
+            <a href="lawyer-dashboard.html" class="back-link">← Dashboard</a>
         </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search lawyers by name or specialization...">
+            <span class="search-icon">🔍</span>
+        </div>
+        
         <div id="lawyerList" class="lawyer-list"></div>
     </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header-section">
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <div class="modal-avatar" id="modalAvatar"></div>
+                <h2 class="modal-title" id="modalName"></h2>
+                <p class="modal-subtitle" id="modalSpec"></p>
+                <div class="modal-rating">
+                    <span class="modal-stars" id="modalStars"></span>
+                    <span id="modalRatingText"></span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-number" id="statCases">24</div>
+                        <div class="stat-label">Cases Won</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statExp">5+</div>
+                        <div class="stat-label">Years Exp</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statClients">48</div>
+                        <div class="stat-label">Happy Clients</div>
+                    </div>
+                </div>
+                <div id="modalDetails"></div>
+                <div class="action-buttons">
+                    <button class="connect-btn" onclick="sendConnectionRequest()">
+                        ✓ Connect
+                    </button>
+                    <button class="message-btn" onclick="openMessaging()">
+                        💬 Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let lawyersData = [];
+        let selectedLawyer = null;
+
+        // Generate random rating
+        function generateRating() {
+            return (Math.random() * 2 + 3).toFixed(1); // 3.0 to 5.0
+        }
+
+        // Generate star display
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalf = rating % 1 >= 0.5;
+            let stars = '★'.repeat(fullStars);
+            if (hasHalf) stars += '⯨';
+            stars += '☆'.repeat(5 - Math.ceil(rating));
+            return stars;
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
         // Fetch lawyers from backend API
         async function fetchLawyers() {
             try {
                 const response = await fetch('http://localhost:5000/api/lawyers');
                 const result = await response.json();
                 if (result.success) {
-                    renderLawyerList(result.lawyers);
+                    lawyersData = result.lawyers.map(lawyer => ({
+                        ...lawyer,
+                        rating: generateRating(),
+                        casesWon: Math.floor(Math.random() * 50) + 10,
+                        clients: Math.floor(Math.random() * 100) + 20
+                    }));
+                    renderLawyerList(lawyersData);
                 } else {
-                    document.getElementById('lawyerList').innerHTML = '<div style="color:#c00;">Failed to load lawyers.</div>';
+                    document.getElementById('lawyerList').innerHTML = '<div class="no-lawyers">Failed to load lawyers.</div>';
                 }
             } catch (error) {
-                document.getElementById('lawyerList').innerHTML = '<div style="color:#c00;">Error loading lawyers.</div>';
+                document.getElementById('lawyerList').innerHTML = '<div class="no-lawyers">Error loading lawyers.</div>';
             }
         }
 
         function renderLawyerList(lawyers) {
             const container = document.getElementById('lawyerList');
-            // Get logged-in lawyer's email or id from localStorage
+            
+            // Get logged-in lawyer's info
             let loggedInLawyer = null;
             try {
                 loggedInLawyer = JSON.parse(localStorage.getItem('lawyerInfo'));
             } catch {}
+            
             let loggedInEmail = loggedInLawyer?.email || loggedInLawyer?.personalInfo?.email || null;
             let loggedInId = loggedInLawyer?._id || loggedInLawyer?.id || null;
+            
             // Filter out the logged-in lawyer
             const filteredLawyers = lawyers.filter(lawyer => {
                 if (loggedInId && (lawyer._id === loggedInId || lawyer.id === loggedInId)) return false;
                 if (loggedInEmail && (lawyer.email === loggedInEmail || lawyer.personalInfo?.email === loggedInEmail)) return false;
                 return true;
             });
+            
             if (!filteredLawyers || filteredLawyers.length === 0) {
-                container.innerHTML = '<div style="color:#888;">No lawyers found.</div>';
+                container.innerHTML = '<div class="no-lawyers">No lawyers found in the network.</div>';
                 return;
             }
-            container.innerHTML = filteredLawyers.map(lawyer => `
-                <div class="lawyer-card">
-                    <h3 style="color:#1976d2; margin-bottom:8px;">${lawyer.fullName || (lawyer.personalInfo?.firstName + ' ' + lawyer.personalInfo?.lastName) || 'Lawyer'}</h3>
-                    <p><b>Specialization:</b> ${lawyer.specialization || lawyer.professionalInfo?.specialization || ''}</p>
-                    <p><b>City:</b> ${lawyer.city || lawyer.personalInfo?.city || ''}</p>
-                    <p><b>Email:</b> ${lawyer.email || lawyer.personalInfo?.email || ''}</p>
-                    <button class="connect-btn" onclick='sendConnectionRequest(${JSON.stringify(lawyer)})'>Connect</button>
-                </div>
-            `).join('');
+            
+            container.innerHTML = filteredLawyers.map((lawyer, index) => {
+                const name = lawyer.fullName || (lawyer.personalInfo?.firstName + ' ' + lawyer.personalInfo?.lastName) || 'Lawyer';
+                const spec = lawyer.specialization || lawyer.professionalInfo?.specialization || 'General Practice';
+                const city = lawyer.city || lawyer.personalInfo?.city || 'Location';
+                const initials = getInitials(name);
+                const stars = generateStars(parseFloat(lawyer.rating));
+                
+                return `
+                    <div class="lawyer-item" onclick='showLawyerDetail(${index})'>
+                        <div class="status-badge">
+                            <span class="status-dot"></span>
+                            Available
+                        </div>
+                        <div class="avatar-container">
+                            <div class="avatar">${initials}</div>
+                            <div class="lawyer-info">
+                                <h3 class="lawyer-name">${name}</h3>
+                                <p class="lawyer-spec">${spec}</p>
+                            </div>
+                        </div>
+                        <div class="rating-container">
+                            <span class="stars">${stars}</span>
+                            <span class="rating-text">${lawyer.rating} / 5.0</span>
+                        </div>
+                        <div class="tags">
+                            <span class="tag">📍 ${city}</span>
+                            <span class="tag">⚖️ ${lawyer.casesWon}+ Cases</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Store filtered lawyers for detail view
+            window.filteredLawyers = filteredLawyers;
         }
 
+        function showLawyerDetail(index) {
+            const lawyer = window.filteredLawyers[index];
+            selectedLawyer = lawyer;
+            
+            const name = lawyer.fullName || (lawyer.personalInfo?.firstName + ' ' + lawyer.personalInfo?.lastName) || 'Lawyer';
+            const spec = lawyer.specialization || lawyer.professionalInfo?.specialization || 'Not specified';
+            const city = lawyer.city || lawyer.personalInfo?.city || 'Not specified';
+            const email = lawyer.email || lawyer.personalInfo?.email || 'Not specified';
+            const phone = lawyer.phone || lawyer.personalInfo?.phone || 'Not specified';
+            const experience = lawyer.experience || lawyer.professionalInfo?.experience || 'Not specified';
+            const barCouncil = lawyer.barCouncilNumber || lawyer.professionalInfo?.barCouncilNumber || 'Not specified';
+            const initials = getInitials(name);
+            const stars = generateStars(parseFloat(lawyer.rating));
+            
+            document.getElementById('modalAvatar').textContent = initials;
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalSpec').textContent = spec;
+            document.getElementById('modalStars').textContent = stars;
+            document.getElementById('modalRatingText').textContent = `${lawyer.rating} / 5.0`;
+            
+            document.getElementById('statCases').textContent = lawyer.casesWon;
+            document.getElementById('statExp').textContent = experience;
+            document.getElementById('statClients').textContent = lawyer.clients;
+            
+            document.getElementById('modalDetails').innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-label">📍 Location</div>
+                    <div class="detail-value">${city}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">📧 Email Address</div>
+                    <div class="detail-value">${email}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">📱 Phone Number</div>
+                    <div class="detail-value">${phone}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">🎓 Bar Council Number</div>
+                    <div class="detail-value">${barCouncil}</div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = lawyersData.filter(lawyer => {
+                const name = (lawyer.fullName || (lawyer.personalInfo?.firstName + ' ' + lawyer.personalInfo?.lastName) || '').toLowerCase();
+                const spec = (lawyer.specialization || lawyer.professionalInfo?.specialization || '').toLowerCase();
+                return name.includes(searchTerm) || spec.includes(searchTerm);
+            });
+            renderLawyerList(filtered);
+        });
+
         // Send connection request notification
-        async function sendConnectionRequest(targetLawyer) {
+        async function sendConnectionRequest() {
             let loggedInLawyer = null;
             try {
                 loggedInLawyer = JSON.parse(localStorage.getItem('lawyerInfo'));
             } catch {}
+            
             if (!loggedInLawyer) {
                 alert('You must be logged in to connect.');
                 return;
             }
+            
+            if (!selectedLawyer) {
+                alert('No lawyer selected.');
+                return;
+            }
+            
             try {
                 const response = await fetch('http://localhost:5000/api/notifications/send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         fromLawyerId: loggedInLawyer._id || loggedInLawyer.id,
-                        toLawyerId: targetLawyer._id || targetLawyer.id,
+                        toLawyerId: selectedLawyer._id || selectedLawyer.id,
                         message: `Connection request from ${loggedInLawyer.fullName || (loggedInLawyer.personalInfo?.firstName + ' ' + loggedInLawyer.personalInfo?.lastName)}`
                     })
                 });
                 const result = await response.json();
                 if (result.success) {
-                    alert('Connection request sent!');
+                    alert('Connection request sent successfully! 🎉');
+                    closeModal();
                 } else {
                     alert(result.error || 'Failed to send connection request.');
                 }
             } catch (error) {
-                alert('Failed to send connection request.');
+                alert('Failed to send connection request. Please try again.');
             }
         }
 
