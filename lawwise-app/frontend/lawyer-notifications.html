@@ -5,127 +5,701 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lawwise - Notifications & Reminders</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
+            padding: 20px;
         }
         .notifications-container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
-            padding: 40px 32px;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            backdrop-filter: blur(10px);
         }
         .notifications-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
         }
         .notifications-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        .back-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+        .tab-count {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .filter-tab.active .tab-count {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        /* Notification List */
         .notification-list {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
         }
         .notification-card {
-            background: #f9f9fc;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px #0001;
-            padding: 22px 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 24px;
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .notification-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.2);
+        }
+        .notification-card.connection {
+            border-left-color: #667eea;
+        }
+        .notification-card.deadline {
+            border-left-color: #ff6b6b;
+        }
+        .notification-card.hearing {
+            border-left-color: #ffa500;
+        }
+        .notification-card.accepted {
+            border-left-color: #4caf50;
+        }
+        
+        /* Notification Header */
+        .notification-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .notification-icon.connection {
+            background: linear-gradient(135deg, #e8eeff, #d5e3ff);
+            color: #667eea;
+        }
+        .notification-icon.deadline {
+            background: linear-gradient(135deg, #ffe5e5, #ffd5d5);
+            color: #ff6b6b;
+        }
+        .notification-icon.hearing {
+            background: linear-gradient(135deg, #fff3e0, #ffe5cc);
+            color: #ffa500;
+        }
+        .notification-icon.accepted {
+            background: linear-gradient(135deg, #e8f5e9, #d5ecd6);
+            color: #4caf50;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-type {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .notification-type.connection { color: #667eea; }
+        .notification-type.deadline { color: #ff6b6b; }
+        .notification-type.hearing { color: #ffa500; }
+        .notification-type.accepted { color: #4caf50; }
+        
+        .notification-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
         }
         .notification-message {
-            color: #2c3e50;
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .notification-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        /* Time Badge */
+        .notification-time {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f0f0f0;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* Actions */
+        .notification-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid #f5f5f5;
+        }
+        .action-btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .accept-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+        }
+        .accept-btn:hover {
+            box-shadow: 0 6px 20px rgba(76,175,80,0.3);
+            transform: translateY(-2px);
+        }
+        .reject-btn {
+            background: white;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+        .reject-btn:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .view-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .view-btn:hover {
+            box-shadow: 0 6px 20px rgba(102,126,234,0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+        .status-badge.accepted {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        .status-badge.rejected {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #ffa500;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .empty-message {
             font-size: 1.1rem;
         }
-        .notification-actions button {
-            margin-left: 10px;
-            padding: 8px 18px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
+        
+        /* Urgency Indicator */
+        .urgency-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 0 16px 0 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            animation: pulse 2s infinite;
         }
-        .accept-btn { background: #28a745; color: white; }
-        .accept-btn:hover { background: #218838; }
-        .reject-btn { background: #e74c3c; color: white; }
-        .reject-btn:hover { background: #c0392b; }
-        .back-link { color:#357abd;text-decoration:none;font-weight:600; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
     </style>
 </head>
 <body>
     <div class="notifications-container">
         <div class="notifications-header">
-            <div class="notifications-title">Notifications & Reminders</div>
-            <a href="lawyer-dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+            <div class="notifications-title">🔔 Notifications & Reminders</div>
+            <a href="lawyer-dashboard.html" class="back-link">← Dashboard</a>
         </div>
+        
+        <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterNotifications('all', event)">
+                📋 All <span class="tab-count" id="countAll">0</span>
+            </div>
+            <div class="filter-tab" onclick="filterNotifications('connection', event)">
+                🤝 Connections <span class="tab-count" id="countConnection">0</span>
+            </div>
+            <div class="filter-tab" onclick="filterNotifications('deadline', event)">
+                ⏰ Deadlines <span class="tab-count" id="countDeadline">0</span>
+            </div>
+            <div class="filter-tab" onclick="filterNotifications('hearing', event)">
+                ⚖️ Hearings <span class="tab-count" id="countHearing">0</span>
+            </div>
+        </div>
+        
         <div id="notificationList" class="notification-list"></div>
     </div>
+
     <script>
-        // Simulated API endpoints for demonstration
         const API_BASE_URL = 'http://localhost:5000/api';
+        let allNotifications = [];
+        let currentFilter = 'all';
         let loggedInLawyer = null;
+        
         try {
             loggedInLawyer = JSON.parse(localStorage.getItem('lawyerInfo'));
         } catch {}
+        
         const loggedInId = loggedInLawyer?._id || loggedInLawyer?.id || null;
 
-        // Fetch notifications for the logged-in lawyer
+        // Fetch notifications from API
         async function fetchNotifications() {
             try {
-                // Replace with real API call
                 const response = await fetch(`${API_BASE_URL}/notifications?lawyerId=${loggedInId}`);
                 const result = await response.json();
+                
                 if (result.success) {
-                    renderNotifications(result.notifications || []);
+                    allNotifications = result.notifications || [];
                 } else {
-                    document.getElementById('notificationList').innerHTML = '<div style="color:#c00;">Failed to load notifications.</div>';
+                    // If API fails, try localStorage
+                    loadLocalNotifications();
                 }
             } catch (error) {
-                document.getElementById('notificationList').innerHTML = '<div style="color:#c00;">Error loading notifications.</div>';
+                console.error('API fetch failed, loading local notifications:', error);
+                // Load from localStorage as fallback
+                loadLocalNotifications();
+            }
+            
+            // Add demo data if no notifications exist
+            if (allNotifications.length === 0) {
+                allNotifications = generateDemoNotifications();
+            }
+            
+            updateCounts();
+            renderNotifications();
+        }
+        
+        // Load notifications from localStorage
+        function loadLocalNotifications() {
+            try {
+                const stored = localStorage.getItem(`notifications_${loggedInId}`);
+                if (stored) {
+                    allNotifications = JSON.parse(stored);
+                    console.log('Loaded notifications from localStorage:', allNotifications);
+                }
+            } catch (error) {
+                console.error('Failed to load local notifications:', error);
+                allNotifications = [];
             }
         }
 
+        // Generate demo notifications
+        function generateDemoNotifications() {
+            return [
+                {
+                    _id: '1',
+                    type: 'connection',
+                    status: 'pending',
+                    fromLawyerName: 'Sarah Johnson',
+                    fromLawyerSpec: 'Corporate Law Specialist',
+                    message: 'Connection request from Sarah Johnson',
+                    time: '5 minutes ago'
+                },
+                {
+                    _id: '2',
+                    type: 'connection',
+                    status: 'accepted',
+                    fromLawyerName: 'Michael Chen',
+                    fromLawyerSpec: 'Criminal Defense Attorney',
+                    message: 'You are now connected with Michael Chen',
+                    time: '2 hours ago'
+                },
+                {
+                    _id: '3',
+                    type: 'deadline',
+                    status: 'urgent',
+                    title: 'Case Filing Deadline',
+                    caseNumber: 'CIV-2024-1234',
+                    caseName: 'Smith vs. Johnson Corporation',
+                    deadline: 'Tomorrow, 5:00 PM',
+                    message: 'Document submission deadline is approaching',
+                    time: '1 hour ago',
+                    daysLeft: 1
+                },
+                {
+                    _id: '4',
+                    type: 'hearing',
+                    status: 'upcoming',
+                    title: 'Court Hearing Scheduled',
+                    caseNumber: 'CRM-2024-5678',
+                    caseName: 'State vs. Williams',
+                    hearingDate: 'Dec 5, 2024 at 10:00 AM',
+                    court: 'District Court, Room 304',
+                    message: 'Hearing scheduled in 3 days',
+                    time: '3 hours ago',
+                    daysLeft: 3
+                },
+                {
+                    _id: '5',
+                    type: 'deadline',
+                    status: 'critical',
+                    title: 'Evidence Submission',
+                    caseNumber: 'FAM-2024-9012',
+                    caseName: 'Brown Family Custody',
+                    deadline: 'Today, 11:59 PM',
+                    message: 'Final deadline for evidence submission',
+                    time: '30 minutes ago',
+                    daysLeft: 0
+                },
+                {
+                    _id: '6',
+                    type: 'hearing',
+                    status: 'upcoming',
+                    title: 'Client Consultation',
+                    caseNumber: 'REA-2024-3456',
+                    caseName: 'Property Dispute - Davis',
+                    hearingDate: 'Dec 8, 2024 at 2:30 PM',
+                    court: 'Law Office',
+                    message: 'Scheduled consultation with client',
+                    time: '5 hours ago',
+                    daysLeft: 6
+                }
+            ];
+        }
+
+        // Update notification counts
+        function updateCounts() {
+            const counts = {
+                all: allNotifications.length,
+                connection: allNotifications.filter(n => n.type === 'connection' || n.type === 'accepted' || n.type === 'connection_request').length,
+                deadline: allNotifications.filter(n => n.type === 'deadline' || n.type === 'reminder').length,
+                hearing: allNotifications.filter(n => n.type === 'hearing').length
+            };
+            
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countConnection').textContent = counts.connection;
+            document.getElementById('countDeadline').textContent = counts.deadline;
+            document.getElementById('countHearing').textContent = counts.hearing;
+        }
+
+        // Filter notifications
+        function filterNotifications(type, ev) {
+            currentFilter = type;
+            const evt = ev || window.event;
+
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            try {
+                const tab = evt && evt.target && evt.target.closest('.filter-tab');
+                if (tab) tab.classList.add('active');
+            } catch (e) {}
+
+            renderNotifications();
+        }
+
         // Render notifications
-        function renderNotifications(notifications) {
+        function renderNotifications() {
             const container = document.getElementById('notificationList');
-            if (!notifications.length) {
-                container.innerHTML = '<div style="color:#888;">No notifications or reminders.</div>';
+            
+            let filtered = allNotifications;
+            if (currentFilter !== 'all') {
+                filtered = allNotifications.filter(n => 
+                    n.type === currentFilter || 
+                    (currentFilter === 'connection' && n.type === 'accepted')
+                );
+            }
+            
+            if (filtered.length === 0) {
+                showEmptyState('No notifications in this category');
                 return;
             }
-            container.innerHTML = notifications.map(n => {
-                let actions = '';
-                if (n.type === 'connection_request' && n.status === 'pending') {
-                    actions = `<span class="notification-actions">
-                        <button class="accept-btn" onclick="respondConnection('${n._id}','accepted')">Accept</button>
-                        <button class="reject-btn" onclick="respondConnection('${n._id}','rejected')">Reject</button>
-                    </span>`;
-                } else if (n.type === 'connection_request' && n.status === 'accepted') {
-                    actions = '<span style="color:#28a745;font-weight:600;">Accepted</span>';
-                } else if (n.type === 'connection_request' && n.status === 'rejected') {
-                    actions = '<span style="color:#e74c3c;font-weight:600;">Rejected</span>';
-                }
-                // If message contains 'by the lawyer', replace with lawyer name if available
-                let message = n.message;
-                if (message && message.includes('by the lawyer') && n.fromLawyerName) {
-                    message = message.replace('by the lawyer', `by ${n.fromLawyerName}`);
-                }
-                return `<div class="notification-card">
-                    <div class="notification-message">${message}</div>
-                    ${actions}
-                </div>`;
-            }).join('');
+            
+            container.innerHTML = filtered.map(n => renderNotificationCard(n)).join('');
+        }
+
+        // Render individual notification card
+        function renderNotificationCard(notification) {
+            const { type, status } = notification;
+
+            // Support backend type names like 'connection_request' and 'reminder'
+            if ((type === 'connection' || type === 'connection_request') && status === 'pending') {
+                return renderConnectionRequest(notification);
+            } else if ((type === 'connection' || type === 'connection_request') && status === 'accepted' || type === 'accepted') {
+                return renderConnectionAccepted(notification);
+            } else if (type === 'deadline') {
+                return renderDeadline(notification);
+            } else if (type === 'hearing') {
+                return renderHearing(notification);
+            } else if (type === 'reminder') {
+                return renderReminder(notification);
+            }
+
+            // Fallback: render a generic notification card
+            return renderGeneric(notification);
+        }
+
+        // Render a generic reminder (backend 'reminder' type)
+        function renderReminder(n) {
+            return `
+                <div class="notification-card deadline">
+                    <div class="notification-time">${n.createdAt ? new Date(n.createdAt).toLocaleString() : (n.time || '')}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon deadline">🔔</div>
+                        <div class="notification-content">
+                            <div class="notification-type deadline">Reminder</div>
+                            <div class="notification-title">${n.title || 'Reminder'}</div>
+                            <div class="notification-message">${n.message}</div>
+                            <div class="notification-actions">
+                                <button class="action-btn view-btn" onclick="viewCase('${n.caseNumber || ''}')">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGeneric(n) {
+            return `
+                <div class="notification-card">
+                    <div class="notification-time">${n.createdAt ? new Date(n.createdAt).toLocaleString() : (n.time || '')}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-content">
+                            <div class="notification-type">Notification</div>
+                            <div class="notification-title">${n.title || n.fromLawyerName || 'Notification'}</div>
+                            <div class="notification-message">${n.message || ''}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render connection request
+        function renderConnectionRequest(n) {
+            return `
+                <div class="notification-card connection">
+                    <div class="notification-time">${n.time}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon connection">🤝</div>
+                        <div class="notification-content">
+                            <div class="notification-type connection">Connection Request</div>
+                            <div class="notification-title">${n.fromLawyerName}</div>
+                            <div class="notification-message">${n.fromLawyerSpec || 'Legal Professional'}</div>
+                            <div class="notification-details">
+                                <div class="detail-item">📧 Wants to connect with you</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="action-btn accept-btn" onclick="respondConnection('${n._id}', 'accepted')">
+                                    ✓ Accept
+                                </button>
+                                <button class="action-btn reject-btn" onclick="respondConnection('${n._id}', 'rejected')">
+                                    ✕ Decline
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render accepted connection
+        function renderConnectionAccepted(n) {
+            return `
+                <div class="notification-card accepted">
+                    <div class="notification-time">${n.time}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon accepted">✓</div>
+                        <div class="notification-content">
+                            <div class="notification-type accepted">Connection Accepted</div>
+                            <div class="notification-title">${n.fromLawyerName}</div>
+                            <div class="notification-message">You are now connected and can start collaborating</div>
+                            <div class="status-badge accepted">
+                                ✓ Connected
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render deadline notification
+        function renderDeadline(n) {
+            const isUrgent = n.daysLeft <= 1;
+            return `
+                <div class="notification-card deadline">
+                    ${isUrgent ? '<div class="urgency-indicator">URGENT</div>' : ''}
+                    <div class="notification-time">${n.time}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon deadline">⏰</div>
+                        <div class="notification-content">
+                            <div class="notification-type deadline">Deadline Alert</div>
+                            <div class="notification-title">${n.title}</div>
+                            <div class="notification-message">${n.message}</div>
+                            <div class="notification-details">
+                                <div class="detail-item">📁 ${n.caseNumber}</div>
+                                <div class="detail-item">⚖️ ${n.caseName}</div>
+                                <div class="detail-item">📅 Due: ${n.deadline}</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="action-btn view-btn" onclick="viewCase('${n.caseNumber}')">
+                                    View Case Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render hearing notification
+        function renderHearing(n) {
+            return `
+                <div class="notification-card hearing">
+                    <div class="notification-time">${n.time}</div>
+                    <div class="notification-header">
+                        <div class="notification-icon hearing">⚖️</div>
+                        <div class="notification-content">
+                            <div class="notification-type hearing">Hearing Reminder</div>
+                            <div class="notification-title">${n.title}</div>
+                            <div class="notification-message">${n.message}</div>
+                            <div class="notification-details">
+                                <div class="detail-item">📁 ${n.caseNumber}</div>
+                                <div class="detail-item">⚖️ ${n.caseName}</div>
+                                <div class="detail-item">📅 ${n.hearingDate}</div>
+                                <div class="detail-item">📍 ${n.court}</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="action-btn view-btn" onclick="viewCase('${n.caseNumber}')">
+                                    View Case Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show empty state
+        function showEmptyState(message) {
+            const container = document.getElementById('notificationList');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <div class="empty-title">No Notifications</div>
+                    <div class="empty-message">${message}</div>
+                </div>
+            `;
         }
 
         // Respond to connection request
@@ -137,14 +711,47 @@
                     body: JSON.stringify({ notificationId, response })
                 });
                 const result = await res.json();
+                
                 if (result.success) {
                     fetchNotifications();
                 } else {
-                    alert(result.error || 'Failed to respond.');
+                    // Update locally if API fails
+                    updateNotificationLocally(notificationId, response);
                 }
             } catch (error) {
-                alert('Failed to respond.');
+                console.error('API response failed, updating locally:', error);
+                // Update notification status locally
+                updateNotificationLocally(notificationId, response);
             }
+        }
+        
+        // Update notification locally
+        function updateNotificationLocally(notificationId, response) {
+            const notification = allNotifications.find(n => n._id === notificationId);
+            if (notification) {
+                notification.status = response;
+                if (response === 'accepted') {
+                    notification.type = 'accepted';
+                    notification.message = `You are now connected with ${notification.fromLawyerName}`;
+                }
+                
+                // Save to localStorage
+                try {
+                    localStorage.setItem(`notifications_${loggedInId}`, JSON.stringify(allNotifications));
+                } catch (error) {
+                    console.error('Failed to save to localStorage:', error);
+                }
+                
+                renderNotifications();
+                alert(`Connection request ${response}!`);
+            }
+        }
+
+        // View case details
+        function viewCase(caseNumber) {
+            alert(`Opening case details for ${caseNumber}...`);
+            // Implement navigation to case details page
+            // window.location.href = `case-details.html?case=${caseNumber}`;
         }
 
         // Initial load
