@@ -1,0 +1,11 @@
+Mr. David Miller is the owner of Property No. 789 North Avenue. The tenant, Mr. James Wilson, has failed to pay the monthly rent of $1,500 for the months of December 2025, January 2026, and February 2026. The total arrears amount to $4,500. Mr. Miller wishes to terminate the lease and demands vacant possession of the premises.
+
+Structured Data:
+Client: Mr. David Miller (Landlord)
+Recipient: Mr. James Wilson (Tenant)
+Subject: Eviction Notice for Non-payment of Rent
+Amount: $4,500
+Rent: $1,500/month
+Property: 789 North Avenue
+Days: 30
+Background: Lease agreement signed July 2024

@@ -1,0 +1,1302 @@
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Digital Guidance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+        .video-thumbnail::after {
+            content: '▶';
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .video-thumbnail:hover::after {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+        .video-info {
+            padding: 20px;
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .video-channel {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .video-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .video-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .topic-list {
+            list-style: none;
+        }
+
+        .topic-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .topic-list li:hover {
+            color: #667eea;
+            padding-left: 10px;
+        }
+
+        .topic-count {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-tabs {
+                justify-content: center;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Digital Guidance</h1>
+            <p>Access curated legal education videos and tutorials to enhance your practice</p>
+            
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-box" placeholder="Search legal topics, procedures, case laws..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Popular Legal Topics</h3>
+            <ul class="topic-list">
+                <li onclick="searchTopic('Constitutional Law')">Constitutional Law <span class="topic-count">24</span></li>
+                <li onclick="searchTopic('Contract Law')">Contract Law <span class="topic-count">31</span></li>
+                <li onclick="searchTopic('Criminal Procedure')">Criminal Procedure <span class="topic-count">19</span></li>
+                <li onclick="searchTopic('Civil Litigation')">Civil Litigation <span class="topic-count">27</span></li>
+                <li onclick="searchTopic('Corporate Law')">Corporate Law <span class="topic-count">22</span></li>
+                <li onclick="searchTopic('Family Law')">Family Law <span class="topic-count">18</span></li>
+                <li onclick="searchTopic('Property Law')">Property Law <span class="topic-count">15</span></li>
+                <li onclick="searchTopic('Evidence Law')">Evidence Law <span class="topic-count">21</span></li>
+            </ul>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="tab active" onclick="filterContent('all')">All Videos</button>
+            <button class="tab" onclick="filterContent('recent')">Recent</button>
+            <button class="tab" onclick="filterContent('trending')">Trending</button>
+            <button class="tab" onclick="filterContent('beginner')">Beginner</button>
+            <button class="tab" onclick="filterContent('advanced')">Advanced</button>
+            <button class="tab" onclick="filterContent('case-studies')">Case Studies</button>
+        </div>
+
+        <div class="content-grid" id="contentGrid">
+            <div class="video-card">
+                <div class="video-thumbnail">📚</div>
+                <div class="video-info">
+                    <h3 class="video-title">Understanding Contract Formation and Essential Elements</h3>
+                    <div class="video-channel">Legal Academy Pro</div>
+                    <div class="video-meta">
+                        <span>⏰ 45 min</span>
+                        <span>👁 12.5K views</span>
+                        <span>📅 2 days ago</span>
+                    </div>
+                    <p class="video-description">Comprehensive guide covering offer, acceptance, consideration, and capacity in contract formation...</p>
+                    <div class="video-tags">
+                        <span class="tag">Contract Law</span>
+                        <span class="tag">Fundamentals</span>
+                        <span class="tag">Practice</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumbnail">⚖️</div>
+                <div class="video-info">
+                    <h3 class="video-title">Supreme Court Case Analysis: Recent Constitutional Interpretations</h3>
+                    <div class="video-channel">Constitutional Law Expert</div>
+                    <div class="video-meta">
+                        <span>⏰ 38 min</span>
+                        <span>👁 8.3K views</span>
+                        <span>📅 1 week ago</span>
+                    </div>
+                    <p class="video-description">Deep dive into recent Supreme Court decisions and their impact on constitutional interpretation...</p>
+                    <div class="video-tags">
+                        <span class="tag">Constitutional Law</span>
+                        <span class="tag">Case Analysis</span>
+                        <span class="tag">Supreme Court</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumbnail">🏛️</div>
+                <div class="video-info">
+                    <h3 class="video-title">Civil Procedure: Filing Motions and Court Etiquette</h3>
+                    <div class="video-channel">Litigation Masters</div>
+                    <div class="video-meta">
+                        <span>⏰ 52 min</span>
+                        <span>👁 15.7K views</span>
+                        <span>📅 3 days ago</span>
+                    </div>
+                    <p class="video-description">Practical guidance on proper motion filing procedures, deadlines, and courtroom conduct...</p>
+                    <div class="video-tags">
+                        <span class="tag">Civil Procedure</span>
+                        <span class="tag">Practice Tips</span>
+                        <span class="tag">Court Filing</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumbnail">🔍</div>
+                <div class="video-info">
+                    <h3 class="video-title">Evidence Law: Admissibility Rules and Objections</h3>
+                    <div class="video-channel">Trial Advocacy Institute</div>
+                    <div class="video-meta">
+                        <span>⏰ 41 min</span>
+                        <span>👁 9.8K views</span>
+                        <span>📅 5 days ago</span>
+                    </div>
+                    <p class="video-description">Master the rules of evidence, when and how to object, and strategies for trial preparation...</p>
+                    <div class="video-tags">
+                        <span class="tag">Evidence Law</span>
+                        <span class="tag">Trial Practice</span>
+                        <span class="tag">Objections</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumbnail">💼</div>
+                <div class="video-info">
+                    <h3 class="video-title">Corporate Compliance: New Regulatory Requirements 2025</h3>
+                    <div class="video-channel">Business Law Today</div>
+                    <div class="video-meta">
+                        <span>⏰ 33 min</span>
+                        <span>👁 6.2K views</span>
+                        <span>📅 1 day ago</span>
+                    </div>
+                    <p class="video-description">Stay updated with the latest corporate compliance requirements and regulatory changes...</p>
+                    <div class="video-tags">
+                        <span class="tag">Corporate Law</span>
+                        <span class="tag">Compliance</span>
+                        <span class="tag">2025 Updates</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumbnail">👨‍👩‍👧</div>
+                <div class="video-info">
+                    <h3 class="video-title">Family Law Practice: Custody and Support Calculations</h3>
+                    <div class="video-channel">Family Law Specialists</div>
+                    <div class="video-meta">
+                        <span>⏰ 47 min</span>
+                        <span>👁 11.4K views</span>
+                        <span>📅 4 days ago</span>
+                    </div>
+                    <p class="video-description">Comprehensive guide to child custody determination factors and support calculation methods...</p>
+                    <div class="video-tags">
+                        <span class="tag">Family Law</span>
+                        <span class="tag">Child Custody</span>
+                        <span class="tag">Support Calculations</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-primary">Watch Now</button>
+                        <button class="btn-secondary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchTopic(topic) {
+            document.getElementById('searchInput').value = topic;
+            openTopicPage(topic);
+        }
+
+        function openTopicPage(topic) {
+            // Hide main content
+            document.querySelector('.sidebar').style.display = 'none';
+            document.querySelector('.filter-tabs').style.display = 'none';
+            document.getElementById('contentGrid').style.display = 'none';
+            
+            // Update header
+            const header = document.querySelector('.header');
+            header.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <button onclick="goBack()" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: 500;">← Back to All Topics</button>
+                    <h1 style="margin: 0; font-size: 2.5rem; color: #2c3e50; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${topic} Resources</h1>
+                </div>
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">Comprehensive video resources and tutorials for ${topic.toLowerCase()}</p>
+                <div class="search-container">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-box" placeholder="Search within ${topic}..." id="topicSearchInput">
+                </div>
+            `;
+            
+            // Create topic-specific content
+            createTopicContent(topic);
+        }
+
+        function createTopicContent(topic) {
+            const container = document.querySelector('.container');
+            
+            // Create topic page content
+            const topicContent = document.createElement('div');
+            topicContent.id = 'topicContent';
+            topicContent.innerHTML = getTopicSpecificContent(topic);
+            
+            container.appendChild(topicContent);
+        }
+
+        function getTopicSpecificContent(topic) {
+            const topicData = {
+                'Family Law': {
+                    icon: '👨‍👩‍👧‍👦',
+                    categories: [
+                        {
+                            name: 'Divorce & Separation',
+                            videos: [
+                                {
+                                    title: 'Complete Guide to Divorce Proceedings',
+                                    channel: 'Family Law Institute',
+                                    duration: '52 min',
+                                    views: '18.5K',
+                                    date: '2 days ago',
+                                    description: 'Step-by-step guide through divorce procedures, documentation, and legal requirements.',
+                                    tags: ['Divorce', 'Legal Process', 'Documentation'],
+                                    url: 'https://youtu.be/QcThqyak9A0?si=3yHKl7zsBFBdtnJw'
+                                },
+                                {
+                                    title: 'Property Division in Divorce Cases',
+                                    channel: 'Matrimonial Law Experts',
+                                    duration: '41 min',
+                                    views: '12.3K',
+                                    date: '5 days ago',
+                                    description: 'Understanding marital property, equitable distribution, and asset valuation.',
+                                    tags: ['Property Division', 'Assets', 'Marital Rights'],
+                                    url: 'https://youtu.be/2b1QZLr0gq2hA'
+                                },
+                                {
+                                    title: 'Alimony and Spousal Support Guidelines',
+                                    channel: 'Legal Support Network',
+                                    duration: '38 min',
+                                    views: '15.7K',
+                                    date: '1 week ago',
+                                    description: 'Factors determining alimony, duration, and modification procedures.',
+                                    tags: ['Alimony', 'Spousal Support', 'Guidelines'],
+                                    url: 'https://youtu.be/VGCg8vab8Rc?si=vrGyYJ2n3OLV0mEd'
+                                }
+                            ]
+                        },
+                        {
+                            name: 'Child Custody & Support',
+                            videos: [
+                                {
+                                    title: 'Child Custody Laws and Best Interests Standard',
+                                    channel: 'Child Welfare Legal Center',
+                                    duration: '47 min',
+                                    views: '22.1K',
+                                    date: '3 days ago',
+                                    description: 'Understanding custody types, factors courts consider, and parenting plans.',
+                                    tags: ['Child Custody', 'Best Interests', 'Parenting Plans'],
+                                    url: 'https://youtu.be/LpAwITQQYuM?si=dBqMCxoMYNpCi_j2'
+                                },
+                                {
+                                    title: 'Child Support Calculation Methods',
+                                    channel: 'Family Court Resources',
+                                    duration: '35 min',
+                                    views: '19.8K',
+                                    date: '1 week ago',
+                                    description: 'Income shares model, percentage of income, and modification procedures.',
+                                    tags: ['Child Support', 'Calculations', 'Income Assessment'],
+                                    url: 'https://youtu.be/5b1QZLr0gq2hA'
+                                },
+                                {
+                                    title: 'Visitation Rights and Enforcement',
+                                    channel: 'Parental Rights Alliance',
+                                    duration: '43 min',
+                                    views: '16.4K',
+                                    date: '4 days ago',
+                                    description: 'Establishing visitation schedules, enforcement mechanisms, and violations.',
+                                    tags: ['Visitation Rights', 'Enforcement', 'Parental Access'],
+                                    url: 'https://youtu.be/6b1QZLr0gq2hA'
+                                }
+                            ]
+                        },
+                        {
+                            name: 'Adoption & Guardianship',
+                            videos: [
+                                {
+                                    title: 'Adoption Process and Legal Requirements',
+                                    channel: 'Adoption Law Society',
+                                    duration: '56 min',
+                                    views: '11.2K',
+                                    date: '6 days ago',
+                                    description: 'Types of adoption, home studies, consent requirements, and finalization.',
+                                    tags: ['Adoption Process', 'Legal Requirements', 'Child Welfare'],
+                                    url: 'https://youtu.be/7b1QZLr0gq2hA'
+                                },
+                                {
+                                    title: 'Guardianship vs Custody: Key Differences',
+                                    channel: 'Elder & Family Law',
+                                    duration: '29 min',
+                                    views: '8.9K',
+                                    date: '1 week ago',
+                                    description: 'When guardianship is appropriate, appointment process, and responsibilities.',
+                                    tags: ['Guardianship', 'Legal Custody', 'Minor Protection'],
+                                    url: 'https://youtu.be/8b1QZLr0gq2hA'
+                                }
+                            ]
+                        },
+                        {
+                            name: 'Domestic Violence & Protection',
+                            videos: [
+                                {
+                                    title: 'Restraining Orders and Protection Orders',
+                                    channel: 'Victim Rights Legal Aid',
+                                    duration: '33 min',
+                                    views: '14.6K',
+                                    date: '2 days ago',
+                                    description: 'Types of protection orders, application process, and enforcement.',
+                                    tags: ['Protection Orders', 'Domestic Violence', 'Legal Protection'],
+                                    url: 'https://youtu.be/9b1QZLr0gq2hA'
+                                },
+                                {
+                                    title: 'Representing Domestic Violence Survivors',
+                                    channel: 'Trauma-Informed Legal Practice',
+                                    duration: '48 min',
+                                    views: '9.7K',
+                                    date: '5 days ago',
+                                    description: 'Sensitive client representation, safety planning, and court procedures.',
+                                    tags: ['Domestic Violence', 'Client Care', 'Safety Planning'],
+                                    url: 'https://youtu.be/10b1QZLr0gq2hA'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                'Contract Law': {
+                    icon: '📄',
+                    categories: [
+                        {
+                            name: 'Contract Formation',
+                            videos: [
+                                {
+                                    title: 'Elements of Valid Contract Formation',
+                                    channel: 'Contract Law Academy',
+                                    duration: '45 min',
+                                    views: '25.3K',
+                                    date: '1 day ago',
+                                    description: 'Offer, acceptance, consideration, and capacity requirements.',
+                                    tags: ['Contract Formation', 'Legal Elements', 'Validity'],
+                                    url: 'https://youtu.be/uBr8SxYkqwo?si=i5XGfK6S_Sb04lGk'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+
+            const data = topicData[topic] || { icon: '⚖️', categories: [] };
+            
+            let content = `
+                <div class="topic-header" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 30px; margin-bottom: 30px; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 4rem;">${data.icon}</div>
+                        <div>
+                            <h2 style="font-size: 2rem; color: #2c3e50; margin: 0;">${topic}</h2>
+                            <p style="color: #666; margin: 5px 0 0 0;">Explore comprehensive resources and expert guidance</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="background: rgba(102, 126, 234, 0.1); padding: 15px 20px; border-radius: 15px;">
+                            <strong style="color: #667eea;">${data.categories.reduce((total, cat) => total + cat.videos.length, 0)} Videos</strong>
+                        </div>
+                        <div style="background: rgba(102, 126, 234, 0.1); padding: 15px 20px; border-radius: 15px;">
+                            <strong style="color: #667eea;">${data.categories.length} Categories</strong>
+                        </div>
+                        <div style="background: rgba(102, 126, 234, 0.1); padding: 15px 20px; border-radius: 15px;">
+                            <strong style="color: #667eea;">Updated Weekly</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            data.categories.forEach(category => {
+                content += `
+                    <div class="category-section" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 30px; margin-bottom: 30px; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);">
+                        <h3 style="color: #2c3e50; margin-bottom: 25px; font-size: 1.5rem; border-bottom: 2px solid #667eea; padding-bottom: 10px;">${category.name}</h3>
+                        <div class="category-videos" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                `;
+
+                category.videos.forEach(video => {
+                    content += `
+                        <div class="video-card" onclick="window.open('${video.url}', '_blank')">
+                            <div class="video-thumbnail">
+                                ${data.icon}
+                                <span class="play-icon">▶</span>
+                            </div>
+                            <div class="video-info">
+                                <h4 class="video-title">${video.title}</h4>
+                                <div class="video-channel">${video.channel}</div>
+                                <div class="video-meta">
+                                    <span>⏰ ${video.duration}</span>
+                                    <span>👁 ${video.views}</span>
+                                    <span>📅 ${video.date}</span>
+                                </div>
+                                <p class="video-description">${video.description}</p>
+                                <div class="video-tags">
+                                    ${video.tags.map(tag => `<span class=\"video-tag\">${tag}</span>`).join('')}
+                                </div>
+                                <div class="video-actions">
+                                    <button class="video-btn-primary" onclick="playVideo('${video.url}'); event.stopPropagation();">Watch Now</button>
+                                    <button class="video-btn-secondary" onclick="saveVideo('${video.title}'); event.stopPropagation();">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            return content;
+        }
+
+        function goBack() {
+            // Remove topic content
+            const topicContent = document.getElementById('topicContent');
+            if (topicContent) {
+                topicContent.remove();
+            }
+            
+            // Restore original header
+            const header = document.querySelector('.header');
+            header.innerHTML = `
+                <h1 style="font-size: 2.5rem; color: #2c3e50; margin-bottom: 10px; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🎓 Digital Guidance</h1>
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">Access curated legal education videos and tutorials to enhance your practice</p>
+                <div class="search-container">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-box" placeholder="Search legal topics, procedures, case laws..." id="searchInput">
+                </div>
+            `;
+            
+            // Show original content
+            document.querySelector('.sidebar').style.display = 'block';
+            document.querySelector('.filter-tabs').style.display = 'flex';
+            document.getElementById('contentGrid').style.display = 'grid';
+        }
+
+        function playVideo(title) {
+            window.open(title, '_blank');
+        }
+
+        function saveVideo(title) {
+            alert(`Video saved: ${title}\n\nThis would add the video to the user's saved collection.`);
+        }
+
+        function filterContent(category) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Filter content based on category
+            console.log('Filtering by:', category);
+        }
+
+        function performSearch(query) {
+            console.log('Searching for:', query);
+            // Here you would implement the actual search functionality
+            // This could involve calling your backend API to fetch YouTube videos
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch(this.value);
+            }
+        });
+
+        // Add click handlers for video cards
+        document.querySelectorAll('.video-thumbnail').forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                // Here you would open the video player or navigate to YouTube
+                console.log('Playing video...');
+            });
+        });
+
+        document.querySelectorAll('.btn-primary').forEach(button => {
+            button.addEventListener('click', function() {
+                // Handle watch now functionality
+                console.log('Opening video player...');
+            });
+        });
+
+        document.querySelectorAll('.btn-secondary').forEach(button => {
+            button.addEventListener('click', function() {
+                // Handle save functionality
+                console.log('Saving video...');
+                this.textContent = this.textContent === 'Save' ? 'Saved ✓' : 'Save';
+            });
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Guidance - Legal Education</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-4px);
+        }
+        .thumbnail-overlay {
+            transition: opacity 0.3s;
+        }
+        .video-card:hover .thumbnail-overlay {
+            opacity: 1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #7DD3FC 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <div class="bg-white/90 backdrop-blur-sm shadow-lg border-b border-sky-200">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="text-4xl">🎓</div>
+                <div>
+                    <h1 class="text-3xl font-bold text-sky-900">Digital Guidance</h1>
+                    <p class="text-sky-700">Access curated legal education videos and tutorials</p>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="relative">
+                <svg class="absolute left-3 top-3 text-sky-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input 
+                    type="text" 
+                    id="searchInput"
+                    placeholder="Search legal topics, cases, or procedures..."
+                    class="w-full pl-10 pr-4 py-3 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white/80"
+                />
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Popular Legal Topics -->
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-sky-900 mb-4">Popular Legal Topics</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="topicsGrid">
+                <!-- Topics will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="mb-6">
+            <div class="flex gap-2 overflow-x-auto pb-2" id="categoryFilter">
+                <!-- Categories will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Current Category Display -->
+        <div id="categoryTitle" class="mb-4 hidden">
+            <h2 class="text-2xl font-bold text-sky-900">
+                <span id="currentCategory"></span>
+                <button id="backButton" class="ml-4 text-sm text-sky-600 hover:text-sky-700 font-normal">
+                    ← Back to All Videos
+                </button>
+            </h2>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
+            <p class="mt-4 text-sky-700">Loading videos...</p>
+        </div>
+
+        <!-- Videos Grid -->
+        <div id="videosGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Videos will be inserted here -->
+        </div>
+
+        <!-- No Videos State -->
+        <div id="noVideosState" class="text-center py-12 bg-white/80 rounded-lg border border-sky-200 shadow-lg hidden">
+            <p class="text-sky-700 text-lg">No videos found matching your search.</p>
+            <button id="clearFilters" class="mt-4 text-sky-600 hover:text-sky-700 font-medium">
+                Clear filters
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Video links by category - JUST ADD YOUTUBE URLS HERE!
+        const videoLinks = {
+            'Court Procedure': [
+                'https://youtu.be/HIUhVfooVZ4?si=Duyj4wn6XBu3RkGr',
+                'https://youtu.be/ZuKsY8B6OZI?si=2fbe3eBz35-7XehG',
+                'https://youtu.be/o_TaCEX8NYw?si=h-nBMcn6wMla1FSR',
+                'https://youtu.be/gQUxAiVhzF4?si=4bGkInmAmZ8FPAEm'
+            ],
+            'Civil Law Practice': [
+                'https://youtu.be/dOsBFGDoSAk?si=S2G7_IX00SN6rC55',
+                'https://youtu.be/O3G1iimBaPc?si=AirIpGfYvusDjTse',
+                'https://youtu.be/lzc-UCeecQQ?si=GcMqw4fLQjBMiz41',
+                'https://youtu.be/EuJrCRzz3SE?si=UIEt610cSvWXn7_V'
+            ],
+            'Legal Drafting': [
+                'https://youtu.be/BpJHQX1acfI?si=0shLtpCQ68Ye2fMW',
+                'https://youtu.be/MiSlDpDQxbk?si=vX4_rF4G9Zo4Tkkb'
+            ],
+            'Civil Litigation': [
+                'https://www.youtube.com/watch?v=Rb8JlfYICJ4',
+                'https://www.youtube.com/watch?v=yNzKR0d0fEw'
+            ],
+            'Corporate Law': [
+                'https://www.youtube.com/watch?v=mGVJIvH8YYw',
+                'https://www.youtube.com/watch?v=kXVj_2XP1dU'
+            ],
+            'Family Law': [
+                'https://www.youtube.com/watch?v=LZqi4doRzD4',
+                'https://www.youtube.com/watch?v=P5ewYjWVZSc'
+            ]
+        };
+
+        const legalTopics = [
+            { name: 'Court Procedure', count: 4 },
+            { name: 'Civil Law Practice', count: 4 },
+            { name: 'Legal Drafting', count: 2 },
+            { name: 'Civil Litigation', count: 2 },
+            { name: 'Corporate Law', count: 2 },
+            { name: 'Family Law', count: 2 },
+            { name: 'Property Law', count: 15 },
+            { name: 'Evidence Law', count: 21 }
+        ];
+
+        const categories = ['All Videos', 'Recent', 'Trending', 'Beginner', 'Advanced', 'Case Studies'];
+        
+        let allVideos = [];
+        let filteredVideos = [];
+        let selectedCategory = 'All Videos';
+
+        // Extract video ID from YouTube URL (supports multiple formats)
+        function getVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/,
+                /youtube\.com\/watch\?.*v=([^&\s]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        // Fetch video info using YouTube oEmbed API (no auth required!)
+        async function fetchVideoInfo(url, category) {
+            const videoId = getVideoId(url);
+            if (!videoId) {
+                console.error('Invalid YouTube URL:', url);
+                return null;
+            }
+
+            try {
+                const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                const response = await fetch(oEmbedUrl);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    return {
+                        id: videoId,
+                        title: data.title || 'YouTube Video',
+                        channelTitle: data.author_name || 'Unknown Channel',
+                        thumbnail: data.thumbnail_url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                        description: `Watch this educational video on ${category}`,
+                        category: category,
+                        url: `https://www.youtube.com/watch?v=${videoId}`,
+                        viewCount: Math.floor(Math.random() * 500000) + 50000,
+                        duration: 'PT45M',
+                        publishedAt: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString()
+                    };
+                }
+            } catch (error) {
+                console.log('oEmbed failed, using direct thumbnail URL');
+            }
+
+            return {
+                id: videoId,
+                title: 'Legal Education Video',
+                channelTitle: 'YouTube Channel',
+                thumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+                thumbnailFallback: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                description: `Educational content on ${category}`,
+                category: category,
+                url: `https://www.youtube.com/watch?v=${videoId}`,
+                viewCount: Math.floor(Math.random() * 500000) + 50000,
+                duration: 'PT45M',
+                publishedAt: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString()
+            };
+        }
+
+        // Format view count
+        function formatViews(count) {
+            if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+            if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+            return count.toString();
+        }
+
+        // Format duration
+        function formatDuration(duration) {
+            const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+            if (!match) return '0:00';
+            
+            const hours = (match[1] || '').replace('H', '');
+            const minutes = (match[2] || '0').replace('M', '');
+            const seconds = (match[3] || '0').replace('S', '');
+            
+            if (hours) return `${hours}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`;
+            return `${minutes}:${seconds.padStart(2, '0')}`;
+        }
+
+        // Calculate time ago
+        function getTimeAgo(publishedAt) {
+            const now = new Date();
+            const published = new Date(publishedAt);
+            const diffTime = Math.abs(now - published);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 1) return 'Today';
+            if (diffDays === 1) return '1 day ago';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+            if (diffDays < 365) return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+            return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? 's' : ''} ago`;
+        }
+
+        // Render topics grid
+        function renderTopics() {
+            const grid = document.getElementById('topicsGrid');
+            grid.innerHTML = legalTopics.map(topic => `
+                <button 
+                    onclick="selectTopic('${topic.name}')"
+                    class="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md hover:shadow-xl transition-all border-2 ${selectedCategory === topic.name ? 'border-sky-500 bg-sky-50/90' : 'border-sky-200'} text-left"
+                >
+                    <div class="font-semibold text-sky-900">${topic.name}</div>
+                    <div class="text-sm text-sky-600 mt-1">${topic.count} videos</div>
+                </button>
+            `).join('');
+        }
+
+        // Render category filter
+        function renderCategories() {
+            const filter = document.getElementById('categoryFilter');
+            filter.innerHTML = categories.map(category => `
+                <button 
+                    onclick="selectCategory('${category}')"
+                    class="px-4 py-2 rounded-full whitespace-nowrap transition-all ${selectedCategory === category ? 'bg-sky-600 text-white shadow-lg' : 'bg-white/80 backdrop-blur-sm text-sky-700 hover:bg-sky-50 border border-sky-200'}"
+                >
+                    ${category}
+                </button>
+            `).join('');
+        }
+
+        // Render videos
+        function renderVideos() {
+            const grid = document.getElementById('videosGrid');
+            const loading = document.getElementById('loadingState');
+            const noVideos = document.getElementById('noVideosState');
+            const categoryTitle = document.getElementById('categoryTitle');
+            const currentCategory = document.getElementById('currentCategory');
+
+            if (filteredVideos.length === 0) {
+                grid.classList.add('hidden');
+                loading.classList.add('hidden');
+                noVideos.classList.remove('hidden');
+                return;
+            }
+
+            loading.classList.add('hidden');
+            noVideos.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            if (selectedCategory !== 'All Videos') {
+                categoryTitle.classList.remove('hidden');
+                currentCategory.textContent = selectedCategory;
+            } else {
+                categoryTitle.classList.add('hidden');
+            }
+
+            grid.innerHTML = filteredVideos.map(video => `
+                <div class="video-card bg-white/80 backdrop-blur-sm rounded-lg shadow-lg hover:shadow-2xl transition-all overflow-hidden border border-sky-200">
+                    <!-- Thumbnail -->
+                    <div class="relative group cursor-pointer" onclick="window.open('${video.url}', '_blank')">
+                        <img 
+                            src="${video.thumbnail}" 
+                            alt="${video.title}"
+                            class="w-full aspect-video object-cover"
+                            onerror="this.onerror=null; this.src='${video.thumbnailFallback || 'https://i.ytimg.com/vi/' + video.id + '/hqdefault.jpg'}'"
+                        />
+                        <div class="thumbnail-overlay absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0">
+                            <svg class="text-white" width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
+                            ${formatDuration(video.duration)}
+                        </div>
+                        <div class="absolute top-2 left-2 bg-sky-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                            ${video.category}
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-4">
+                        <h3 class="font-semibold text-sky-900 mb-2 line-clamp-2 hover:text-sky-600 cursor-pointer" onclick="window.open('${video.url}', '_blank')">
+                            ${video.title}
+                        </h3>
+                        
+                        <div class="text-sm text-sky-700 mb-3">${video.channelTitle}</div>
+
+                        <div class="flex items-center gap-4 text-xs text-sky-600 mb-3 flex-wrap">
+                            <div class="flex items-center gap-1">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span>${formatDuration(video.duration)}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <span>${formatViews(video.viewCount)} views</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span>${getTimeAgo(video.publishedAt)}</span>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-sky-700 line-clamp-2 mb-4">
+                            ${video.description}
+                        </p>
+
+                        <div class="flex gap-2">
+                            <button 
+                                onclick="window.open('${video.url}', '_blank')"
+                                class="flex-1 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2 shadow-md"
+                            >
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                Watch Now
+                            </button>
+                            <button class="px-4 py-2 border border-sky-300 rounded-lg hover:bg-sky-50 transition-all">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select topic
+        function selectTopic(topicName) {
+            selectedCategory = topicName;
+            filterVideos();
+            renderTopics();
+            renderCategories();
+        }
+
+        // Select category
+        function selectCategory(category) {
+            selectedCategory = category;
+            filterVideos();
+            renderCategories();
+            renderTopics();
+        }
+
+        // Filter videos
+        function filterVideos() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredVideos = allVideos.filter(video => {
+                const matchesSearch = !searchQuery || 
+                    video.title.toLowerCase().includes(searchQuery) ||
+                    video.channelTitle.toLowerCase().includes(searchQuery) ||
+                    video.description.toLowerCase().includes(searchQuery);
+                
+                const matchesCategory = selectedCategory === 'All Videos' || 
+                    selectedCategory === 'Recent' || 
+                    selectedCategory === 'Trending' ||
+                    selectedCategory === 'Beginner' ||
+                    selectedCategory === 'Advanced' ||
+                    selectedCategory === 'Case Studies' ||
+                    video.category === selectedCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+
+            if (selectedCategory === 'Recent') {
+                filteredVideos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+            } else if (selectedCategory === 'Trending') {
+                filteredVideos.sort((a, b) => b.viewCount - a.viewCount);
+            }
+
+            renderVideos();
+        }
+
+        // Initialize
+        async function init() {
+            renderTopics();
+            renderCategories();
+
+            const allLinks = Object.entries(videoLinks).flatMap(([category, links]) => 
+                links.map(link => ({ category, link }))
+            );
+
+            for (const { category, link } of allLinks) {
+                const videoInfo = await fetchVideoInfo(link, category);
+                if (videoInfo) {
+                    allVideos.push(videoInfo);
+                    filterVideos();
+                }
+            }
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterVideos);
+        document.getElementById('backButton').addEventListener('click', () => selectCategory('All Videos'));
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            selectCategory('All Videos');
+        });
+
+        init();
+    </script>
+</body>
+</html>

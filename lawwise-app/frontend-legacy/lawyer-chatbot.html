@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise Chatbot</title>
+</head>
+
+<body style="background: linear-gradient(135deg, #c5e1ed 60%, #cfcbe4 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;">
+
+<div style="display:flex; width:100%; max-width:900px; min-height:600px;">
+
+    <!-- Sidebar -->
+    <div style="background:#fff; width:240px; border-radius:22px 0 0 22px; box-shadow:0 8px 32px #4a90e220; display:flex; flex-direction:column;">
+        <div style="background:#67a9db; color:#fff; padding:16px 22px; font-weight:600; text-align:center;">
+            Previous Chats
+        </div>
+
+        <div id="chat-history-list" style="flex:1; padding:12px; overflow-y:auto;">
+            <!-- history items injected here -->
+        </div>
+
+        <div style="padding:12px; border-top:1px solid #e3eafc; text-align:center;">
+            <button id="new-chat-btn"
+                    style="background:#4a90e2;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:14px;cursor:pointer;">
+                + New Chat
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div style="background:#fff; flex:1; border-radius:0 22px 22px 0; box-shadow:0 8px 32px #4a90e220; display:flex; flex-direction:column;">
+
+        <!-- Header -->
+        <div style="background:#67a9db; color:#fff; padding:20px; text-align:center;">
+            <h2 style="margin:0;">Lawwise Chatbot</h2>
+            <div style="font-size:14px;">Your AI Legal Assistant</div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-container" style="flex:1; padding:20px; overflow-y:auto; background:#f7f7fa;"></div>
+
+        <!-- Input -->
+        <div style="padding:16px; background:#fff; border-top:1px solid #ddd; display:flex; gap:8px;">
+            <input id="chat-input" placeholder="Type your question..."
+                   style="flex:1; padding:10px; border-radius:14px; border:1px solid #ccc; font-size:15px;">
+            <button id="chat-send-btn"
+                    style="background:#7cabcf;color:#fff;border:none;border-radius:14px;padding:0 16px;font-size:18px;cursor:pointer;">
+                ➤
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* ---------- GLOBALS ---------- */
+const chatContainer = document.getElementById('chat-container');
+const chatInput = document.getElementById('chat-input');
+const chatSendBtn = document.getElementById('chat-send-btn');
+const historyList = document.getElementById('chat-history-list');
+const newChatBtn = document.getElementById('new-chat-btn');
+
+const STORAGE_KEY = 'lawwiseChatSessions';
+let sessions = [];
+let currentSessionId = null;
+
+/* ---------- STORAGE HELPERS ---------- */
+function loadSessions() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        sessions = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        sessions = [];
+    }
+}
+
+function saveSessions() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+}
+
+function createSession() {
+    const id = Date.now().toString();
+    const session = {
+        id,
+        title: `Chat ${sessions.length + 1}`,
+        createdAt: new Date().toLocaleString(),
+        messages: []
+    };
+    sessions.push(session);
+    currentSessionId = id;
+    saveSessions();
+    renderHistory();
+    return session;
+}
+
+function getCurrentSession() {
+    return sessions.find(s => s.id === currentSessionId) || null;
+}
+
+/* ---------- UI HELPERS ---------- */
+function clearChatUI() {
+    chatContainer.innerHTML = '';
+}
+
+function appendMessage(text, sender) {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.justifyContent = sender === 'user' ? 'flex-end' : 'flex-start';
+    wrap.style.marginBottom = '10px';
+
+    const bubble = document.createElement('div');
+    bubble.textContent = text;
+    bubble.style.maxWidth = '75%';
+    bubble.style.padding = '10px 14px';
+    bubble.style.borderRadius = '14px';
+    bubble.style.whiteSpace = 'pre-wrap';
+    bubble.style.fontSize = '15px';
+
+    if (sender === 'user') {
+        bubble.style.background = '#d2e3ff';
+        bubble.style.color = '#214a8d';
+    } else {
+        bubble.style.background = '#ffffff';
+        bubble.style.color = '#333';
+        bubble.style.boxShadow = '0 1px 4px rgba(0,0,0,.1)';
+    }
+
+    wrap.appendChild(bubble);
+    chatContainer.appendChild(wrap);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    return bubble;
+}
+
+function pushMessageToSession(role, text) {
+    const session = getCurrentSession();
+    if (!session) return;
+    session.messages.push({ role, text });
+    saveSessions();
+}
+
+function renderCurrentSessionMessages() {
+    clearChatUI();
+    const session = getCurrentSession();
+    if (!session) return;
+    session.messages.forEach(msg => {
+        appendMessage(msg.text, msg.role === 'user' ? 'user' : 'bot');
+    });
+}
+
+function renderHistory() {
+    if (!sessions.length) {
+        historyList.innerHTML = '<div style="color:#888;text-align:center;margin-top:40px;">No saved chats</div>';
+        return;
+    }
+
+    historyList.innerHTML = '';
+    sessions.forEach(session => {
+        const item = document.createElement('div');
+        item.style.position = 'relative';
+        item.style.padding = '10px 10px 8px 10px';
+        item.style.marginBottom = '8px';
+        item.style.borderRadius = '10px';
+        item.style.cursor = 'pointer';
+        item.style.background = session.id === currentSessionId ? '#e3f2fd' : '#f7f7fa';
+        item.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+
+        const title = document.createElement('div');
+        title.textContent = session.title;
+        title.style.fontSize = '14px';
+        title.style.fontWeight = '600';
+        title.style.color = '#2c5aa0';
+
+        const date = document.createElement('div');
+        date.textContent = session.createdAt;
+        date.style.fontSize = '11px';
+        date.style.color = '#777';
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑';
+        delBtn.title = 'Delete chat';
+        delBtn.style.position = 'absolute';
+        delBtn.style.top = '6px';
+        delBtn.style.right = '6px';
+        delBtn.style.border = 'none';
+        delBtn.style.background = '#ff4d4f';
+        delBtn.style.color = '#fff';
+        delBtn.style.borderRadius = '6px';
+        delBtn.style.fontSize = '11px';
+        delBtn.style.cursor = 'pointer';
+        delBtn.style.padding = '2px 6px';
+
+        delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteSession(session.id);
+        });
+
+        item.addEventListener('click', () => {
+            currentSessionId = session.id;
+            saveSessions();
+            renderHistory();
+            renderCurrentSessionMessages();
+        });
+
+        item.appendChild(title);
+        item.appendChild(date);
+        item.appendChild(delBtn);
+        historyList.appendChild(item);
+    });
+}
+
+function deleteSession(id) {
+    sessions = sessions.filter(s => s.id !== id);
+    if (!sessions.length) {
+        currentSessionId = null;
+        clearChatUI();
+        saveSessions();
+        renderHistory();
+        return;
+    }
+    if (currentSessionId === id) {
+        currentSessionId = sessions[0].id;
+        saveSessions();
+        renderHistory();
+        renderCurrentSessionMessages();
+    } else {
+        saveSessions();
+        renderHistory();
+    }
+}
+
+/* ---------- NEW CHAT ---------- */
+function startNewChat() {
+    const session = createSession();
+    clearChatUI();
+    const greeting = "Hello! I’m Lawwise, your AI legal assistant. How can I help you today?";
+    appendMessage(greeting, 'bot');
+    pushMessageToSession('bot', greeting);
+}
+
+/* ---------- STREAMING SEND WITH 'THINKING' ---------- */
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    pushMessageToSession('user', text);
+    chatInput.value = '';
+    chatInput.focus();
+
+    // initial "LawWise is thinking..." bubble
+    const thinkingBubble = appendMessage('LawWise is thinking… ⏳', 'bot');
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: text})
+        });
+
+        if (!response.ok || !response.body) {
+            throw new Error('No stream');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let finalText = '';
+        let firstChunk = true;
+
+        while (true) {
+            const {value, done} = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+
+            if (firstChunk) {
+                thinkingBubble.textContent = '';
+                firstChunk = false;
+            }
+
+            finalText += chunk;
+            thinkingBubble.textContent = finalText;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // store full bot message after streaming
+        pushMessageToSession('bot', finalText.trim());
+
+    } catch (err) {
+        console.error(err);
+        thinkingBubble.textContent = '❌ Error: could not contact chatbot server.';
+        pushMessageToSession('bot', 'Error: could not contact chatbot server.');
+    }
+}
+
+/* ---------- EVENT LISTENERS ---------- */
+chatSendBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+newChatBtn.addEventListener('click', startNewChat);
+
+/* ---------- INITIALIZE ---------- */
+(function init() {
+    loadSessions();
+    if (!sessions.length) {
+        startNewChat();
+    } else {
+        // pick last session as current
+        currentSessionId = sessions[sessions.length - 1].id;
+        renderHistory();
+        renderCurrentSessionMessages();
+    }
+    renderHistory();
+})();
+</script>
+
+</body>
+</html>

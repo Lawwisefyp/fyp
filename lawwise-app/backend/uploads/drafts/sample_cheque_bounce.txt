@@ -1,0 +1,11 @@
+Mrs. Sarah Khan received a cheque (No: 456789) for Rs. 250,000 from Mr. Ahmed Malik on February 1, 2026, towards the repayment of a personal loan. When presented at Zenith Bank on February 5, 2026, the cheque was returned with the remark "Funds Insufficient". Mrs. Sarah is now issuing this statutory notice to demand payment within 15 days.
+
+Structured Data:
+Client: Mrs. Sarah Khan
+Recipient: Mr. Ahmed Malik
+Subject: Cheque Dishonor Notice (Section 138)
+Amount: Rs. 250,000
+Cheque No: 456789
+Bank: Zenith Bank
+Reason: Funds Insufficient
+Dated: February 1, 2026

@@ -18,6 +18,8 @@ const storage = multer.diskStorage({
       folder += 'profiles/';
     } else if (file.fieldname === 'certificate') {
       folder += 'certificates/';
+    } else if (file.fieldname === 'documents') {
+      folder += 'cases/documents/';
     }
     
     // Create folder if it doesn't exist
@@ -53,6 +55,16 @@ const fileFilter = (req, file, cb) => {
     } else {
       cb(new Error('Only PDF, DOC, DOCX, JPG, PNG files are allowed for certificates'), false);
     }
+  } else if (file.fieldname === 'documents') {
+    // Allow case documents: PDF, DOC, DOCX, JPG, PNG
+    const allowedTypes = ['application/pdf', 'application/msword', 
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'image/jpeg', 'image/png'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF, DOC, DOCX, JPG, PNG files are allowed for case documents'), false);
+    }
   } else {
     cb(new Error('Unexpected field'), false);
   }
@@ -62,7 +74,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 10 * 1024 * 1024 // 10MB limit for case documents
   },
   fileFilter: fileFilter
 });

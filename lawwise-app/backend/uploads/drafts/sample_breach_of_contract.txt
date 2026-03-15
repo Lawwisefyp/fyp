@@ -1,0 +1,10 @@
+Global Logistics Ltd contracted Green Energy Solutions to install solar panels by January 30, 2026. An advance of $5,000 was paid. The deadline has passed, no work has commenced, and Green Energy Solutions has stopped responding to emails. Global Logistics now demands a full refund and cancellation of the contract.
+
+Structured Data:
+Client: Global Logistics Ltd
+Recipient: Green Energy Solutions
+Subject: Notice for Breach of Service Agreement
+Amount: $5,000 (Refund)
+Deadline: January 30, 2026
+Issue: Failure to commence work
+Background: Solar panel installation contract

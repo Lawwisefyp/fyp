@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawwise - Lawyer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .top-header {
+            background: linear-gradient(135deg, #4e7dac, #34495e);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .top-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #04172d, #357abd);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-text p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .header-user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4a90e2, #195794);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        .user-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .user-details p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(44,62,80,0.12);
+            padding: 50px 40px;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f4f8;
+            margin-bottom: 40px;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .dashboard-welcome {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #4a90e2;
+            border: 2px solid #4a90e2;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            background: #f0f7ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-logout {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+        }
+        
+        .btn-logout:hover {
+            box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .profile-card-wrapper {
+            margin-bottom: 40px;
+        }
+        
+        .profile-card {
+            background: linear-gradient(135deg, #70a3b9 0%, #997db5 100%);
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            z-index: 0;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .profile-header-content {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            border: 4px solid rgba(255,255,255,0.3);
+            font-weight: 700;
+            color: #5e6db4;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+        }
+        
+        .profile-main-info {
+            color: white;
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            letter-spacing: -0.5px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .profile-title {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .profile-body {
+            background: white;
+            padding: 40px;
+        }
+        
+        .profile-section {
+            margin-bottom: 30px;
+        }
+        
+        .profile-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1.05rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .experience-item, .qualification-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .experience-item:last-child, .qualification-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .exp-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+        
+        .exp-company {
+            font-size: 1rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .exp-date {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+        }
+        
+        .exp-desc {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .dashboard-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #ffffff, #f8fbff);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+        
+        .feature-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 26px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .feature-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        .feature-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+        
+        .quick-actions {
+            background: linear-gradient(135deg, #ffffff, #f8fbff);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .quick-actions h2 {
+            color: #2c3e50;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .quick-actions-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .quick-action-btn {
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .connections-section {
+            display: none;
+            margin: 30px 0 0 0;
+            background: linear-gradient(135deg, #fff8f0, #fff3e0);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 35px;
+            position: relative;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(255, 152, 0, 0.1);
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.5rem;
+            color: #888;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .connections-section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .connection-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .connection-item:last-child {
+            border-bottom: none;
+        }
+        
+        .connection-spec {
+            color: #888;
+            font-weight: 400;
+        }
+        
+        #lawyer-chatbot-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            border-radius: 50%;
+            box-shadow: 0 6px 24px rgba(74, 144, 226, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+        
+        #lawyer-chatbot-fab:hover {
+            box-shadow: 0 8px 32px rgba(74, 144, 226, 0.5);
+            transform: translateY(-4px) scale(1.05);
+        }
+        
+        #lawyer-chatbot-fab svg {
+            width: 34px;
+            height: 34px;
+            fill: #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .top-header-content {
+                flex-direction: column;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .header-user-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .dashboard-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .btn-primary, .btn-secondary, .btn-logout {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .dashboard-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="top-header-content">
+            <div class="logo-section">
+                <div class="logo-icon">⚖️</div>
+                <div class="logo-text">
+                    <h1>Lawwise</h1>
+                    <p>Your Legal Practice Management System</p>
+                </div>
+            </div>
+            <div class="header-user-info">
+                <div class="user-avatar" id="headerAvatar">👨‍⚖️</div>
+                <div class="user-details">
+                    <h3 id="headerUserName">Loading...</h3>
+                    <p id="headerUserTitle">Lawyer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot FAB -->
+    <div id="lawyer-chatbot-fab" title="Chat with Lawyer Bot" onclick="window.location.href='lawyer-chatbot.html'">
+        <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#4a90e2"/>
+            <ellipse cx="8.5" cy="11" rx="1.5" ry="2" fill="#fff"/>
+            <ellipse cx="15.5" cy="11" rx="1.5" ry="2" fill="#fff"/>
+            <path d="M8 16c1.333 1 4.667 1 6 0" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-left">
+                <div class="dashboard-title">Dashboard</div>
+                <div class="dashboard-welcome">Manage your legal practice efficiently</div>
+            </div>
+            <div class="header-actions">
+                <a href='lawyer-profile.html' id='editProfileBtn' class='btn-secondary'>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Edit Profile
+                </a>
+                <button class="btn-logout" onclick="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card-wrapper">
+            <div id="profileCardContainer"></div>
+        </div>
+
+        <!-- Dashboard Features -->
+        <div class="dashboard-features">
+            <!-- Feature 1 -->
+            <div class="feature-card" style="--card-color-1: #0288d1; --card-color-2: #039be5;" onclick="window.location.href='lawyer-digital-guidance.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #e1f5fe, #b3e5fc); color: #0288d1;">🎥</div>
+                    <h3 class="feature-title" style="color: #0288d1;">Digital Guidance</h3>
+                </div>
+                <p class="feature-desc" style="color: #01579b;">Tutorial videos to guide lawyers on using the app's features, such as e-filing, case management, and communication tools.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card" style="--card-color-1: #7b1fa2; --card-color-2: #9c27b0;" onclick="window.location.href='lawyer-minilawlibrary.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #7b1fa2;">📚</div>
+                    <h3 class="feature-title" style="color: #7b1fa2;">Mini-Law Library</h3>
+                </div>
+                <p class="feature-desc" style="color: #4a148c;">A library with statutes, rules, and cases, and an AI-powered chatbot for explanations.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card" style="--card-color-1: #388e3c; --card-color-2: #43a047;">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: #388e3c;">🤖</div>
+                    <h3 class="feature-title" style="color: #388e3c;">AI Chatbot</h3>
+                </div>
+                <p class="feature-desc" style="color: #1b5e20;">A chatbot to provide instant assistance, answer queries, and offer legal advice.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-card" style="--card-color-1: #f57c00; --card-color-2: #fb8c00;" onclick="window.location.href='lawyer-case-history.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); color: #f57c00;">📋</div>
+                    <h3 class="feature-title" style="color: #f57c00;">Case History & Tracking</h3>
+                </div>
+                <p class="feature-desc" style="color: #e65100;">Track the history and progress of legal cases from start to finish.</p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-card" style="--card-color-1: #c2185b; --card-color-2: #d81b60;">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c2185b;">📊</div>
+                    <h3 class="feature-title" style="color: #c2185b;">Dashboard Analytics</h3>
+                </div>
+                <p class="feature-desc" style="color: #880e4f;">A personalized dashboard for users to view their case details, appointments, and notifications.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="feature-card" style="--card-color-1: #ffa000; --card-color-2: #ffb300;" onclick="window.location.href='lawyer-notifications.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #ffa000;">🔔</div>
+                    <h3 class="feature-title" style="color: #ffa000;">Notifications</h3>
+                </div>
+                <p class="feature-desc" style="color: #ff6f00;">Push notifications to keep users informed of important case updates, meetings, and deadlines.</p>
+            </div>
+
+            <!-- Feature 7 -->
+            <div class="feature-card" style="--card-color-1: #00796b; --card-color-2: #00897b;">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #e0f2f1, #b2dfdb); color: #00796b;">💬</div>
+                    <h3 class="feature-title" style="color: #00796b;">Communication</h3>
+                </div>
+                <p class="feature-desc" style="color: #004d40;">Secure messaging and appointment scheduling between lawyers and clients.</p>
+            </div>
+
+            <!-- Feature 8 -->
+            <div class="feature-card" style="--card-color-1: #f57c00; --card-color-2: #ff9800;">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); color: #f57c00;">📝</div>
+                    <h3 class="feature-title" style="color: #f57c00;">AI-Based Drafting</h3>
+                </div>
+                <p class="feature-desc" style="color: #e65100;">Generate legal documents (notices, contracts, petitions) based on user input, reducing errors and saving time.</p>
+            </div>
+
+            <!-- Feature 9 -->
+            <div class="feature-card" style="--card-color-1: #c2185b; --card-color-2: #d81b60;">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c2185b;">⏰</div>
+                    <h3 class="feature-title" style="color: #c2185b;">Deadline Reminders</h3>
+                </div>
+                <p class="feature-desc" style="color: #880e4f;">Sends reminders to users about upcoming deadlines for filings, hearings, or case-related tasks.</p>
+            </div>
+
+            <!-- Feature 10 -->
+            <div class="feature-card" style="--card-color-1: #689f38; --card-color-2: #7cb342;" onclick="window.location.href='lawyer-networking.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f1f8e9, #dcedc8); color: #689f38;">🤝</div>
+                    <h3 class="feature-title" style="color: #689f38;">Professional Networking</h3>
+                </div>
+                <p class="feature-desc" style="color: #33691e;">A platform for lawyers to connect, network, and collaborate with other professionals.</p>
+            </div>
+
+            <!-- Feature 11 -->
+            <div class="feature-card" style="--card-color-1: #1976d2; --card-color-2: #2196f3;" onclick="window.location.href='lawyer-profile.html'">
+                <div class="feature-header">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #1976d2;">👤</div>
+                    <h3 class="feature-title" style="color: #1976d2;">Profile Management</h3>
+                </div>
+                <p class="feature-desc" style="color: #0d47a1;">Update your professional profile, certifications, and case history for clients to view.</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions-grid">
+                <button class="quick-action-btn" style="background: #4a90e2; color: white;" onmouseover="this.style.background='#357abd'" onmouseout="this.style.background='#4a90e2'">New Case</button>
+                <button class="quick-action-btn" style="background: #28a745; color: white;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">Add Client</button>
+                <button class="quick-action-btn" style="background: #17a2b8; color: white;" onmouseover="this.style.background='#138496'" onmouseout="this.style.background='#17a2b8'">Upload Document</button>
+                <button class="quick-action-btn" style="background: #ffc107; color: #212529;" onmouseover="this.style.background='#e0a800'" onmouseout="this.style.background='#ffc107'">Schedule Meeting</button>
+                <button class="quick-action-btn" style="background: #6f42c1; color: white;" onmouseover="this.style.background='#5a32a3'" onmouseout="this.style.background='#6f42c1'">Generate Report</button>
+                <button id="connectionsBtn" class="quick-action-btn" style="background: #ff7043; color: white;" onmouseover="this.style.background='#d84315'" onmouseout="this.style.background='#ff7043'">Connections</button>
+            </div>
+        </div>
+
+        <!-- Connections Section -->
+        <div id="connectionsSection" class="connections-section">
+            <span id="closeConnections" class="close-btn">&times;</span>
+            <h2>My Connections</h2>
+            <div id="connectionsList">
+                <div class="connection-item">John Doe <span class="connection-spec">(Corporate Law)</span></div>
+                <div class="connection-item">Jane Smith <span class="connection-spec">(Family Law)</span></div>
+                <div class="connection-item">Michael Brown <span class="connection-spec">(Criminal Law)</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE_URL = 'http://localhost:5000';
+
+    function getToken() {
+        return (
+            localStorage.getItem('lawyerToken') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('lawyerToken') ||
+            sessionStorage.getItem('token')
+        );
+    }
+
+    function logout() {
+        localStorage.removeItem('lawyerToken');
+        localStorage.removeItem('lawyerInfo');
+        sessionStorage.removeItem('lawyerToken');
+        window.location.href = 'lawyer-portal.html';
+    }
+
+    document.getElementById('editProfileBtn').onclick = function (e) {
+        e.preventDefault();
+        window.location.href = 'lawyer-profile.html';
+    };
+
+    function renderDashboardProfileCard() {
+        const lawyerInfo = localStorage.getItem('lawyerInfo');
+        const container = document.getElementById('profileCardContainer');
+
+        if (!lawyerInfo) {
+            container.innerHTML = '<div class="profile-card"><div class="profile-body" style="text-align:center;padding:60px;"><p style="color:#7f8c8d;font-size:1.1rem;">Loading profile information...</p></div></div>';
+            return;
+        }
+
+        const lawyer = JSON.parse(lawyerInfo);
+        const fullName = `${lawyer.firstName || lawyer.personalInfo?.firstName || lawyer.fullName || lawyer.name || ''} ${lawyer.lastName || lawyer.personalInfo?.lastName || ''}`.trim();
+        const specialization = lawyer.specialization || lawyer.professionalInfo?.specialization || 'Legal Professional';
+        const yearsExp = lawyer.yearsOfExperience || lawyer.professionalInfo?.yearsOfExperience || '0';
+        const email = lawyer.email || lawyer.personalInfo?.email || '';
+        const phone = lawyer.phone || lawyer.personalInfo?.phone || '';
+        const city = lawyer.city || lawyer.personalInfo?.city || '';
+        const state = lawyer.state || lawyer.personalInfo?.state || '';
+        const barNumber = lawyer.barRegistrationNumber || lawyer.professionalInfo?.barRegistrationNumber || lawyer.barNumber || '';
+        const hourlyRate = lawyer.hourlyRate || lawyer.professionalInfo?.hourlyRate || '';
+        const isAvailable = lawyer.isAvailable || lawyer.professionalInfo?.isAvailable || false;
+        const bio = lawyer.bio || lawyer.personalInfo?.bio || '';
+        const practiceAreas = lawyer.practiceAreas || lawyer.professionalInfo?.practiceAreas || [];
+        const qualifications = lawyer.qualifications || [];
+        const experience = lawyer.experience || [];
+
+        // Update header
+        document.getElementById('headerUserName').textContent = fullName || 'Lawyer';
+        document.getElementById('headerUserTitle').textContent = specialization;
+
+        let html = '<div class="profile-card">';
+        
+        // Profile Header
+        html += '<div class="profile-header">';
+        html += '<div class="profile-header-content">';
+        html += '<div class="profile-avatar">' + (fullName ? fullName.substring(0, 2).toUpperCase() : 'LA') + '</div>';
+        html += '<div class="profile-main-info">';
+        html += `<div class="profile-name">${fullName || 'Not Provided'}</div>`;
+        html += `<div class="profile-title">${specialization}</div>`;
+        html += '<div class="profile-stats">';
+        html += `<div class="stat-item"><div class="stat-value">${yearsExp}</div><div class="stat-label">Years Experience</div></div>`;
+        html += `<div class="stat-item"><div class="stat-value">${isAvailable ? 'Available' : 'Busy'}</div><div class="stat-label">Status</div></div>`;
+        html += `<div class="stat-item"><div class="stat-value">${practiceAreas.length || 0}</div><div class="stat-label">Practice Areas</div></div>`;
+        html += '</div></div></div></div>';
+
+        // Profile Body
+        html += '<div class="profile-body">';
+        
+        // Personal Information Section
+        html += '<div class="profile-section">';
+        html += '<h3 class="section-title">Personal Information</h3>';
+        html += '<div class="info-grid">';
+        html += `<div class="info-item"><div class="info-label">Email</div><div class="info-value">${email || 'Not provided'}</div></div>`;
+        html += `<div class="info-item"><div class="info-label">Phone</div><div class="info-value">${phone || 'Not provided'}</div></div>`;
+        html += `<div class="info-item"><div class="info-label">City</div><div class="info-value">${city || 'Not provided'}</div></div>`;
+        html += `<div class="info-item"><div class="info-label">State/Province</div><div class="info-value">${state || 'Not provided'}</div></div>`;
+        html += '</div></div>';
+
+        // Professional Information Section
+        html += '<div class="profile-section">';
+        html += '<h3 class="section-title">Professional Information</h3>';
+        html += '<div class="info-grid">';
+        html += `<div class="info-item"><div class="info-label">Bar Registration Number</div><div class="info-value">${barNumber || 'Not provided'}</div></div>`;
+        html += `<div class="info-item"><div class="info-label">Hourly Rate</div><div class="info-value">${hourlyRate || 'Not provided'}</div></div>`;
+        html += `<div class="info-item"><div class="info-label">Years of Experience</div><div class="info-value">${yearsExp} years</div></div>`;
+        html += `<div class="info-item"><div class="info-label">Availability</div><div class="info-value">${isAvailable ? '✓ Available' : '✗ Not Available'}</div></div>`;
+        html += '</div>';
+        
+        if (bio) {
+            html += `<div style="margin-top:20px;"><div class="info-label">Bio</div><div class="info-value" style="line-height:1.7;">${bio}</div></div>`;
+        }
+        
+        if (practiceAreas.length > 0) {
+            html += `<div style="margin-top:20px;"><div class="info-label">Practice Areas</div><div class="info-value">${practiceAreas.join(', ')}</div></div>`;
+        }
+        html += '</div>';
+
+        // Qualifications Section
+        if (qualifications.length > 0) {
+            html += '<div class="profile-section">';
+            html += '<h3 class="section-title">Qualifications</h3>';
+            qualifications.forEach(q => {
+                html += '<div class="qualification-item">';
+                html += `<div class="exp-title">${q.degree || 'Degree'}</div>`;
+                html += `<div class="exp-company">${q.institution || 'Institution'}</div>`;
+                html += `<div class="exp-date">${q.year || 'Year not specified'}</div>`;
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        // Experience Section
+        if (experience.length > 0) {
+            html += '<div class="profile-section">';
+            html += '<h3 class="section-title">Experience</h3>';
+            experience.forEach(exp => {
+                html += '<div class="experience-item">';
+                html += `<div class="exp-title">${exp.title || 'Position'}</div>`;
+                html += `<div class="exp-company">${exp.organization || 'Organization'}</div>`;
+                html += `<div class="exp-date">${exp.startDate || 'Start'} - ${exp.isCurrent ? 'Present' : (exp.endDate || 'End')}</div>`;
+                if (exp.description) {
+                    html += `<div class="exp-desc">${exp.description}</div>`;
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        html += '</div></div>';
+        container.innerHTML = html;
+    }
+
+    async function fetchProfileFromBackend() {
+        const token = getToken();
+        if (!token) {
+            window.location.href = 'lawyer-portal.html';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/lawyer/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await res.json();
+
+            if (data.success && data.lawyer) {
+                const l = data.lawyer;
+                const flat = { ...l };
+                if (l.personalInfo) Object.assign(flat, l.personalInfo);
+                if (l.professionalInfo) Object.assign(flat, l.professionalInfo);
+                flat.qualifications = l.qualifications || [];
+                flat.experience = l.experience || [];
+
+                localStorage.setItem('lawyerInfo', JSON.stringify(flat));
+                renderDashboardProfileCard();
+            } else {
+                console.warn('Could not load profile from backend:', data);
+                renderDashboardProfileCard();
+            }
+        } catch (err) {
+            console.error('Error fetching profile for dashboard:', err);
+            renderDashboardProfileCard();
+        }
+    }
+
+    document.getElementById('connectionsBtn').onclick = function() {
+        document.getElementById('connectionsSection').style.display = 'block';
+        fetchConnections();
+    };
+    
+    document.getElementById('closeConnections').onclick = function() {
+        document.getElementById('connectionsSection').style.display = 'none';
+    };
+
+    async function fetchConnections() {
+        const lawyerInfo = localStorage.getItem('lawyerInfo');
+        let loggedInId = null;
+        if (lawyerInfo) {
+            const lawyer = JSON.parse(lawyerInfo);
+            loggedInId = lawyer._id || lawyer.id;
+        }
+        if (!loggedInId) return;
+        try {
+            const response = await fetch(`http://localhost:5000/api/notifications/connections?lawyerId=${loggedInId}`);
+            const result = await response.json();
+            if (result.success) {
+                renderConnections(result.connections || []);
+            } else {
+                document.getElementById('connectionsList').innerHTML = '<div style="color:#c00;">Failed to load connections.</div>';
+            }
+        } catch (error) {
+            document.getElementById('connectionsList').innerHTML = '<div style="color:#c00;">Error loading connections.</div>';
+        }
+    }
+
+    function renderConnections(connections) {
+        const container = document.getElementById('connectionsList');
+        if (!connections.length) {
+            container.innerHTML = '<div style="color:#888;">No connections yet.</div>';
+            return;
+        }
+        container.innerHTML = connections.map(conn => {
+            return `<div class="connection-item">${conn.name} <span class="connection-spec">${conn.specialization ? '(' + conn.specialization + ')' : ''}</span></div>`;
+        }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchProfileFromBackend();
+    });
+    </script>
+</body>
+</html>

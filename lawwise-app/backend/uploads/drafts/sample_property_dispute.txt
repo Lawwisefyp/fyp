@@ -1,0 +1,9 @@
+Client: Mr. Kamal Ahmed, residing at H.No 456, Sector F-10, Islamabad.
+Recipient: Mr. Zohaib Sheikh, H.No 12, Block C, Gulshan-e-Iqbal, Karachi.
+Property Address: Plot No. 89-B, Korangi Industrial Area, Karachi.
+Area: 500 Square Yards.
+Acquisition: Purchased via Registered Sale Deed dated March 12, 2018.
+Issue: Illegal occupation of rear portion of warehouse after caretaker agreement expiry. Unauthorized minor construction started.
+Days: 10
+Amount: PKR 200,000 (Damages)
+Syntax Reference: Follow the "Property Dispute and Illegal Possession" template provided.

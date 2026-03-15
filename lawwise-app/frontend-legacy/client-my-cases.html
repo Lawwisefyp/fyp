@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cases - Lawwise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #c19651;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #c19651;
+        }
+
+        .cases-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+            border-left: 5px solid #c19651;
+        }
+
+        .case-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .case-card-header {
+            background: #f9f9f9;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .case-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .case-id {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .case-type {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .case-type.civil {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .case-type.criminal {
+            background: #fce4ec;
+            color: #880e4f;
+        }
+
+        .case-type.family {
+            background: #f3e5f5;
+            color: #4a148c;
+        }
+
+        .case-type.corporate {
+            background: #e0f2f1;
+            color: #004d40;
+        }
+
+        .case-type.labor {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .case-type.intellectual {
+            background: #ede7f6;
+            color: #311b92;
+        }
+
+        .case-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .case-status.filed {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .case-status.assigned {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .case-status.in-progress {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .case-status.hearings {
+            background: #f3e5f5;
+            color: #4a148c;
+        }
+
+        .case-status.completed {
+            background: #e0f2f1;
+            color: #004d40;
+        }
+
+        .case-status.closed {
+            background: #ede7f6;
+            color: #311b92;
+        }
+
+        .case-card-body {
+            padding: 20px;
+        }
+
+        .case-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: #333;
+            margin-top: 4px;
+        }
+
+        .case-progress {
+            margin-top: 15px;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4a574 0%, #c19651 100%);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .case-documents {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .documents-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .document-list {
+            list-style: none;
+        }
+
+        .document-item {
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .document-name {
+            color: #0d47a1;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .document-name:hover {
+            text-decoration: underline;
+        }
+
+        .document-size {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .case-card-footer {
+            padding: 15px 20px;
+            background: #f9f9f9;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .card-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .card-btn-primary {
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .card-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(193, 150, 81, 0.3);
+        }
+
+        .card-btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .card-btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .empty-text {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #c19651;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            color: #d4a574;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 4px solid #c19651;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #c19651;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #c19651;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="client-portal.html" class="back-link">← Back to Portal</a>
+
+        <div class="header">
+            <h1>📋 My Cases</h1>
+            <p>Track and manage your filed cases</p>
+            <div class="header-actions">
+                <a href="client-efiling.html" class="btn btn-primary">+ File New Case</a>
+                <a href="client-dashboard.html" class="btn btn-secondary">Return to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="stats" id="statsSection" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCases">0</div>
+                <div class="stat-label">Total Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeCases">0</div>
+                <div class="stat-label">Active Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedCases">0</div>
+                <div class="stat-label">Completed Cases</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="statusFilter">Filter by Status:</label>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="filed">Filed</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="hearings">Hearings</option>
+                    <option value="completed">Completed</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Filter by Type:</label>
+                <select id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="civil">Civil</option>
+                    <option value="criminal">Criminal</option>
+                    <option value="family">Family Law</option>
+                    <option value="corporate">Corporate Law</option>
+                    <option value="labor">Labor Law</option>
+                    <option value="intellectual">Intellectual Property</option>
+                </select>
+            </div>
+            <button onclick="applyFilters()" style="padding: 8px 20px; background: #c19651; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Apply Filters</button>
+            <button onclick="clearFilters()" style="padding: 8px 20px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Clear</button>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <span class="spinner-small"></span>
+            Loading your cases...
+        </div>
+
+        <div id="casesContainer" class="cases-grid" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">📁</div>
+            <div class="empty-title">No Cases Found</div>
+            <div class="empty-text">You haven't filed any cases yet. Start by filing a new case to get legal assistance.</div>
+            <a href="client-efiling.html" class="btn btn-primary">File Your First Case</a>
+        </div>
+    </div>
+
+    <script>
+        let allCases = [];
+        const clientEmail = localStorage.getItem('clientEmail') || 'client@example.com';
+
+        // Load cases on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCases();
+        });
+
+        async function loadCases() {
+            try {
+                const response = await fetch(`/api/cases/client/${clientEmail}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    allCases = data.cases || [];
+                    updateStats();
+                    displayCases(allCases);
+                } else {
+                    console.error('Failed to load cases');
+                    displayEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading cases:', error);
+                displayEmptyState();
+            }
+        }
+
+        function updateStats() {
+            const total = allCases.length;
+            const active = allCases.filter(c => ['filed', 'assigned', 'in-progress', 'hearings'].includes(c.status)).length;
+            const completed = allCases.filter(c => ['completed', 'closed'].includes(c.status)).length;
+
+            document.getElementById('totalCases').textContent = total;
+            document.getElementById('activeCases').textContent = active;
+            document.getElementById('completedCases').textContent = completed;
+            document.getElementById('statsSection').style.display = 'grid';
+        }
+
+        function displayCases(cases) {
+            const container = document.getElementById('casesContainer');
+            
+            if (cases.length === 0) {
+                displayEmptyState();
+                document.getElementById('loadingState').style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = '';
+            cases.forEach(caseData => {
+                const progressPercent = (caseData.currentStage / 5) * 100;
+                const docCount = caseData.documents ? caseData.documents.length : 0;
+
+                const caseCard = document.createElement('div');
+                caseCard.className = 'case-card';
+                caseCard.innerHTML = `
+                    <div class="case-card-header">
+                        <div class="case-info">
+                            <h3>${caseData.title}</h3>
+                            <div class="case-id">Case ID: ${caseData.id}</div>
+                            <div>
+                                <span class="case-type ${caseData.caseType}">${capitalizeType(caseData.caseType)}</span>
+                                <span class="case-status ${caseData.status}">${capitalizeStatus(caseData.status)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="case-card-body">
+                        <div class="case-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Opposing Party</div>
+                                <div class="detail-value">${caseData.opposingParty}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Court</div>
+                                <div class="detail-value">${caseData.court}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Jurisdiction</div>
+                                <div class="detail-value">${caseData.jurisdiction}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Filing Date</div>
+                                <div class="detail-value">${formatDate(caseData.filingDate)}</div>
+                            </div>
+                            ${caseData.lawyer ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Assigned Lawyer</div>
+                                <div class="detail-value">${caseData.lawyer}</div>
+                            </div>
+                            ` : ''}
+                            ${caseData.nextHearingDate ? `
+                            <div class="detail-item">
+                                <div class="detail-label">Next Hearing</div>
+                                <div class="detail-value">${formatDate(caseData.nextHearingDate)}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="case-progress">
+                            <div class="progress-label">Case Progress</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <div class="progress-text">Stage ${caseData.currentStage} of 5</div>
+                        </div>
+
+                        ${docCount > 0 ? `
+                        <div class="case-documents">
+                            <div class="documents-title">📎 Documents (${docCount})</div>
+                            <ul class="document-list">
+                                ${caseData.documents.slice(0, 3).map(doc => `
+                                <li class="document-item">
+                                    <a href="/uploads/cases/documents/${doc.filename}" class="document-name" download="${doc.originalName}">
+                                        ${doc.originalName}
+                                    </a>
+                                    <span class="document-size">${formatFileSize(doc.fileSize)}</span>
+                                </li>
+                                `).join('')}
+                                ${docCount > 3 ? `<li style="padding: 8px; color: #888; text-align: center;">+ ${docCount - 3} more document(s)</li>` : ''}
+                            </ul>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="case-card-footer">
+                        <button class="card-btn card-btn-primary" onclick="viewCaseDetails('${caseData.id}')">View Details</button>
+                        <button class="card-btn card-btn-secondary" onclick="downloadCaseSummary('${caseData.id}')">Download</button>
+                    </div>
+                `;
+
+                container.appendChild(caseCard);
+            });
+
+            document.getElementById('loadingState').style.display = 'none';
+            container.style.display = 'grid';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function displayEmptyState() {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('casesContainer').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function applyFilters() {
+            const status = document.getElementById('statusFilter').value;
+            const type = document.getElementById('typeFilter').value;
+
+            let filtered = allCases;
+
+            if (status) {
+                filtered = filtered.filter(c => c.status === status);
+            }
+
+            if (type) {
+                filtered = filtered.filter(c => c.caseType === type);
+            }
+
+            displayCases(filtered);
+        }
+
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            displayCases(allCases);
+        }
+
+        function viewCaseDetails(caseId) {
+            // Store the case ID and redirect to a detail page or modal
+            localStorage.setItem('selectedCaseId', caseId);
+            alert('View case details for: ' + caseId + '\n\nThis feature would open a detailed case view.');
+        }
+
+        function downloadCaseSummary(caseId) {
+            const caseData = allCases.find(c => c.id === caseId);
+            if (!caseData) return;
+
+            const summary = `
+CASE SUMMARY
+============================================
+Case ID: ${caseData.id}
+Title: ${caseData.title}
+Type: ${capitalizeType(caseData.caseType)}
+Status: ${capitalizeStatus(caseData.status)}
+
+CLIENT INFORMATION
+---
+Name: ${caseData.client}
+Email: ${caseData.clientEmail}
+Phone: ${caseData.clientPhone}
+
+CASE DETAILS
+---
+Opposing Party: ${caseData.opposingParty}
+Court: ${caseData.court}
+Jurisdiction: ${caseData.jurisdiction}
+Filing Date: ${formatDate(caseData.filingDate)}
+${caseData.nextHearingDate ? 'Next Hearing: ' + formatDate(caseData.nextHearingDate) : ''}
+
+CASE PROGRESS
+---
+Current Stage: ${caseData.currentStage} of 5
+Documents Filed: ${caseData.documents ? caseData.documents.length : 0}
+
+DESCRIPTION
+---
+${caseData.description || 'No description provided'}
+
+============================================
+Generated on: ${new Date().toLocaleString()}
+            `;
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(summary));
+            element.setAttribute('download', `case-summary-${caseData.id}.txt`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function capitalizeType(type) {
+            const types = {
+                'civil': 'Civil Case',
+                'criminal': 'Criminal Case',
+                'family': 'Family Law',
+                'corporate': 'Corporate Law',
+                'labor': 'Labor Law',
+                'intellectual': 'Intellectual Property'
+            };
+            return types[type] || type;
+        }
+
+        function capitalizeStatus(status) {
+            const statuses = {
+                'filed': 'Filed',
+                'assigned': 'Assigned',
+                'in-progress': 'In Progress',
+                'hearings': 'Hearings',
+                'completed': 'Completed',
+                'closed': 'Closed'
+            };
+            return statuses[status] || status;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            try {
+                return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

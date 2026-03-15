@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Case Tracking System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3bb7a 0%, #ffe0b2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styling */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            background: linear-gradient(45deg, #d88509, #ffb74d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header-title p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            border-color: #e8bd7c;
+            box-shadow: 0 0 20px rgba(255, 152, 0, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #df8b0e, #ffb74d);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 152, 0, 0.1);
+            color: #bf7505;
+            border: 2px solid #ff9800;
+        }
+
+        .btn-secondary:hover {
+            background: #e4a74b;
+            color: white;
+        }
+
+        .notifications-badge {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .notifications-badge:hover {
+            background: rgba(255, 152, 0, 0.2);
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc6b5e;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .case-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .case-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .stage-badge {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .case-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meta-label {
+            color: #999;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.15);
+            background: rgba(255, 152, 0, 0.02);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Stage Timeline */
+        .stages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stage-item {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stage-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stage-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .stage-circle.done {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+        }
+
+        .stage-circle.current {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+        }
+
+        .stage-circle.pending {
+            background: #ddd;
+            color: #999;
+        }
+
+        .stage-connector {
+            width: 3px;
+            height: 60px;
+            margin-top: 5px;
+        }
+
+        .stage-connector.done {
+            background: #4caf50;
+        }
+
+        .stage-connector.pending {
+            background: #ddd;
+        }
+
+        .stage-content {
+            flex: 1;
+            padding-top: 5px;
+        }
+
+        .stage-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stage-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stage-info {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .analytics-card {
+            background: rgba(255, 152, 0, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .analytics-label {
+            font-size: 0.85rem;
+            color: #999;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff9800;
+        }
+
+        /* Notification Styles */
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.urgent {
+            background: rgba(231, 76, 60, 0.1);
+            border-left-color: #e74c3c;
+            color: #c0392b;
+        }
+
+        .notification.warning {
+            background: rgba(241, 196, 15, 0.1);
+            border-left-color: #f39c12;
+            color: #d68910;
+        }
+
+        .notification.info {
+            background: rgba(255, 152, 0, 0.1);
+            border-left-color: #ff9800;
+            color: #e65100;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #ff9800;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #e65100;
+            transform: translateX(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            .header-title h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .search-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .case-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1><i class="fas fa-gavel"></i> Real-Time Case Tracking</h1>
+                    <p>Automated progress monitoring and notifications</p>
+                </div>
+                <div class="header-actions">
+                    <a href="lawyer-notifications.html" class="notifications-badge" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge-count hidden" id="notificationBadge">0</span>
+                    </a>
+                    <button onclick="showNewCaseModal()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Case
+                    </button>
+                </div>
+            </div>
+
+            <div id="notificationsPanel" class="hidden" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <h3 style="font-size: 1rem; font-weight: 600; color: #2c3e50; margin-bottom: 15px;">Active Notifications</h3>
+                <div id="notificationsList"></div>
+            </div>
+
+            <div class="search-container" style="margin-top: 20px;">
+                <span class="search-icon"><i class="fas fa-search"></i></span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search cases by title, ID, client, or court..." oninput="filterCases()">
+            </div>
+        </div>
+
+        <div id="casesList"></div>
+        <div id="caseDetail" class="hidden"></div>
+    </div>
+
+    <!-- New Case Modal -->
+    <div id="newCaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Create New Case</h2>
+                <button class="close-btn" onclick="closeNewCaseModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="newCaseTitle"><i class="fas fa-heading"></i> Case Title *</label>
+                    <input type="text" id="newCaseTitle" class="form-input" placeholder="Enter case title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newCaseFilingDate"><i class="fas fa-calendar-alt"></i> Filing Date *</label>
+                    <input type="date" id="newCaseFilingDate" class="form-input">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="newCaseClient"><i class="fas fa-user"></i> Client Name *</label>
+                    <input type="text" id="newCaseClient" class="form-input" placeholder="Client name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newCaseOpposing"><i class="fas fa-handshake"></i> Opposing Party</label>
+                    <input type="text" id="newCaseOpposing" class="form-input" placeholder="Opposing party name">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="newCaseLawyer"><i class="fas fa-user-tie"></i> Assigned Lawyer</label>
+                    <input type="text" id="newCaseLawyer" class="form-input" placeholder="Lawyer name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newCaseCourt"><i class="fas fa-building"></i> Court *</label>
+                    <input type="text" id="newCaseCourt" class="form-input" placeholder="Court name">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="newCaseJudge"><i class="fas fa-gavel"></i> Judge Name</label>
+                    <input type="text" id="newCaseJudge" class="form-input" placeholder="Judge name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newCaseJurisdiction"><i class="fas fa-file-contract"></i> Jurisdiction</label>
+                    <select id="newCaseJurisdiction" class="form-select">
+                        <option value="Civil">Civil</option>
+                        <option value="Criminal">Criminal</option>
+                        <option value="Family">Family</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="newCaseHearing"><i class="fas fa-calendar-check"></i> Next Hearing Date</label>
+                <input type="date" id="newCaseHearing" class="form-input">
+            </div>
+            <div class="btn-group">
+                <button onclick="createCase()" class="btn btn-primary"><i class="fas fa-check-circle"></i> Create Case</button>
+                <button onclick="closeNewCaseModal()" class="btn btn-secondary"><i class="fas fa-times-circle"></i> Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        const STAGES = [
+            { id: 1, name: 'Case Filed', duration: 0, desc: 'Initial petition filed' },
+            { id: 2, name: 'Case Admitted', duration: 30, desc: 'Court admits the case' },
+            { id: 3, name: 'Notice Issued', duration: 15, desc: 'Notice served to opposing party' },
+            { id: 4, name: 'Written Statement Filed', duration: 30, desc: 'Defendant submits response' },
+            { id: 5, name: 'Issues Framed', duration: 45, desc: 'Court frames issues for trial' },
+            { id: 6, name: 'Evidence Stage', duration: 90, desc: 'Parties present evidence' },
+            { id: 7, name: 'Arguments Stage', duration: 60, desc: 'Final arguments presented' },
+            { id: 8, name: 'Judgment Reserved', duration: 30, desc: 'Court reserves judgment' },
+            { id: 9, name: 'Judgment Pronounced', duration: 0, desc: 'Final verdict delivered' }
+        ];
+
+        let cases = [];
+
+        let notifications = [];
+        let currentView = 'list';
+        let selectedCaseId = null;
+
+        // Get logged-in lawyer info
+        function getLawyerInfo() {
+            try {
+                return JSON.parse(localStorage.getItem('lawyerInfo'));
+            } catch {
+                return null;
+            }
+        }
+
+        // Send notification to backend API
+        async function sendNotificationToAPI(notification) {
+            try {
+                const lawyerInfo = getLawyerInfo();
+                const lawyerId = lawyerInfo?._id || lawyerInfo?.id;
+                if (!lawyerId) return;
+                // Ensure correct lawyerId is sent
+                const notifPayload = {
+                    lawyerId: lawyerId,
+                    type: notification.type || 'case_reminder',
+                    message: notification.message,
+                    caseId: notification.caseId,
+                    status: notification.status || 'pending'
+                };
+                console.log('Sending notification to API:', notifPayload); // Debug log
+                await fetch(`${API_BASE_URL}/notifications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(notifPayload)
+                });
+            } catch (error) {
+                console.error('Failed to send notification to API:', error);
+            }
+        }
+
+        function init() {
+            document.getElementById('newCaseFilingDate').valueAsDate = new Date();
+            // Fetch cases from backend
+            fetch('http://localhost:5000/api/cases')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success && Array.isArray(data.cases)) {
+                        cases = data.cases;
+                    }
+                    renderCases();
+                    checkNotifications();
+                })
+                .catch(function(err) {
+                    renderCases();
+                    checkNotifications();
+                });
+            setInterval(checkNotifications, 60000);
+        }
+
+        function checkNotifications() {
+            const today = new Date();
+            notifications = [];
+
+            cases.forEach(c => {
+                if (c.nextHearingDate) {
+                    const hearingDate = new Date(c.nextHearingDate);
+                    const days = Math.ceil((hearingDate - today) / 86400000);
+
+                    let notif = null;
+                    if (days === 7) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-7days',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": Hearing in 7 days (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 3) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-3days',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": URGENT - Hearing in 3 days! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 1) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-tomorrow',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": CRITICAL - Hearing TOMORROW! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    } else if (days === 0) {
+                        notif = {
+                            id: 'hearing-' + c.id + '-today',
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": URGENT - Hearing TODAY! (' + formatDate(c.nextHearingDate) + ')'
+                        };
+                    }
+
+                    if (notif) {
+                        notifications.push(notif);
+                        sendNotificationToAPI(notif);
+                    }
+                }
+
+                // Check for stage delays
+                const currentStageInfo = STAGES.find(s => s.id === c.currentStage);
+                if (currentStageInfo && c.lastUpdateDate && currentStageInfo.duration > 0) {
+                    const lastUpdate = new Date(c.lastUpdateDate);
+                    const daysSinceUpdate = Math.ceil((today - lastUpdate) / 86400000);
+                    
+                    if (daysSinceUpdate > currentStageInfo.duration * 1.5) {
+                        const delayNotif = {
+                            id: 'delay-' + c.id + '-' + c.currentStage,
+                            caseId: c.id,
+                            caseTitle: c.title,
+                            type: 'case_reminder',
+                            message: 'Case "' + c.title + '": Stage "' + currentStageInfo.name + '" is taking longer than expected (' + daysSinceUpdate + ' days vs expected ' + currentStageInfo.duration + ' days)'
+                        };
+                        notifications.push(delayNotif);
+                        sendNotificationToAPI(delayNotif);
+                    }
+                }
+            });
+
+            updateNotificationBadge();
+            renderNotifications();
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsPanel').classList.toggle('hidden');
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                list.innerHTML = '<p style="color: #999; font-size: 0.9rem;">No active notifications</p>';
+                return;
+            }
+            list.innerHTML = notifications.map(n => {
+                const isUrgent = n.message.includes('URGENT') || n.message.includes('CRITICAL') || n.message.includes('TODAY');
+                const isWarning = n.message.includes('longer than expected');
+                const notifClass = isUrgent ? 'urgent' : isWarning ? 'warning' : 'info';
+                const icon = isUrgent ? 'fa-exclamation-circle' : isWarning ? 'fa-hourglass-half' : 'fa-info-circle';
+                return '<div class="notification ' + notifClass + '"><i class="fas ' + icon + '"></i><p style="margin: 0; font-size: 0.9rem; font-weight: 500;">' + n.message + '</p></div>';
+            }).join('');
+        }
+
+        function calcProgress(c) {
+            return Math.min(Math.round(((c.completedStages.length + 0.5) / STAGES.length) * 100), 100);
+        }
+
+        function calcEndDate(c) {
+            const d = new Date(c.filingDate);
+            let total = 0;
+            STAGES.forEach(s => total += s.duration);
+            d.setDate(d.getDate() + total);
+            return d;
+        }
+
+        function getDays(date) {
+            return Math.ceil((new Date(date) - new Date()) / 86400000);
+        }
+
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-GB');
+        }
+
+        function filterCases() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = cases.filter(c =>
+                c.title.toLowerCase().includes(term) ||
+                c.id.toLowerCase().includes(term) ||
+                c.client.toLowerCase().includes(term) ||
+                c.court.toLowerCase().includes(term)
+            );
+            renderCases(filtered);
+        }
+
+        function renderCases(list = cases) {
+            if (currentView !== 'list') {
+                document.getElementById('casesList').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('casesList').classList.remove('hidden');
+            document.getElementById('caseDetail').classList.add('hidden');
+
+            document.getElementById('casesList').innerHTML = list.map(c => {
+                const prog = calcProgress(c);
+                const endD = calcEndDate(c);
+                const stage = STAGES.find(s => s.id === c.currentStage);
+                const days = c.nextHearingDate ? getDays(c.nextHearingDate) : null;
+                const daysUrgent = days !== null && days <= 3;
+
+                return '<div class="card">' +
+                    '<div class="case-card-header">' +
+                    '<div style="flex: 1;">' +
+                    '<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 10px;">' +
+                    '<h3 class="case-title">' + c.title + '</h3>' +
+                    '<span class="stage-badge">' + (stage ? stage.name : 'Completed') + '</span>' +
+                    '</div>' +
+                    '<p style="font-size: 0.9rem; color: #999; margin-bottom: 15px;"><strong>ID:</strong> ' + c.id + '</p>' +
+                    '<div class="case-meta">' +
+                    '<div class="meta-item"><span class="meta-label"><i class="fas fa-user"></i> Client</span><span class="meta-value">' + c.client + '</span></div>' +
+                    '<div class="meta-item"><span class="meta-label"><i class="fas fa-building"></i> Court</span><span class="meta-value">' + c.court + '</span></div>' +
+                    '<div class="meta-item"><span class="meta-label"><i class="fas fa-calendar-alt"></i> Expected End</span><span class="meta-value">' + formatDate(endD) + '</span></div>' +
+                    '</div>' +
+                    (c.nextHearingDate ? '<div style="margin: 15px 0; font-size: 0.95rem;"><strong style="color: #f57c00;"><i class="fas fa-hourglass-end"></i> Next Hearing: ' + formatDate(c.nextHearingDate) + '</strong> <span style="color: ' + (daysUrgent ? '#e74c3c; font-weight: 700;' : '#999;') + '">(' + days + ' days)</span></div>' : '') +
+                    '<div><div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #999; margin-bottom: 8px;"><span>Progress</span><span style="color: #f57c00; font-weight: 600;">' + prog + '%</span></div>' +
+                    '<div class="progress-bar"><div class="progress-fill" style="width:' + prog + '%"></div></div>' +
+                    '<p class="progress-text">' + c.completedStages.length + ' of ' + STAGES.length + ' stages completed</p></div>' +
+                    '</div>' +
+                    '<button onclick="showDetail(\'' + c.id + '\')" class="btn btn-secondary" style="white-space: nowrap;"><i class="fas fa-info-circle"></i> Details</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function showDetail(id) {
+            selectedCaseId = id;
+            currentView = 'detail';
+            const c = cases.find(x => x.id === id);
+            
+            document.getElementById('casesList').classList.add('hidden');
+            const detail = document.getElementById('caseDetail');
+            detail.classList.remove('hidden');
+
+            const prog = calcProgress(c);
+            const endD = calcEndDate(c);
+            const elapsed = Math.ceil((new Date() - new Date(c.filingDate)) / 86400000);
+            const toEnd = getDays(endD.toISOString().split('T')[0]);
+
+            detail.innerHTML = '<a onclick="backToCases()" class="back-link" style="cursor: pointer;"><i class="fas fa-arrow-left"></i> Back to Cases</a>' +
+                '<div class="card" style="margin-bottom: 30px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">' +
+                '<div style="flex: 1;">' +
+                '<h2 class="case-title" style="margin-bottom: 8px;">' + c.title + '</h2>' +
+                '<p style="color: #999; font-size: 0.9rem;">Case ID: ' + c.id + '</p>' +
+                '</div>' +
+                '<div style="text-align: right;">' +
+                '<div style="font-size: 2.5rem; font-weight: 700; color: #ff9800; margin-bottom: 5px;">' + prog + '%</div>' +
+                '<p style="font-size: 0.85rem; color: #999;">Progress</p>' +
+                '</div>' +
+                '</div>' +
+                '<div class="info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px;">' +
+                '<div>' +
+                '<h4 style="font-size: 0.95rem; font-weight: 600; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Case Information</h4>' +
+                '<div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Client:</span><span style="font-weight: 600;">' + c.client + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Opposing Party:</span><span style="font-weight: 600;">' + c.opposingParty + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Lawyer:</span><span style="font-weight: 600;">' + c.lawyer + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between;"><span style="color: #999;">Filed Date:</span><span style="font-weight: 600;">' + formatDate(c.filingDate) + '</span></div>' +
+                '</div>' +
+                '</div>' +
+                '<div>' +
+                '<h4 style="font-size: 0.95rem; font-weight: 600; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Court Details</h4>' +
+                '<div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Court:</span><span style="font-weight: 600;">' + c.court + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Judge:</span><span style="font-weight: 600;">' + c.judge + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;"><span style="color: #999;">Jurisdiction:</span><span style="font-weight: 600;">' + c.jurisdiction + '</span></div>' +
+                '<div style="display: flex; justify-content: space-between;"><span style="color: #999;">Expected End:</span><span style="font-weight: 600;">' + formatDate(endD) + '</span></div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div style="margin-top: 30px; padding-top: 25px; border-top: 2px solid #ffe0b2;">' +
+                '<label style="display: block; font-size: 0.95rem; font-weight: 600; color: #333; margin-bottom: 12px;">Next Hearing Date</label>' +
+                '<input type="date" id="hearingDateInput" value="' + (c.nextHearingDate || '') + '" onchange="updateHearing()" style="padding: 12px; border: 2px solid #ffe0b2; border-radius: 8px; font-size: 0.95rem; width: 100%; max-width: 300px; transition: border-color 0.3s; font-family: inherit;" onfocus="this.style.borderColor=\'#ff9800\';" onblur="this.style.borderColor=\'#ffe0b2\';">' +
+                '</div>' +
+                '</div>' +
+                '<div class="card">' +
+                '<h3 class="case-title" style="margin-bottom: 25px;">Case Stages Timeline</h3>' +
+                '<div style="display: flex; flex-direction: column; gap: 20px;">' + renderStages(c) + '</div>' +
+                '</div>' +
+                '<div class="card">' +
+                '<h3 class="case-title" style="margin-bottom: 25px;">Case Analytics</h3>' +
+                '<div class="analytics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">' +
+                '<div class="analytics-card" style="background: rgba(255, 152, 0, 0.08); border: 1px solid rgba(255, 152, 0, 0.2); border-radius: 12px; padding: 20px; text-align: center;">' +
+                '<p style="font-size: 0.85rem; color: #999; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Stages Completed</p>' +
+                '<p style="font-size: 2rem; font-weight: 700; color: #ff9800;">' + c.completedStages.length + '/' + STAGES.length + '</p>' +
+                '</div>' +
+                '<div class="analytics-card" style="background: rgba(76, 175, 80, 0.08); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 12px; padding: 20px; text-align: center;">' +
+                '<p style="font-size: 0.85rem; color: #999; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Days Elapsed</p>' +
+                '<p style="font-size: 2rem; font-weight: 700; color: #4caf50;">' + elapsed + '</p>' +
+                '</div>' +
+                '<div class="analytics-card" style="background: rgba(156, 39, 176, 0.08); border: 1px solid rgba(156, 39, 176, 0.2); border-radius: 12px; padding: 20px; text-align: center;">' +
+                '<p style="font-size: 0.85rem; color: #999; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Days Remaining</p>' +
+                '<p style="font-size: 2rem; font-weight: 700; color: #9c27b0;">' + toEnd + '</p>' +
+                '</div>' +
+                '</div></div>';
+        }
+
+        function renderStages(c) {
+            return STAGES.map((s, i) => {
+                const done = c.completedStages.includes(s.id);
+                const curr = c.currentStage === s.id;
+                const hist = c.stageHistory.find(h => h.stageId === s.id);
+                const circleColor = done ? '#4caf50' : curr ? '#ff9800' : '#ccc';
+                const circleText = done ? '✓' : s.id;
+                const connectorColor = done ? '#4caf50' : '#ccc';
+                
+                return '<div style="display: flex; gap: 20px;">' +
+                    '<div style="display: flex; flex-direction: column; align-items: center;">' +
+                    '<div style="width: 40px; height: 40px; border-radius: 50%; background-color: ' + circleColor + '; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">' + circleText + '</div>' +
+                    (i < STAGES.length - 1 ? '<div style="width: 3px; height: 60px; background-color: ' + connectorColor + '; margin: 8px 0;"></div>' : '') +
+                    '</div>' +
+                    '<div style="flex: 1; padding-bottom: 20px;">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
+                    '<h4 style="font-size: 0.95rem; font-weight: 600; color: #333;">' + s.name + '</h4>' +
+                    '<div>' +
+                    (done && hist ? '<span style="font-size: 0.75rem; color: #999;">Completed: ' + formatDate(hist.completedDate) + ' (' + hist.actualDuration + ' days)</span>' : '') +
+                    (curr && !done ? '<button onclick="completeStage(' + s.id + ')" style="font-size: 0.8rem; background: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background=\'#45a049\';" onmouseout="this.style.background=\'#4caf50\';">Mark Complete</button>' : '') +
+                    '</div></div>' +
+                    '<p style="font-size: 0.9rem; color: #666; margin-bottom: 6px;">' + s.desc + '</p>' +
+                    '<p style="font-size: 0.8rem; color: #999;">Expected Duration: ' + s.duration + ' days' + (curr ? ' • <strong>Currently Active</strong>' : '') + '</p>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function completeStage(stageId) {
+            const c = cases.find(x => x.id === selectedCaseId);
+            const today = new Date().toISOString().split('T')[0];
+            let dur = 0;
+            if (c.stageHistory.length > 0) {
+                const last = c.stageHistory[c.stageHistory.length - 1];
+                dur = Math.ceil((new Date(today) - new Date(last.completedDate)) / 86400000);
+            } else {
+                dur = Math.ceil((new Date(today) - new Date(c.filingDate)) / 86400000);
+            }
+
+            c.completedStages.push(stageId);
+            c.currentStage = stageId + 1;
+            c.lastUpdateDate = today;
+            c.stageHistory.push({ stageId: stageId, completedDate: today, actualDuration: dur });
+
+            const stage = STAGES.find(s => s.id === stageId);
+            if (stage) {
+                const notif = {
+                    caseId: c.id,
+                    type: 'case_update',
+                    message: 'Case "' + c.title + '": Stage "' + stage.name + '" completed on ' + formatDate(today)
+                };
+                sendNotificationToAPI(notif);
+            }
+
+            showDetail(selectedCaseId);
+            checkNotifications();
+        }
+
+        function updateHearing() {
+            const c = cases.find(x => x.id === selectedCaseId);
+            const newDate = document.getElementById('hearingDateInput').value;
+            c.nextHearingDate = newDate;
+            
+            if (newDate) {
+                const notif = {
+                    caseId: c.id,
+                    type: 'case_reminder',
+                    message: 'Case "' + c.title + '": Hearing date set for ' + formatDate(newDate)
+                };
+                sendNotificationToAPI(notif);
+            }
+            
+            checkNotifications();
+        }
+
+        function backToCases() {
+            currentView = 'list';
+            renderCases();
+        }
+
+        function showNewCaseModal() {
+            document.getElementById('newCaseModal').classList.add('active');
+        }
+
+        function closeNewCaseModal() {
+            document.getElementById('newCaseModal').classList.remove('active');
+        }
+
+        function createCase() {
+            const title = document.getElementById('newCaseTitle').value;
+            const client = document.getElementById('newCaseClient').value;
+            const court = document.getElementById('newCaseCourt').value;
+
+            if (!title || !client || !court) {
+                alert('Please fill required fields');
+                return;
+            }
+
+            // Generate a unique id using timestamp and random number
+            const uniqueId = 'CASE-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+
+            const newCase = {
+                id: uniqueId,
+                title: title,
+                client: client,
+                opposingParty: document.getElementById('newCaseOpposing').value,
+                lawyer: document.getElementById('newCaseLawyer').value,
+                court: court,
+                judge: document.getElementById('newCaseJudge').value,
+                jurisdiction: document.getElementById('newCaseJurisdiction').value,
+                filingDate: document.getElementById('newCaseFilingDate').value,
+                nextHearingDate: document.getElementById('newCaseHearing').value,
+                currentStage: 1,
+                completedStages: [],
+                stageHistory: [],
+                lastUpdateDate: document.getElementById('newCaseFilingDate').value
+            };
+
+            // Disable button to prevent double submit
+            const createBtn = document.querySelector('button[onclick="createCase()"]');
+            if (createBtn) createBtn.disabled = true;
+
+            // Save to MongoDB via backend API (use full URL for cross-origin)
+            fetch('http://localhost:5000/api/cases', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newCase)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to save case to database: ' + (data.message || 'Unknown error'));
+                } else {
+                    // Refetch cases from backend to update UI with latest data
+                    fetch('http://localhost:5000/api/cases')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && Array.isArray(data.cases)) {
+                                cases = data.cases;
+                                renderCases();
+                                checkNotifications();
+                            }
+                            closeNewCaseModal();
+                            // Re-enable button
+                            if (createBtn) createBtn.disabled = false;
+                            document.getElementById('newCaseTitle').value = '';
+                            document.getElementById('newCaseClient').value = '';
+                            document.getElementById('newCaseOpposing').value = '';
+                            document.getElementById('newCaseLawyer').value = '';
+                            document.getElementById('newCaseCourt').value = '';
+                            document.getElementById('newCaseJudge').value = '';
+                            document.getElementById('newCaseHearing').value = '';
+                        });
+                }
+            })
+            .catch(err => {
+                alert('Error saving case to database: ' + err);
+                if (createBtn) createBtn.disabled = false;
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

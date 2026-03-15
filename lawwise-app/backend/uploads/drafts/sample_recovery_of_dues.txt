@@ -1,0 +1,9 @@
+Mr. John Doe (Proprietor of Apex Tech) provided software development services to Mr. Robert Smith of Smith Corp under an agreement dated January 15, 2026. The total project value was $10,000. While $4,000 has been paid, an outstanding balance of $6,000 remains unpaid since February 20, 2026, despite multiple reminders. Smith Corp is now in breach of the payment terms.
+
+Structured Data:
+Client: Mr. John Doe
+Recipient: Mr. Robert Smith, Smith Corp
+Amount: $6,000
+Dated: January 15, 2026
+Issue: Non-payment for software services
+Background: Service Agreement for app development

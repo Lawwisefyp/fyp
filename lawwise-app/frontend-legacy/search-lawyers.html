@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Lawyer - Lawwise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #c19651;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #d4a574;
+        }
+
+        .search-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .search-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #c19651;
+            box-shadow: 0 0 0 3px rgba(193, 150, 81, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-search {
+            flex: 1;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(193, 150, 81, 0.3);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 25px 30px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .results-count {
+            background: #c19651;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .lawyer-card {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 25px 30px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 25px;
+            align-items: start;
+            transition: all 0.3s;
+        }
+
+        .lawyer-card:last-child {
+            border-bottom: none;
+        }
+
+        .lawyer-card:hover {
+            background: #fafbfc;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .lawyer-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(193, 150, 81, 0.2);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(193, 150, 81, 0.2);
+            overflow: hidden;
+        }
+
+        .lawyer-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lawyer-info {
+            flex: 1;
+        }
+
+        .lawyer-header {
+            display: flex;
+            align-items: start;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .lawyer-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .bar-number {
+            background: #e3f2fd;
+            color: #0d47a1;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .lawyer-credentials {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .credential {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+        }
+
+        .credential-icon {
+            font-size: 1.1rem;
+        }
+
+        .practice-areas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .practice-area {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #e65100;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .lawyer-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1.1rem;
+        }
+
+        .review-count {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .lawyer-bio {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            max-width: 100%;
+        }
+
+        .lawyer-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .lawyer-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+
+        .hourly-rate {
+            text-align: right;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-width: 140px;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .btn-contact {
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+        }
+
+        .btn-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(193, 150, 81, 0.3);
+        }
+
+        .btn-profile {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-profile:hover {
+            background: #e0e0e0;
+            border-color: #c0c0c0;
+        }
+
+        .btn-favorite {
+            background: #fff3e0;
+            color: #ffc107;
+            border: 2px solid #ffc107;
+        }
+
+        .btn-favorite:hover {
+            background: #ffc107;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 30px 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .page-btn:hover {
+            border-color: #c19651;
+            color: #c19651;
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+            color: white;
+            border-color: #c19651;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 30px;
+            color: #888;
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .no-results-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 30px;
+            color: #888;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c19651;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .availability-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .availability-available {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .availability-busy {
+            background: #ffccbc;
+            color: #d84315;
+        }
+
+        @media (max-width: 768px) {
+            .lawyer-card {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .lawyer-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .lawyer-actions {
+                align-items: stretch;
+            }
+
+            .btn-action,
+            .hourly-rate {
+                min-width: auto;
+                text-align: center;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-buttons {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="client-dashboard.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="header">
+            <h1>🔍 Find the Right Lawyer</h1>
+            <p>Search through our network of experienced and qualified legal professionals</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <h2 class="search-title">Search Lawyers</h2>
+            <form id="searchForm" class="search-form">
+                <div class="form-group">
+                    <label for="query">Lawyer Name or Specialization</label>
+                    <input type="text" id="query" name="query" placeholder="e.g., John Doe or Criminal Law">
+                </div>
+
+                <div class="form-group">
+                    <label for="practiceArea">Practice Area</label>
+                    <select id="practiceArea" name="practiceArea">
+                        <option value="">All Practice Areas</option>
+                        <option value="Criminal Law">Criminal Law</option>
+                        <option value="Family Law">Family Law</option>
+                        <option value="Corporate Law">Corporate Law</option>
+                        <option value="Civil Law">Civil Law</option>
+                        <option value="Immigration Law">Immigration Law</option>
+                        <option value="Tax Law">Tax Law</option>
+                        <option value="Property Law">Property Law</option>
+                        <option value="Labor Law">Labor Law</option>
+                        <option value="Intellectual Property">Intellectual Property</option>
+                        <option value="Bankruptcy Law">Bankruptcy Law</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City/Location</label>
+                    <input type="text" id="city" name="city" placeholder="e.g., Karachi, Lahore">
+                </div>
+
+                <div class="form-group">
+                    <label for="minExperience">Years of Experience</label>
+                    <select id="minExperience" name="minExperience">
+                        <option value="">Any Experience</option>
+                        <option value="1">1+ years</option>
+                        <option value="3">3+ years</option>
+                        <option value="5">5+ years</option>
+                        <option value="10">10+ years</option>
+                        <option value="20">20+ years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxRate">Hourly Rate (Max)</label>
+                    <input type="number" id="maxRate" name="maxRate" placeholder="e.g., 5000" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="isAvailable">Availability</label>
+                    <select id="isAvailable" name="isAvailable">
+                        <option value="">All Lawyers</option>
+                        <option value="true">Available Now</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rating">Minimum Rating</label>
+                    <select id="rating" name="rating">
+                        <option value="">All Ratings</option>
+                        <option value="3">⭐ 3+ Stars</option>
+                        <option value="3.5">⭐ 3.5+ Stars</option>
+                        <option value="4">⭐ 4+ Stars</option>
+                        <option value="4.5">⭐ 4.5+ Stars</option>
+                    </select>
+                </div>
+
+                <div class="search-buttons">
+                    <button type="submit" class="btn-search">🔍 Search Lawyers</button>
+                    <button type="button" class="btn-clear" onclick="clearFilters()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <div class="results-header">
+                <div>
+                    <div class="results-title" id="resultsTitle">Search Results</div>
+                </div>
+                <div class="results-count" id="resultsCount" style="display: none;"></div>
+            </div>
+
+            <div id="resultsContainer">
+                <div class="loading">
+                    Enter your search criteria above to find lawyers
+                </div>
+            </div>
+
+            <div id="pagination" class="pagination" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let allResults = [];
+
+        // Handle search form submission
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            currentPage = 1;
+            await performSearch();
+        });
+
+        async function performSearch() {
+            const form = document.getElementById('searchForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+
+            for (let [key, value] of formData.entries()) {
+                if (value && value.trim()) {
+                    params.append(key, value);
+                }
+            }
+
+            params.append('page', currentPage);
+            params.append('limit', 10);
+
+            try {
+                showLoading();
+
+                const backend = 'http://localhost:5000';
+                const url = `${backend}/api/lawyer/search?${params.toString()}`;
+                console.log('Fetching from URL:', url);
+
+                const response = await fetch(url);
+                console.log('Response status:', response.status, 'content-type:', response.headers.get('content-type'));
+
+                const contentType = (response.headers.get('content-type') || '').toLowerCase();
+                let result;
+                if (contentType.includes('application/json')) {
+                    result = await response.json();
+                    console.log('Full response (JSON):', result);
+                } else {
+                    const text = await response.text();
+                    console.error('Non-JSON response from server:', text);
+                    showError(`Server returned non-JSON response (status ${response.status}). Check console/network for details.`);
+                    return;
+                }
+
+                if (result.success) {
+                    console.log('Found lawyers:', result.lawyers.length);
+                    allResults = result.lawyers || [];
+                    
+                    if (allResults.length === 0) {
+                        showError('No lawyers found matching your criteria. Try adjusting your search filters.');
+                    } else {
+                        displayResults(allResults, result.pagination);
+                    }
+                } else {
+                    console.error('API returned success: false', result);
+                    showError(result.message || 'No lawyers found. Try adjusting your search criteria.');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Error searching lawyers. Please try again. Error: ' + error.message);
+            }
+        }
+
+        function displayResults(lawyers, pagination) {
+            const container = document.getElementById('resultsContainer');
+
+            if (!lawyers || lawyers.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <div class="no-results-title">No Lawyers Found</div>
+                        <p>Try adjusting your search criteria or browse all lawyers</p>
+                    </div>
+                `;
+                document.getElementById('pagination').style.display = 'none';
+                document.getElementById('resultsCount').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('resultsCount').textContent = `${pagination?.totalResults || lawyers.length} Results`;
+            document.getElementById('resultsCount').style.display = 'block';
+            document.getElementById('resultsTitle').textContent = 'Available Lawyers';
+
+            container.innerHTML = lawyers.map(lawyer => {
+                const rating = lawyer.ratings?.averageRating || 4.5;
+                const reviews = lawyer.ratings?.totalReviews || 0;
+                let initials = '';
+                let displayName = '';
+                if (lawyer.personalInfo?.firstName || lawyer.personalInfo?.lastName) {
+                    initials = `${lawyer.personalInfo?.firstName?.charAt(0) || ''}${lawyer.personalInfo?.lastName?.charAt(0) || ''}`;
+                    displayName = `${lawyer.personalInfo?.firstName || ''} ${lawyer.personalInfo?.lastName || ''}`.trim();
+                } else if (lawyer.fullName) {
+                    const parts = lawyer.fullName.split(' ');
+                    initials = parts[0]?.charAt(0) || 'L';
+                    if (parts.length > 1) initials += parts[1].charAt(0);
+                    displayName = lawyer.fullName;
+                } else {
+                    initials = 'LW';
+                    displayName = 'Lawyer';
+                }
+
+                return `
+                    <div class="lawyer-card">
+                        <div class="lawyer-avatar">
+                            ${lawyer.personalInfo?.profilePicture ? 
+                                `<img src="/${lawyer.personalInfo.profilePicture}" alt="Profile">` :
+                                initials
+                            }
+                        </div>
+
+                        <div class="lawyer-info">
+                            <div class="lawyer-header">
+                                <div>
+                                    <div class="lawyer-name">${displayName}</div>
+                                    <span class="bar-number">BAR: ${lawyer.barNumber || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div class="lawyer-credentials">
+                                <div class="credential">
+                                    <span class="credential-icon">📍</span>
+                                    <span>${lawyer.personalInfo?.city || 'N/A'}</span>
+                                </div>
+                                <div class="credential">
+                                    <span class="credential-icon">💼</span>
+                                    <span>${lawyer.professionalInfo?.yearsOfExperience || 0} years experience</span>
+                                </div>
+                                <div class="credential">
+                                    <span class="credential-icon">🟢</span>
+                                    <span class="availability-badge ${lawyer.professionalInfo?.isAvailable ? 'availability-available' : 'availability-busy'}">
+                                        ${lawyer.professionalInfo?.isAvailable ? 'Available' : 'Busy'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="lawyer-rating">
+                                <span class="stars">${'⭐'.repeat(Math.floor(rating))}${rating % 1 !== 0 ? '⭐' : ''}</span>
+                                <span>${rating.toFixed(1)}</span>
+                                <span class="review-count">(${reviews} reviews)</span>
+                            </div>
+
+                            ${lawyer.professionalInfo?.practiceAreas && lawyer.professionalInfo.practiceAreas.length > 0 ?
+                                `<div class="practice-areas">
+                                    ${lawyer.professionalInfo.practiceAreas.slice(0, 4).map(area => 
+                                        `<span class="practice-area">${area}</span>`
+                                    ).join('')}
+                                    ${lawyer.professionalInfo.practiceAreas.length > 4 ? `<span class="practice-area">+${lawyer.professionalInfo.practiceAreas.length - 4} more</span>` : ''}
+                                </div>` : ''
+                            }
+
+                            ${lawyer.personalInfo?.bio ? 
+                                `<div class="lawyer-bio">${lawyer.personalInfo.bio.substring(0, 200)}${lawyer.personalInfo.bio.length > 200 ? '...' : ''}</div>` : 
+                                ''
+                            }
+
+                            <div class="lawyer-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">Specialization</span>
+                                    <span class="meta-value">${lawyer.specialization || 'General Practice'}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Experience</span>
+                                    <span class="meta-value">${lawyer.professionalInfo?.yearsOfExperience || 0} Years</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Success Rate</span>
+                                    <span class="meta-value">${lawyer.successRate || '95'}%</span>
+                                </div>
+                                ${lawyer.professionalInfo?.hourlyRate ? `
+                                <div class="meta-item">
+                                    <span class="meta-label">Hourly Rate</span>
+                                    <span class="meta-value">PKR ${lawyer.professionalInfo.hourlyRate}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="lawyer-actions">
+                            ${lawyer.professionalInfo?.hourlyRate ? 
+                                `<div class="hourly-rate">PKR ${lawyer.professionalInfo.hourlyRate}/hr</div>` : 
+                                '<div class="hourly-rate">Rate on Request</div>'
+                            }
+                            <button class="btn-action btn-contact" onclick="contactLawyer('${lawyer._id || lawyer.id}')">Message</button>
+                            <button class="btn-action btn-profile" onclick="viewProfile('${lawyer._id || lawyer.id}')">View Profile</button>
+                            <button class="btn-action btn-favorite" onclick="addToFavorite('${lawyer._id || lawyer.id}')">⭐ Save</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (pagination && pagination.totalPages > 1) {
+                displayPagination(pagination);
+            }
+        }
+
+        function displayPagination(pagination) {
+            const paginationContainer = document.getElementById('pagination');
+
+            if (!pagination || pagination.totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'flex';
+
+            let paginationHTML = '';
+
+            if (pagination.currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="goToPage(${pagination.currentPage - 1})">← Previous</button>`;
+            }
+
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="page-btn ${i === pagination.currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (pagination.currentPage < pagination.totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="goToPage(${pagination.currentPage + 1})">Next →</button>`;
+            }
+
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        async function goToPage(page) {
+            currentPage = page;
+            await performSearch();
+            window.scrollTo(0, document.querySelector('.results-section').offsetTop - 100);
+        }
+
+        function showLoading() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching for lawyers...</p>
+                </div>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">⚠️</div>
+                    <div class="no-results-title">${message}</div>
+                </div>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        function contactLawyer(lawyerId) {
+            localStorage.setItem('selectedLawyerId', lawyerId);
+            alert('Opening contact form for this lawyer...');
+            // Implement contact functionality - could open a modal or redirect
+        }
+
+        function viewProfile(lawyerId) {
+            localStorage.setItem('selectedLawyerId', lawyerId);
+            window.location.href = `lawyer-profile.html?id=${lawyerId}`;
+        }
+
+        function addToFavorite(lawyerId) {
+            let favorites = JSON.parse(localStorage.getItem('favoriteLawyers') || '[]');
+            if (!favorites.includes(lawyerId)) {
+                favorites.push(lawyerId);
+                localStorage.setItem('favoriteLawyers', JSON.stringify(favorites));
+                alert('✓ Lawyer added to favorites!');
+            } else {
+                alert('Already in your favorites!');
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('searchForm').reset();
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="loading">
+                    Enter your search criteria above to find lawyers
+                </div>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+            document.getElementById('resultsCount').style.display = 'none';
+        }
+
+        // Load initial data
+        window.addEventListener('load', () => {
+            // Automatically load all lawyers on page load
+            performSearch();
+        });
+    </script>
+</body>
+</html>

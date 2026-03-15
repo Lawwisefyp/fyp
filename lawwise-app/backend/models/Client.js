@@ -10,29 +10,37 @@ const clientSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Email is required'],
+        required: [true, 'Official email address is required'],
         unique: true,
         lowercase: true,
-        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid official email address']
     },
     password: {
         type: String,
         required: [true, 'Password is required'],
         minlength: [8, 'Password must be at least 8 characters']
     },
+    phoneNumber: {
+        type: String,
+        trim: true
+    },
+    resetPasswordOTP: { type: String },
+    resetPasswordOTPExpires: { type: Date },
+    isEmailVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
 
-clientSchema.pre('save', async function(next) {
+clientSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 
-clientSchema.methods.comparePassword = function(candidatePassword) {
+clientSchema.methods.comparePassword = function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 

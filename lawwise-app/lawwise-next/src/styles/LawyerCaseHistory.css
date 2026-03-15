@@ -1,0 +1,233 @@
+.case-history-body {
+    background: linear-gradient(135deg, #e3bb7a 0%, #ffe0b2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.case-history-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.case-history-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.case-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.case-header-title h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0 0 10px;
+    background: linear-gradient(45deg, #d88509, #ffb74d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.case-header-title p {
+    font-size: 1.1rem;
+    color: #64748b;
+}
+
+.case-search-box {
+    position: relative;
+    max-width: 600px;
+}
+
+.case-search-input {
+    width: 100%;
+    padding: 15px 25px 15px 60px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.case-search-input:focus {
+    outline: none;
+    border-color: #ffb74d;
+    box-shadow: 0 0 0 4px rgba(255, 183, 77, 0.2);
+}
+
+.case-search-icon {
+    position: absolute;
+    left: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.2rem;
+}
+
+.case-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    border: 1px solid #f1f5f9;
+}
+
+.case-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+}
+
+.case-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.case-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.case-card-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: #fffbeb;
+    color: #d97706;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.case-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.case-stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.case-stat-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.case-stat-value {
+    font-size: 1rem;
+    color: #334155;
+    font-weight: 700;
+}
+
+.case-progress-wrapper {
+    margin-top: 20px;
+}
+
+.case-progress-bar {
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.case-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9800, #ffb74d);
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+.case-progress-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.btn-case-action {
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 0.95rem;
+}
+
+.btn-case-primary {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-case-success {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: white;
+    border-radius: 25px;
+    padding: 40px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.form-input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-input-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .case-header-top {
+        flex-direction: column;
+        gap: 20px;
+    }
+}

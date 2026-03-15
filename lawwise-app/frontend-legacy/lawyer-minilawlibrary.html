@@ -1,0 +1,1681 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Library - Document Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .upload-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .tab.active .tab-badge {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .document-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .document-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .doc-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .doc-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .doc-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .view-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .view-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .download-btn {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+
+        .download-btn:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .delete-btn {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .delete-btn:hover {
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .viewer-modal .modal-content {
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viewer-body {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .viewer-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .viewer-placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Legal Library</h1>
+            <p>Manage and study your legal documents</p>
+            <div class="header-actions">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search documents...">
+                </div>
+                <button class="upload-btn" onclick="openUploadModal()">
+                    📤 Upload Document
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="tab active" data-category="all" onclick="filterDocuments('all')">
+                All Documents <span class="tab-badge" id="badge-all">15</span>
+            </button>
+            <button class="tab" data-category="statutes" onclick="filterDocuments('statutes')">
+                📜 Statutes <span class="tab-badge" id="badge-statutes">8</span>
+            </button>
+            <button class="tab" data-category="rules" onclick="filterDocuments('rules')">
+                ⚖️ Rules <span class="tab-badge" id="badge-rules">4</span>
+            </button>
+            <button class="tab" data-category="cases" onclick="filterDocuments('cases')">
+                🏛️ Case Law <span class="tab-badge" id="badge-cases">3</span>
+            </button>
+        </div>
+
+        <div class="documents-grid" id="documentsGrid">
+        </div>
+    </div>
+
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload Document</h2>
+                <button class="close-btn" onclick="closeUploadModal()">×</button>
+            </div>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📄</div>
+                <p class="upload-text">Click to upload or drag and drop</p>
+                <p class="upload-hint">PDF, DOC, DOCX, TXT, RTF (Max 25MB)</p>
+                <input type="file" id="fileInput" style="display: none;" multiple accept=".pdf,.doc,.docx,.txt,.rtf" onchange="handleFileSelect(event)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Document Title</label>
+                <input type="text" class="form-input" id="docTitle" placeholder="Enter document title">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="docCategory">
+                    <option value="statutes">Statutes</option>
+                    <option value="rules">Rules</option>
+                    <option value="cases">Case Law</option>
+                </select>
+            </div>
+            <button class="submit-btn" onclick="uploadDocument()">Upload Document</button>
+        </div>
+    </div>
+
+    <div class="modal viewer-modal" id="viewerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="viewerTitle">Document Viewer</h2>
+                <button class="close-btn" onclick="closeViewerModal()">×</button>
+            </div>
+            <div class="viewer-body">
+                <div class="viewer-placeholder">
+                    <div class="viewer-placeholder-icon">📄</div>
+                    <p><strong>Document Preview</strong></p>
+                    <p style="margin-top: 10px; color: #999;">In a full implementation, the document content would be displayed here.</p>
+                    <p style="margin-top: 10px; color: #999;">You can read, highlight, and take notes on your documents.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var documents = [
+            { id: 1, title: 'Civil Procedure Code 1908', category: 'statutes', type: 'PDF', size: '2.4 MB', date: '2024-01-15', pages: 234 },
+            { id: 2, title: 'Pakistan Penal Code 1860', category: 'statutes', type: 'PDF', size: '3.1 MB', date: '2024-01-20', pages: 312 },
+            { id: 3, title: 'Contract Act 1872', category: 'statutes', type: 'PDF', size: '1.8 MB', date: '2024-02-01', pages: 156 },
+            { id: 4, title: 'Qanun-e-Shahadat Order 1984', category: 'statutes', type: 'PDF', size: '987 KB', date: '2024-02-05', pages: 67 },
+            { id: 5, title: 'Transfer of Property Act 1882', category: 'statutes', type: 'PDF', size: '1.5 MB', date: '2024-01-25', pages: 145 },
+            { id: 6, title: 'Negotiable Instruments Act 1881', category: 'statutes', type: 'PDF', size: '890 KB', date: '2024-02-10', pages: 89 },
+            { id: 7, title: 'Sale of Goods Act 1930', category: 'statutes', type: 'PDF', size: '654 KB', date: '2024-01-18', pages: 78 },
+            { id: 8, title: 'Companies Act 2017', category: 'statutes', type: 'PDF', size: '4.2 MB', date: '2024-02-08', pages: 456 },
+            { id: 9, title: 'Supreme Court Rules 1980', category: 'rules', type: 'PDF', size: '1.2 MB', date: '2024-01-10', pages: 89 },
+            { id: 10, title: 'High Court Rules 1992', category: 'rules', type: 'PDF', size: '1.4 MB', date: '2024-01-22', pages: 102 },
+            { id: 11, title: 'Code of Civil Procedure Rules', category: 'rules', type: 'PDF', size: '876 KB', date: '2024-02-03', pages: 67 },
+            { id: 12, title: 'Arbitration Rules 2005', category: 'rules', type: 'PDF', size: '543 KB', date: '2024-01-28', pages: 45 },
+            { id: 13, title: 'PLD 2023 SC 456', category: 'cases', type: 'PDF', size: '456 KB', date: '2023-11-12', pages: 34 },
+            { id: 14, title: 'PLD 2023 SC 567', category: 'cases', type: 'PDF', size: '523 KB', date: '2023-12-05', pages: 41 },
+            { id: 15, title: 'PLD 2024 SC 123', category: 'cases', type: 'PDF', size: '398 KB', date: '2024-01-30', pages: 28 }
+        ];
+
+        var selectedFiles = [];
+        var currentCategory = 'all';
+
+        function renderDocuments() {
+            var grid = document.getElementById('documentsGrid');
+            var searchQuery = document.getElementById('searchBox').value.toLowerCase();
+            
+            var filtered = documents.filter(function(doc) {
+                var matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
+                var matchesSearch = doc.title.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            grid.innerHTML = filtered.map(function(doc) {
+                return '<div class="document-card">' +
+                    '<div class="doc-icon">' + getDocIcon(doc.type) + '</div>' +
+                    '<h3 class="doc-title">' + doc.title + '</h3>' +
+                    '<span class="doc-category">' + getCategoryName(doc.category) + '</span>' +
+                    '<div class="doc-meta">' +
+                        '<span>📄 ' + doc.pages + ' pages</span>' +
+                        '<span>💾 ' + doc.size + '</span>' +
+                    '</div>' +
+                    '<div class="doc-meta">' +
+                        '<span>📅 ' + doc.date + '</span>' +
+                        '<span>📝 ' + doc.type + '</span>' +
+                    '</div>' +
+                    '<div class="doc-actions">' +
+                        '<button class="action-btn view-btn" onclick="viewDocument(' + doc.id + ')">👁️ View</button>' +
+                        '<button class="action-btn download-btn" onclick="downloadDocument(' + doc.id + ')">⬇️ Download</button>' +
+                        '<button class="action-btn delete-btn" onclick="deleteDocument(' + doc.id + ')">🗑️ Delete</button>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function getDocIcon(type) {
+            var icons = {
+                'PDF': '📕',
+                'DOC': '📘',
+                'DOCX': '📘',
+                'TXT': '📄',
+                'RTF': '📃'
+            };
+            return icons[type] || '📄';
+        }
+
+        function getCategoryName(category) {
+            var names = {
+                'statutes': '📜 Statutes',
+                'rules': '⚖️ Rules',
+                'cases': '🏛️ Case Law'
+            };
+            return names[category] || category;
+        }
+
+        function filterDocuments(category) {
+            currentCategory = category;
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            document.querySelector('[data-category="' + category + '"]').classList.add('active');
+            renderDocuments();
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+            document.getElementById('fileInput').value = '';
+            document.getElementById('docTitle').value = '';
+            selectedFiles = [];
+        }
+
+        function handleFileSelect(event) {
+            selectedFiles = Array.from(event.target.files);
+            if (selectedFiles.length > 0) {
+                document.getElementById('docTitle').value = selectedFiles[0].name.replace(/\.[^/.]+$/, "");
+            }
+        }
+
+        function uploadDocument() {
+            var title = document.getElementById('docTitle').value;
+            var category = document.getElementById('docCategory').value;
+            
+            if (!title || selectedFiles.length === 0) {
+                alert('Please select a file and enter a title');
+                return;
+            }
+
+            selectedFiles.forEach(function(file) {
+                var newDoc = {
+                    id: documents.length + 1,
+                    title: title,
+                    category: category,
+                    type: file.name.split('.').pop().toUpperCase(),
+                    size: (file.size / 1024).toFixed(0) + ' KB',
+                    date: new Date().toISOString().split('T')[0],
+                    pages: Math.floor(Math.random() * 200) + 10
+                };
+                documents.push(newDoc);
+            });
+
+            updateBadges();
+            renderDocuments();
+            closeUploadModal();
+            alert('Document(s) uploaded successfully!');
+        }
+
+        function updateBadges() {
+            document.getElementById('badge-all').textContent = documents.length;
+            document.getElementById('badge-statutes').textContent = documents.filter(function(d) { return d.category === 'statutes'; }).length;
+            document.getElementById('badge-rules').textContent = documents.filter(function(d) { return d.category === 'rules'; }).length;
+            document.getElementById('badge-cases').textContent = documents.filter(function(d) { return d.category === 'cases'; }).length;
+        }
+
+        function viewDocument(id) {
+            var doc = documents.find(function(d) { return d.id === id; });
+            document.getElementById('viewerTitle').textContent = doc.title;
+            document.getElementById('viewerModal').classList.add('active');
+        }
+
+        function closeViewerModal() {
+            document.getElementById('viewerModal').classList.remove('active');
+        }
+
+        function downloadDocument(id) {
+            var doc = documents.find(function(d) { return d.id === id; });
+            alert('Downloading: ' + doc.title);
+        }
+
+        function deleteDocument(id) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                documents = documents.filter(function(d) { return d.id !== id; });
+                updateBadges();
+                renderDocuments();
+            }
+        }
+
+        document.getElementById('searchBox').addEventListener('input', renderDocuments);
+
+        renderDocuments();
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiDoc: Professional Legal Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ... (Your original CSS is kept for the professional look, 
+        but the icons will be updated to use Font Awesome for consistency) ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); /* Vibrant purple matching dashboard */
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box:focus {
+            border-color: #7b1fa2;
+            box-shadow: 0 0 20px rgba(123, 31, 162, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 1.2rem;
+        }
+
+        .upload-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(123, 31, 162, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(123, 31, 162, 0.4);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: rgba(123, 31, 162, 0.1);
+            transform: translateY(-2px);
+            color: #7b1fa2;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            color: white;
+            box-shadow: 0 10px 20px rgba(123, 31, 162, 0.3);
+            border: none;
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: inherit;
+        }
+
+        .tab.active .tab-badge {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .document-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .document-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .doc-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .doc-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .doc-category {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(123, 31, 162, 0.1);
+            color: #7b1fa2;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .doc-meta > span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .doc-meta i {
+            font-size: 0.9em;
+            color: #7b1fa2;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .view-btn {
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            color: white;
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.2);
+            border-radius: 25px;
+            flex: 1;
+        }
+
+        .view-btn:hover {
+            background: linear-gradient(45deg, #6a1b8a, #ad1457);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.4);
+        }
+
+        .download-btn {
+            background: rgba(123, 31, 162, 0.1);
+            color: #7b1fa2;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        .download-btn:hover {
+            background: #7b1fa2;
+            color: white;
+        }
+
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-radius: 25px;
+            font-weight: 600;
+            flex: unset;
+            width: auto;
+            padding: 10px 12px;
+        }
+
+        .delete-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border: none;
+        }
+
+        .viewer-modal .modal-content {
+            max-width: 95%;
+            max-height: 95vh;
+            width: 1200px;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            padding-bottom: 10px;
+        }
+
+        .viewer-body {
+            flex: 1;
+            overflow: hidden; /* Prevent scrollbar on viewer-body */
+            margin-top: 10px;
+            /* padding: 20px; Removed padding */
+            background: #ecf0f1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Iframe style for PDF/document viewing */
+        .viewer-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+            background: #ecf0f1;
+        }
+
+        .document-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            line-height: 1.8;
+            color: #333;
+            font-size: 1rem;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* Allow scrolling content */
+        }
+        
+        .viewer-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            width: 100%;
+        }
+
+        /* Removed redundant modal styles */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            color: #7b1fa2;
+            background: rgba(123, 31, 162, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #7b1fa2;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background: rgba(123, 31, 162, 0.02);
+        }
+
+        .upload-area:hover {
+            background: rgba(123, 31, 162, 0.08);
+            border-color: #c2185b;
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #7b1fa2;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #7b1fa2;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.15);
+            background: rgba(123, 31, 162, 0.02);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #7b1fa2, #c2185b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(123, 31, 162, 0.4);
+        }
+
+        .no-documents {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+        
+        .no-documents-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .category-list li:hover {
+            color: #7b1fa2;
+            padding-left: 10px;
+        }
+
+        .category-list li:last-child {
+            border-bottom: none;
+        }
+
+        .category-count {
+            background: rgba(123, 31, 162, 0.1);
+            color: #7b1fa2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+             
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-book-open"></i> LexiDoc: Legal Library</h1>
+            <p>A professional platform for managing and accessing legal documents.</p>
+            <div class="header-actions">
+                <div class="search-container">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search by title, keyword, or law...">
+                </div>
+                <button class="upload-btn" onclick="openUploadModal()">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Document
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3><i class="fas fa-list"></i> Document Categories</h3>
+            <ul class="category-list">
+                <li onclick="filterDocuments('all')">
+                    All Documents
+                    <span class="category-count" id="cat-all">0</span>
+                </li>
+                <li onclick="filterDocuments('statutes')">
+                    Statutes & Laws
+                    <span class="category-count" id="cat-statutes">0</span>
+                </li>
+                <li onclick="filterDocuments('rules')">
+                    Rules & Procedures
+                    <span class="category-count" id="cat-rules">0</span>
+                </li>
+                <li onclick="filterDocuments('cases')">
+                    Case Law & Judgements
+                    <span class="category-count" id="cat-cases">0</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="tab active" data-category="all" onclick="filterDocuments('all')">
+                <i class="fas fa-folder"></i> All Documents <span class="tab-badge" id="badge-all">0</span>
+            </button>
+            <button class="tab" data-category="statutes" onclick="filterDocuments('statutes')">
+                <i class="fas fa-gavel"></i> Statutes <span class="tab-badge" id="badge-statutes">0</span>
+            </button>
+            <button class="tab" data-category="rules" onclick="filterDocuments('rules')">
+                <i class="fas fa-balance-scale"></i> Rules <span class="tab-badge" id="badge-rules">0</span>
+            </button>
+            <button class="tab" data-category="cases" onclick="filterDocuments('cases')">
+                <i class="fas fa-landmark"></i> Case Law <span class="tab-badge" id="badge-cases">0</span>
+            </button>
+        </div>
+
+        <div class="documents-grid" id="documentsGrid">
+        </div>
+    </div>
+
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-upload"></i> Upload Document</h2>
+                <button class="close-btn" onclick="closeUploadModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon"><i class="fas fa-file-upload"></i></div>
+                <p class="upload-text">**Click to select files** or drag & drop here</p>
+                <p class="upload-hint">Accepted formats: **PDF**, DOCX, TXT. (Max 5 files)</p>
+                <input type="file" id="fileInput" style="display: none;" multiple accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
+                <p id="selectedFileNames" style="margin-top: 10px; color: #7b1fa2; font-weight: 500;"></p>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="docTitle"><i class="fas fa-heading"></i> Document Title</label>
+                <input type="text" class="form-input" id="docTitle" placeholder="Enter document title">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="docCategory"><i class="fas fa-list"></i> Category</label>
+                <select class="form-select" id="docCategory">
+                    <option value="statutes">Statutes</option>
+                    <option value="rules">Rules</option>
+                    <option value="cases">Case Law</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <button class="submit-btn" onclick="uploadDocument()"><i class="fas fa-check-circle"></i> Complete Upload</button>
+        </div>
+    </div>
+
+    <div class="modal viewer-modal" id="viewerModal">
+        <div class="modal-content">
+            <div class="viewer-header">
+                <h2 class="modal-title" id="viewerTitle">Document Viewer</h2>
+                <button class="close-btn" onclick="closeViewerModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="viewer-body" id="viewerBody">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STRUCTURES & INITIAL SETUP ---
+        var documents = [
+            // Sample data updated to use Font Awesome icons
+            { id: 1, title: 'Code of Civil Procedure, 1908', category: 'statutes', type: 'TXT', size: '120 KB', date: '2023-11-15', pages: 350, fileURL: 'data:text/plain;charset=utf-8,This is a sample plain text content for the Code of Civil Procedure, 1908. In a real application, you would load this from the server. This content will be viewable in the viewer modal because it is a simple text file.' },
+            { id: 2, title: 'Contract Act, 1872', category: 'statutes', type: 'TXT', size: '90 KB', date: '2023-11-20', pages: 200, fileURL: 'data:text/plain;charset=utf-8,This is the sample plain text content for the Contract Act, 1872. Section 10 states: "All agreements are contracts if they are made by the free consent of parties competent to contract, for a lawful consideration and with a lawful object, and are not hereby expressly declared to be void."' },
+            // Sample PDF-like entry (will use the fileURL for viewing)
+            { id: 3, title: 'Landmark Judgement on Intellectual Property', category: 'cases', type: 'PDF', size: '1.5 MB', date: '2023-10-01', pages: 55, fileURL: 'dummy_pdf_file_url' }
+        ];
+        
+        var selectedFiles = [];
+        var currentCategory = 'all';
+
+        // Helper for simulating file content (only for initial samples)
+        // In a real app, this object would map doc IDs to file content/URLs.
+        var documentFileMap = {
+            1: 'This is a sample plain text content for the Code of Civil Procedure, 1908. In a real application, you would load this from the server. This content will be viewable in the viewer modal because it is a simple text file.',
+            2: 'This is the sample plain text content for the Contract Act, 1872. Section 10 states: "All agreements are contracts if they are made by the free consent of parties competent to contract, for a lawful consideration and with a lawful object, and are not hereby expressly declared to be void."',
+            3: 'This is a PDF file. **Content preview is NOT available for this file type** through the text-reading function. It will be opened in the browser\'s native PDF viewer (iframe).'
+        };
+
+
+        // --- UTILITY FUNCTIONS ---
+        function getDocIcon(type) {
+            var icons = {
+                'PDF': '<i class="fas fa-file-pdf"></i>',
+                'DOCX': '<i class="fas fa-file-word"></i>',
+                'TXT': '<i class="fas fa-file-alt"></i>',
+                'RTF': '<i class="fas fa-file-invoice"></i>',
+                'DOC': '<i class="fas fa-file-word"></i>'
+            };
+            return icons[type] || '<i class="fas fa-file"></i>';
+        }
+
+        function getCategoryName(category) {
+            var names = {
+                'statutes': 'Statutes',
+                'rules': 'Rules',
+                'cases': 'Case Law',
+                'other': 'Other'
+            };
+            return names[category] || category;
+        }
+
+        function updateBadges() {
+            var allCount = documents.length;
+            var statutesCount = documents.filter(function(d) { return d.category === 'statutes'; }).length;
+            var rulesCount = documents.filter(function(d) { return d.category === 'rules'; }).length;
+            var casesCount = documents.filter(function(d) { return d.category === 'cases'; }).length;
+            
+            document.getElementById('badge-all').textContent = allCount;
+            document.getElementById('badge-statutes').textContent = statutesCount;
+            document.getElementById('badge-rules').textContent = rulesCount;
+            document.getElementById('badge-cases').textContent = casesCount;
+            
+            document.getElementById('cat-all').textContent = allCount;
+            document.getElementById('cat-statutes').textContent = statutesCount;
+            document.getElementById('cat-rules').textContent = rulesCount;
+            document.getElementById('cat-cases').textContent = casesCount;
+        }
+
+        // --- RENDERING & FILTERING ---
+        function renderDocuments() {
+            var grid = document.getElementById('documentsGrid');
+            var searchQuery = document.getElementById('searchBox').value.toLowerCase();
+            
+            var filtered = documents.filter(function(doc) {
+                var matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
+                var matchesSearch = doc.title.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-documents">' +
+                    '<div class="no-documents-icon"><i class="far fa-folder-open"></i></div>' +
+                    '<p><strong>No documents found</strong></p>' +
+                    '<p style="margin-top: 10px;">Try adjusting your search or filters.</p>' +
+                '</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(function(doc) {
+                return '<div class="document-card" data-id="' + doc.id + '">' +
+                    '<div class="doc-icon">' + getDocIcon(doc.type) + '</div>' +
+                    '<h3 class="doc-title">' + doc.title + '</h3>' +
+                    '<span class="doc-category">' + getCategoryName(doc.category) + '</span>' +
+                    '<div class="doc-meta">' +
+                        '<span><i class="far fa-file"></i> ' + doc.pages + ' pages</span>' +
+                        '<span><i class="fas fa-code"></i> ' + doc.type + '</span>' +
+                    '</div>' +
+                     '<div class="doc-meta">' +
+                        '<span><i class="fas fa-calendar-alt"></i> ' + doc.date + '</span>' +
+                        '<span><i class="fas fa-database"></i> ' + doc.size + '</span>' +
+                    '</div>' +
+                    '<div class="doc-actions">' +
+                        '<button class="action-btn view-btn" onclick="viewDocument(' + doc.id + ')"><i class="fas fa-eye"></i> View</button>' +
+                        '<button class="action-btn download-btn" onclick="downloadDocument(' + doc.id + ')"><i class="fas fa-download"></i></button>' +
+                        '<button class="action-btn delete-btn" onclick="deleteDocument(' + doc.id + ')"><i class="fas fa-trash-alt"></i></button>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function filterDocuments(category) {
+            currentCategory = category;
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            document.querySelector('[data-category="' + category + '"]').classList.add('active');
+            renderDocuments();
+        }
+
+
+        // --- UPLOAD MODAL LOGIC ---
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+            // Clear previous selection
+            document.getElementById('fileInput').value = ''; 
+            document.getElementById('docTitle').value = '';
+            document.getElementById('selectedFileNames').textContent = '';
+            selectedFiles = [];
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+        }
+
+        function handleFileSelect(event) {
+            selectedFiles = Array.from(event.target.files);
+            var names = selectedFiles.map(f => f.name);
+            document.getElementById('selectedFileNames').textContent = names.join(', ');
+
+            if (selectedFiles.length === 1) {
+                document.getElementById('docTitle').value = selectedFiles[0].name.replace(/\.[^/.]+$/, "");
+            } else if (selectedFiles.length > 1) {
+                document.getElementById('docTitle').value = selectedFiles.length + ' Documents Upload';
+            }
+        }
+        
+        // Drag and Drop (D&D) event handlers for extra professionalism
+        var dropArea = document.getElementById('dropArea');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#c2185b', false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#7b1fa2', false);
+        });
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            var dt = e.dataTransfer;
+            var files = dt.files;
+            
+            // Set files for the file input and trigger the select handler
+            document.getElementById('fileInput').files = files;
+            handleFileSelect({ target: { files: files } });
+        }
+
+
+        function uploadDocument() {
+            var title = document.getElementById('docTitle').value;
+            var category = document.getElementById('docCategory').value;
+            
+            if (!title || selectedFiles.length === 0) {
+                alert('Please select a file(s) and enter a title');
+                return;
+            }
+
+            var uploadCount = 0;
+            selectedFiles.forEach(function(file) {
+                var newDocId = documents.length + 1;
+                var fileExtension = file.name.split('.').pop().toUpperCase();
+
+                var newDoc = {
+                    id: newDocId,
+                    title: file.name.replace(/\.[^/.]+$/, ""), // Use file name as title initially
+                    category: category,
+                    type: fileExtension,
+                    size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+                    date: new Date().toISOString().split('T')[0],
+                    pages: Math.floor(Math.random() * 200) + 10,
+                    // FIX: Create a URL for the file object so it can be used in the iframe
+                    fileURL: URL.createObjectURL(file) 
+                };
+                
+                // If uploading multiple files, the main title will be the batch title, 
+                // but each document gets its file name as the title.
+                if (selectedFiles.length === 1) {
+                     newDoc.title = title; // Use the user-provided title for single upload
+                }
+                
+                documents.push(newDoc);
+                uploadCount++;
+
+                // For text files, read content for simple inline viewing (optional but good)
+                if (newDoc.type === 'TXT') {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Store the actual text content for TXT files
+                        documentFileMap[newDocId] = e.target.result; 
+                    };
+                    reader.readAsText(file);
+                } else {
+                    // For binary files (PDF, DOCX), just use the fileURL to load into the iframe
+                    documentFileMap[newDocId] = null;
+                }
+            });
+
+            updateBadges();
+            renderDocuments();
+            closeUploadModal();
+            alert(uploadCount + ' document(s) uploaded successfully!');
+        }
+
+        // --- VIEWER LOGIC (The crucial fix) ---
+        function viewDocument(id) {
+            var doc = documents.find(function(d) { return d.id === id; });
+            document.getElementById('viewerTitle').textContent = doc.title;
+            var viewerBody = document.getElementById('viewerBody');
+            viewerBody.innerHTML = ''; // Clear previous content
+
+            // Check if it's a PDF or a file that the browser can display natively in an iframe
+            if (doc.type === 'PDF' || doc.fileURL) {
+                // FIX: Use an iframe to display the file using its URL
+                // Browsers can natively render PDFs, images, and other formats inside an iframe 
+                // using the file's local object URL (`doc.fileURL`).
+                viewerBody.innerHTML = '<iframe src="' + doc.fileURL + '"></iframe>';
+                
+            } else if (doc.type === 'TXT' && documentFileMap[id]) {
+                // For simple TXT files, use the stored content (text)
+                var contentHtml = documentFileMap[id].replace(/\n/g, '</p><p>');
+                viewerBody.innerHTML = '<div class="document-content"><h2>' + doc.title + '</h2><p>' + contentHtml + '</p></div>';
+            } else {
+                // Fallback for file types that can't be read or displayed (e.g., DOCX without a library)
+                viewerBody.innerHTML = '<div class="viewer-placeholder">' +
+                    '<div class="viewer-placeholder-icon"><i class="fas fa-exclamation-triangle"></i></div>' +
+                    '<p><strong>Preview Not Available</strong></p>' +
+                    '<p style="margin-top: 10px; color: #999;">The browser cannot display a live preview for **.' + doc.type + '** files.</p>' +
+                    '<p style="margin-top: 5px; color: #999;">Please use the **Download** button to view the document externally.</p>' +
+                '</div>';
+            }
+            
+            document.getElementById('viewerModal').classList.add('active');
+        }
+
+        function closeViewerModal() {
+            document.getElementById('viewerModal').classList.remove('active');
+            // Clean up the object URL to free up memory (important for large files)
+            var iframe = document.getElementById('viewerBody').querySelector('iframe');
+            if (iframe && iframe.src.startsWith('blob:')) {
+                URL.revokeObjectURL(iframe.src);
+            }
+            document.getElementById('viewerBody').innerHTML = ''; // Clear the iframe
+        }
+
+        // --- ACTION LOGIC ---
+        function downloadDocument(id) {
+            var doc = documents.find(function(d) { return d.id === id; });
+            if (doc && doc.fileURL) {
+                // Create a temporary anchor tag to trigger the download
+                var a = document.createElement('a');
+                a.href = doc.fileURL;
+                a.download = doc.title + '.' + doc.type.toLowerCase();
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert('Document content not found for download.');
+            }
+        }
+
+        function deleteDocument(id) {
+            if (confirm('Are you sure you want to permanently delete "' + documents.find(d => d.id === id).title + '"?')) {
+                documents = documents.filter(function(d) { return d.id !== id; });
+                // Clean up the ObjectURL if it was a file uploaded in the session
+                var fileURLToDelete = documents.find(d => d.id === id)?.fileURL;
+                if (fileURLToDelete && fileURLToDelete.startsWith('blob:')) {
+                    URL.revokeObjectURL(fileURLToDelete);
+                }
+                updateBadges();
+                renderDocuments();
+            }
+        }
+
+        // --- INITIALIZATION ---
+        document.getElementById('searchBox').addEventListener('input', renderDocuments);
+        updateBadges(); // Initialize badges with sample data
+        renderDocuments(); // Load initial documents
+    </script>
+</body>
+</html>

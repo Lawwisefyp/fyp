@@ -1,0 +1,212 @@
+.networking-body {
+    background: linear-gradient(135deg, #f1f8e9 0%, #aed581 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.networking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.networking-main-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.networking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.networking-header h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(45deg, #689f38, #558b2f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.btn-networking-back {
+    color: #689f38;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 12px;
+    transition: all 0.2s;
+    background: rgba(104, 159, 56, 0.05);
+}
+
+.btn-networking-back:hover {
+    background: rgba(104, 159, 56, 0.1);
+}
+
+.networking-search-box {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.networking-search-input {
+    width: 100%;
+    padding: 18px 25px 18px 65px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.networking-search-input:focus {
+    border-color: #689f38;
+    box-shadow: 0 0 0 4px rgba(104, 159, 56, 0.1);
+}
+
+.networking-lawyer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.networking-card {
+    background: white;
+    padding: 30px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    border: 1px solid #f1f5f9;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.networking-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+}
+
+.card-status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #689f38;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-pulse {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse-op 2s infinite;
+}
+
+@keyframes pulse-op {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.networking-avatar-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.networking-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #689f38, #558b2f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.2);
+}
+
+.networking-lawyer-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.networking-lawyer-spec {
+    font-size: 0.95rem;
+    color: #689f38;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.networking-stars {
+    color: #f59e0b;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.networking-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.networking-tag {
+    background: #f1f8e9;
+    color: #689f38;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.btn-networking-connect {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(45deg, #689f38, #558b2f);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+.btn-networking-connect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.3);
+}
+
+@media (max-width: 768px) {
+    .networking-header h1 {
+        font-size: 2rem;
+    }
+
+    .networking-main-box {
+        padding: 25px;
+    }
+}

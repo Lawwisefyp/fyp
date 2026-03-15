@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Profile - LawWise</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-soft: #eff3ff;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+            background: radial-gradient(circle at top left, #e0f2fe, #f9fafb 55%);
+            color: var(--text-main);
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 28px 24px 32px;
+            border-radius: 18px;
+            box-shadow: 0 18px 45px rgba(15,23,42,0.10);
+            border: 1px solid rgba(148,163,184,0.25);
+        }
+
+        h2 {
+            margin: 0 0 12px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2::before {
+            content: "👩‍⚖️";
+            font-size: 1.7rem;
+        }
+
+        .page-subtitle {
+            margin-bottom: 20px;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(37,99,235,0.45);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(37,99,235,0.35);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+            box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+        }
+
+        .btn-secondary:active {
+            box-shadow: 0 4px 10px rgba(15,23,42,0.10);
+        }
+
+        /* Sections */
+        .section {
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 18px 18px 20px;
+            margin-bottom: 18px;
+            background: linear-gradient(to bottom right, #ffffff, #f9fafb);
+        }
+
+        .section h3 {
+            color: var(--primary);
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section h3::before {
+            content: "•";
+            font-size: 1.6rem;
+            line-height: 1;
+        }
+
+        .section-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        /* Form layout */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.94rem;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+            background: #f9fafb;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+            background: #ffffff;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            padding: 6px 8px;
+            background: #f3f4f6;
+        }
+
+        /* Checkbox areas */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 6px 10px;
+            margin-top: 4px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .checkbox-item input {
+            width: auto;
+        }
+
+        .section-inline-checkbox label {
+            font-weight: 500;
+        }
+
+        /* Dynamic blocks (qualifications / experience) */
+        .dynamic-section {
+            border: 1px dashed rgba(148,163,184,0.8);
+            padding: 12px 12px 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background: #f9fafb;
+            position: relative;
+        }
+
+        .remove-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .remove-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        .add-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .add-btn:hover {
+            background-color: #15803d;
+        }
+
+        /* Profile card preview */
+        #profileCard {
+            display: none;
+            margin-top: 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(15,23,42,0.12);
+            border: 1px solid rgba(148,163,184,0.45);
+            padding: 22px 22px 24px;
+        }
+
+        #profileCard h3 {
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        #profileCard p {
+            margin: 4px 0;
+            font-size: 0.92rem;
+        }
+
+        #profileCard b {
+            color: #374151;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 12px 0;
+        }
+
+        @media (max-width: 720px) {
+            .container {
+                padding: 20px 16px 24px;
+                border-radius: 14px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <div>
+                <h2>Lawyer Profile</h2>
+                <div class="page-subtitle">
+                    Create or update your professional profile so clients can find the right lawyer for their case.
+                </div>
+            </div>
+            <button id="backToDashboardBtn" class="btn btn-secondary">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <form id="lawyerProfileForm" enctype="multipart/form-data">
+            <!-- Personal Information Section -->
+            <div class="section">
+                <h3>Personal Information</h3>
+                <p class="section-desc">Basic details that will appear on your public profile and help clients identify you.</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profilePicture">Profile Picture</label>
+                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" placeholder="Briefly introduce yourself, your approach, and your strengths..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City *</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State/Province</label>
+                        <input type="text" id="state" name="state">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Information Section -->
+            <div class="section">
+                <h3>Professional Information</h3>
+                <p class="section-desc">Experience and practice details that help match you with relevant cases.</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="yearsOfExperience">Years of Experience</label>
+                        <input type="number" id="yearsOfExperience" name="yearsOfExperience" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hourlyRate">Hourly Rate (PKR)</label>
+                        <input type="number" id="hourlyRate" name="hourlyRate" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Practice Areas *</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="criminal" name="practiceAreas" value="Criminal Law">
+                            <label for="criminal">Criminal Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="family" name="practiceAreas" value="Family Law">
+                            <label for="family">Family Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="corporate" name="practiceAreas" value="Corporate Law">
+                            <label for="corporate">Corporate Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="civil" name="practiceAreas" value="Civil Law">
+                            <label for="civil">Civil Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="immigration" name="practiceAreas" value="Immigration Law">
+                            <label for="immigration">Immigration Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tax" name="practiceAreas" value="Tax Law">
+                            <label for="tax">Tax Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="property" name="practiceAreas" value="Property Law">
+                            <label for="property">Property Law</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="labor" name="practiceAreas" value="Labor Law">
+                            <label for="labor">Labor Law</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="barRegistrationNumber">Bar Registration Number</label>
+                        <input type="text" id="barRegistrationNumber" name="barRegistrationNumber">
+                    </div>
+                    <div class="form-group section-inline-checkbox">
+                        <label>&nbsp;</label>
+                        <label>
+                            <input type="checkbox" id="isAvailable" name="isAvailable" checked>
+                            Currently Available for New Clients
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualifications Section -->
+            <div class="section">
+                <h3>Qualifications</h3>
+                <p class="section-desc">Add your law degree(s) and any additional certifications.</p>
+
+                <div id="qualificationsContainer">
+                    <div class="dynamic-section">
+                        <button type="button" class="remove-btn" onclick="removeQualification(this)">Remove</button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Degree *</label>
+                                <input type="text" name="degree[]" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Institution *</label>
+                                <input type="text" name="institution[]" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Year Completed</label>
+                                <input type="number" name="yearCompleted[]" min="1950" max="2025">
+                            </div>
+                            <div class="form-group">
+                                <label>Certificate (PDF, DOC, DOCX, JPG, PNG)</label>
+                                <input type="file" name="certificate" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="add-btn" onclick="addQualification()">＋ Add Another Qualification</button>
+            </div>
+
+            <!-- Experience Section -->
+            <div class="section">
+                <h3>Work Experience</h3>
+                <p class="section-desc">Mention your key roles and organisations you’ve worked with.</p>
+
+                <div id="experienceContainer">
+                    <div class="dynamic-section">
+                        <button type="button" class="remove-btn" onclick="removeExperience(this)">Remove</button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Position *</label>
+                                <input type="text" name="position[]" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Company/Organization *</label>
+                                <input type="text" name="company[]" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input type="date" name="startDate[]">
+                            </div>
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input type="date" name="endDate[]">
+                            </div>
+                        </div>
+                        <div class="form-group section-inline-checkbox">
+                            <label>
+                                <input type="checkbox" name="isCurrent[]">
+                                Currently Working Here
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description[]" placeholder="Describe your role and responsibilities..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="add-btn" onclick="addExperience()">＋ Add Another Experience</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 6px;">
+                <button type="submit" class="btn">
+                    💾 Save Profile
+                </button>
+            </div>
+        </form>
+
+        <div id="profileCard">
+            <!-- Profile card will be rendered here -->
+        </div>
+    </div>
+
+    <script>
+        // ====== CONFIG & AUTH ======
+        const API_BASE_URL = 'http://localhost:5000';
+
+        let token =
+            localStorage.getItem('lawyerToken') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('lawyerToken') ||
+            sessionStorage.getItem('token');
+
+        if (!token) {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('token')) {
+                token = params.get('token');
+                localStorage.setItem('lawyerToken', token);
+            }
+        }
+
+        if (!token) {
+            alert('Please login first');
+            window.location.href = 'index.html';
+        }
+
+        // ====== DYNAMIC SECTIONS ======
+        function addQualification() {
+            const container = document.getElementById('qualificationsContainer');
+            const newQualification = document.createElement('div');
+            newQualification.className = 'dynamic-section';
+            newQualification.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeQualification(this)">Remove</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Degree *</label>
+                        <input type="text" name="degree[]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Institution *</label>
+                        <input type="text" name="institution[]" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Year Completed</label>
+                        <input type="number" name="yearCompleted[]" min="1950" max="2025">
+                    </div>
+                    <div class="form-group">
+                        <label>Certificate (PDF, DOC, DOCX, JPG, PNG)</label>
+                        <input type="file" name="certificate" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    </div>
+                </div>
+            `;
+            container.appendChild(newQualification);
+        }
+
+        function removeQualification(button) {
+            const container = document.getElementById('qualificationsContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('At least one qualification is required');
+            }
+        }
+
+        function addExperience() {
+            const container = document.getElementById('experienceContainer');
+            const newExperience = document.createElement('div');
+            newExperience.className = 'dynamic-section';
+            newExperience.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeExperience(this)">Remove</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Position *</label>
+                        <input type="text" name="position[]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company/Organization *</label>
+                        <input type="text" name="company[]" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate[]">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="endDate[]">
+                    </div>
+                </div>
+                <div class="form-group section-inline-checkbox">
+                    <label>
+                        <input type="checkbox" name="isCurrent[]">
+                        Currently Working Here
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description[]" placeholder="Describe your role and responsibilities..."></textarea>
+                </div>
+            `;
+            container.appendChild(newExperience);
+        }
+
+        function removeExperience(button) {
+            button.parentElement.remove();
+        }
+
+        // ====== FORM SUBMIT ======
+        document.getElementById('lawyerProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const form = e.target;
+            
+            const profileData = {
+                personalInfo: {
+                    firstName: form.firstName.value,
+                    lastName: form.lastName.value,
+                    phone: form.phone.value,
+                    bio: form.bio.value,
+                    city: form.city.value,
+                    state: form.state.value
+                },
+                professionalInfo: {
+                    yearsOfExperience: parseInt(form.yearsOfExperience.value) || 0,
+                    hourlyRate: parseFloat(form.hourlyRate.value) || 0,
+                    practiceAreas: Array.from(form.querySelectorAll('input[name="practiceAreas"]:checked')).map(cb => cb.value),
+                    barRegistrationNumber: form.barRegistrationNumber.value,
+                    isAvailable: form.isAvailable.checked
+                },
+                qualifications: [],
+                experience: []
+            };
+            
+            const degrees = form.querySelectorAll('input[name="degree[]"]');
+            const institutions = form.querySelectorAll('input[name="institution[]"]');
+            const years = form.querySelectorAll('input[name="yearCompleted[]"]');
+            
+            for (let i = 0; i < degrees.length; i++) {
+                if (degrees[i].value && institutions[i].value) {
+                    profileData.qualifications.push({
+                        degree: degrees[i].value,
+                        institution: institutions[i].value,
+                        year: parseInt(years[i].value) || null
+                    });
+                }
+            }
+            
+            const positions = form.querySelectorAll('input[name="position[]"]');
+            const companies = form.querySelectorAll('input[name="company[]"]');
+            const startDates = form.querySelectorAll('input[name="startDate[]"]');
+            const endDates = form.querySelectorAll('input[name="endDate[]"]');
+            const isCurrents = form.querySelectorAll('input[name="isCurrent[]"]');
+            const descriptions = form.querySelectorAll('textarea[name="description[]"]');
+            
+            for (let i = 0; i < positions.length; i++) {
+                if (positions[i].value && companies[i].value) {
+                    profileData.experience.push({
+                        title: positions[i].value,
+                        organization: companies[i].value,
+                        startDate: startDates[i].value || null,
+                        endDate: endDates[i].value || null,
+                        isCurrent: isCurrents[i].checked,
+                        description: descriptions[i].value
+                    });
+                }
+            }
+            
+            formData.append('profileData', JSON.stringify(profileData));
+            
+            if (form.profilePicture.files[0]) {
+                formData.append('profilePicture', form.profilePicture.files[0]);
+            }
+            
+            const certificateFiles = form.querySelectorAll('input[name="certificate"]');
+            certificateFiles.forEach(file => {
+                if (file.files[0]) {
+                    formData.append('certificate', file.files[0]);
+                }
+            });
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/lawyer/profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Profile saved successfully!');
+                    if (result.lawyer) {
+                        let flatLawyer = { ...result.lawyer };
+                        if (result.lawyer.personalInfo) {
+                            Object.assign(flatLawyer, result.lawyer.personalInfo);
+                        }
+                        if (result.lawyer.professionalInfo) {
+                            Object.assign(flatLawyer, result.lawyer.professionalInfo);
+                        }
+                        flatLawyer.qualifications = result.lawyer.qualifications;
+                        flatLawyer.experience = result.lawyer.experience;
+                        localStorage.setItem('lawyerInfo', JSON.stringify(flatLawyer));
+                        sessionStorage.setItem('lawyerInfo', JSON.stringify(flatLawyer));
+                        renderProfileCard(result.lawyer);
+                        updateLawyerInfo(profileData.personalInfo);
+                    }
+                } else {
+                    alert('Error saving profile: ' + (result.error || result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving profile. Please try again.');
+            }
+        });
+
+        function updateLawyerInfo(newData) {
+            let lawyerInfo = localStorage.getItem('lawyerInfo');
+            let lawyer = lawyerInfo ? JSON.parse(lawyerInfo) : {};
+            Object.assign(lawyer, newData);
+            localStorage.setItem('lawyerInfo', JSON.stringify(lawyer));
+        }
+
+        function renderProfileCard(lawyer) {
+            const card = document.getElementById('profileCard');
+            if (!lawyer) {
+                card.style.display = 'none';
+                return;
+            }
+            let html = `<div style='background:#fff;border-radius:12px;box-shadow:0 8px 24px #0002;padding:18px 18px 20px;'>`;
+            html += `<h3>${lawyer.personalInfo?.firstName || ''} ${lawyer.personalInfo?.lastName || ''}</h3>`;
+            html += `<p><b>Phone:</b> ${lawyer.personalInfo?.phone || ''}</p>`;
+            html += `<p><b>City:</b> ${lawyer.personalInfo?.city || ''}, <b>State:</b> ${lawyer.personalInfo?.state || ''}</p>`;
+            html += `<p><b>Bio:</b> ${lawyer.personalInfo?.bio || ''}</p>`;
+            html += `<hr>`;
+            html += `<p><b>Years of Experience:</b> ${lawyer.professionalInfo?.yearsOfExperience || ''}</p>`;
+            html += `<p><b>Hourly Rate:</b> ${lawyer.professionalInfo?.hourlyRate || ''}</p>`;
+            html += `<p><b>Practice Areas:</b> ${(lawyer.professionalInfo?.practiceAreas || []).join(', ')}</p>`;
+            html += `<p><b>Bar Registration Number:</b> ${lawyer.professionalInfo?.barRegistrationNumber || ''}</p>`;
+            html += `<p><b>Available:</b> ${lawyer.professionalInfo?.isAvailable ? 'Yes' : 'No'}</p>`;
+            html += `<hr>`;
+            html += `<b>Qualifications:</b><ul>`;
+            (lawyer.qualifications || []).forEach(q => {
+                html += `<li>${q.degree} from ${q.institution} (${q.year || ''})</li>`;
+            });
+            html += `</ul>`;
+            html += `<b>Experience:</b><ul>`;
+            (lawyer.experience || []).forEach(exp => {
+                html += `<li>${exp.title} at ${exp.organization} (${exp.startDate || ''} - ${exp.isCurrent ? 'Present' : (exp.endDate || '')})<br>${exp.description || ''}</li>`;
+            });
+            html += `</ul></div>`;
+            card.innerHTML = html;
+            card.style.display = 'block';
+        }
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/lawyer/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const lawyer = result.lawyer;
+                    
+                    if (lawyer.personalInfo) {
+                        document.getElementById('firstName').value = lawyer.personalInfo.firstName || '';
+                        document.getElementById('lastName').value = lawyer.personalInfo.lastName || '';
+                        document.getElementById('phone').value = lawyer.personalInfo.phone || '';
+                        document.getElementById('bio').value = lawyer.personalInfo.bio || '';
+                        document.getElementById('city').value = lawyer.personalInfo.city || '';
+                        document.getElementById('state').value = lawyer.personalInfo.state || '';
+                    }
+                    
+                    if (lawyer.professionalInfo) {
+                        document.getElementById('yearsOfExperience').value = lawyer.professionalInfo.yearsOfExperience || 0;
+                        document.getElementById('hourlyRate').value = lawyer.professionalInfo.hourlyRate || '';
+                        document.getElementById('barRegistrationNumber').value = lawyer.professionalInfo.barRegistrationNumber || '';
+                        document.getElementById('isAvailable').checked = lawyer.professionalInfo.isAvailable;
+                        
+                        if (lawyer.professionalInfo.practiceAreas) {
+                            lawyer.professionalInfo.practiceAreas.forEach(area => {
+                                const checkbox = document.querySelector(`input[value="${area}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                }
+                            });
+                        }
+                    }
+                    
+                    document.getElementById('qualificationsContainer').innerHTML = '';
+                    document.getElementById('experienceContainer').innerHTML = '';
+                    
+                    (lawyer.qualifications || []).forEach(q => {
+                        addQualification();
+                        const lastQualification = document.querySelector('#qualificationsContainer .dynamic-section:last-child');
+                        if (lastQualification) {
+                            lastQualification.querySelector('input[name="degree[]"]').value = q.degree || '';
+                            lastQualification.querySelector('input[name="institution[]"]').value = q.institution || '';
+                            lastQualification.querySelector('input[name="yearCompleted[]"]').value = q.year || '';
+                        }
+                    });
+                    
+                    (lawyer.experience || []).forEach(exp => {
+                        addExperience();
+                        const lastExperience = document.querySelector('#experienceContainer .dynamic-section:last-child');
+                        if (lastExperience) {
+                            lastExperience.querySelector('input[name="position[]"]').value = exp.title || '';
+                            lastExperience.querySelector('input[name="company[]"]').value = exp.organization || '';
+                            lastExperience.querySelector('input[name="startDate[]"]').value = exp.startDate || '';
+                            lastExperience.querySelector('input[name="endDate[]"]').value = exp.endDate || '';
+                            lastExperience.querySelector('input[name="isCurrent[]"]').checked = exp.isCurrent || false;
+                            lastExperience.querySelector('textarea[name="description[]"]').value = exp.description || '';
+                        }
+                    });
+                } else {
+                    // only show alert if there *should* be a profile and it's really an error
+                    if (result.message !== 'Profile not found') {
+                        alert('Error loading profile: ' + (result.error || result.message || 'Unknown error'));
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading profile. Please try again.');
+            }
+        }
+
+        // ====== PAGE LOAD HANDLERS ======
+
+        // Normal form view: prefill + load from backend
+        window.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const viewMode = params.get('view');
+            const prefillFlag = params.get('prefill');
+
+            // Prefill from dashboard (if coming with ?prefill=1 and not card view)
+            if (prefillFlag === '1' && viewMode !== 'card') {
+                const prefill = localStorage.getItem('prefillLawyerProfile');
+                if (prefill) {
+                    const lawyer = JSON.parse(prefill);
+                    document.getElementById('firstName').value = lawyer.firstName || lawyer.personalInfo?.firstName || lawyer.fullName || lawyer.name || '';
+                    document.getElementById('lastName').value = lawyer.lastName || lawyer.personalInfo?.lastName || '';
+                    document.getElementById('phone').value = lawyer.phone || lawyer.personalInfo?.phone || '';
+                    document.getElementById('bio').value = lawyer.bio || lawyer.personalInfo?.bio || '';
+                    document.getElementById('city').value = lawyer.city || lawyer.personalInfo?.city || '';
+                    document.getElementById('state').value = lawyer.state || lawyer.personalInfo?.state || '';
+                    document.getElementById('yearsOfExperience').value = lawyer.yearsOfExperience || lawyer.professionalInfo?.yearsOfExperience || '';
+                    document.getElementById('hourlyRate').value = lawyer.hourlyRate || lawyer.professionalInfo?.hourlyRate || '';
+                    document.getElementById('barRegistrationNumber').value = lawyer.barRegistrationNumber || lawyer.professionalInfo?.barRegistrationNumber || lawyer.barNumber || '';
+                    document.getElementById('isAvailable').checked = lawyer.isAvailable || lawyer.professionalInfo?.isAvailable || false;
+                    if (lawyer.practiceAreas || lawyer.professionalInfo?.practiceAreas) {
+                        const areas = lawyer.practiceAreas || lawyer.professionalInfo?.practiceAreas || [];
+                        areas.forEach(area => {
+                            const checkbox = document.querySelector(`input[name='practiceAreas'][value='${area}']`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                }
+                localStorage.removeItem('prefillLawyerProfile');
+            }
+
+            // Always load saved profile from backend in normal (form) view
+            if (viewMode !== 'card') {
+                loadProfile();
+            }
+        });
+
+        // Card-only view (for profile preview)
+        window.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('view') === 'card' && params.get('prefill') === '1') {
+                const prefill = localStorage.getItem('prefillLawyerProfile');
+                if (prefill) {
+                    const lawyer = JSON.parse(prefill);
+                    document.getElementById('lawyerProfileForm').style.display = 'none';
+                    let html = `<div style='background:#fff;border-radius:16px;box-shadow:0 2px 16px #0002;padding:36px;max-width:700px;margin:30px auto;'>`;
+                    html += `<h2 style='margin-bottom:18px;'>My Profile</h2>`;
+                    html += `<div style='display:flex;flex-wrap:wrap;gap:32px;'>`;
+                    html += `<div style='flex:1;min-width:220px;'>`;
+                    html += `<p><b>Full Name:</b><br>${lawyer.firstName || lawyer.personalInfo?.firstName || lawyer.fullName || lawyer.name || ''} ${lawyer.lastName || lawyer.personalInfo?.lastName || ''}</p>`;
+                    html += `<p><b>Specialization:</b><br>${lawyer.specialization || lawyer.professionalInfo?.specialization || ''}</p>`;
+                    html += `<p><b>Phone:</b><br>${lawyer.phone || lawyer.personalInfo?.phone || ''}</p>`;
+                    html += `<p><b>Province/State:</b><br>${lawyer.state || lawyer.personalInfo?.state || ''}</p>`;
+                    html += `<p><b>Hourly Rate:</b><br>${lawyer.hourlyRate || lawyer.professionalInfo?.hourlyRate || ''}</p>`;
+                    html += `<p><b>Available:</b><br>${(lawyer.isAvailable || lawyer.professionalInfo?.isAvailable) ? 'Yes' : 'No'}</p>`;
+                    html += `<p><b>Bio:</b><br>${lawyer.bio || lawyer.personalInfo?.bio || ''}</p>`;
+                    html += `<p><b>Qualifications:</b><br>${(lawyer.qualifications || []).map(q => `${q.degree} from ${q.institution} (${q.year || ''})`).join('<br>')}</p>`;
+                    html += `<p><b>Experience:</b><br>${(lawyer.experience || []).map(exp => `${exp.title} at ${exp.organization} (${exp.startDate || ''} - ${exp.isCurrent ? 'Present' : (exp.endDate || '')})<br>${exp.description || ''}`).join('<br>')}</p>`;
+                    html += `</div>`;
+                    html += `<div style='flex:1;min-width:220px;'>`;
+                    html += `<p><b>Email:</b><br>${lawyer.email || lawyer.personalInfo?.email || ''}</p>`;
+                    html += `<p><b>Bar Number:</b><br>${lawyer.barRegistrationNumber || lawyer.professionalInfo?.barRegistrationNumber || lawyer.barNumber || ''}</p>`;
+                    html += `<p><b>City:</b><br>${lawyer.city || lawyer.personalInfo?.city || ''}</p>`;
+                    html += `<p><b>Years of Experience:</b><br>${lawyer.yearsOfExperience || lawyer.professionalInfo?.yearsOfExperience || ''}</p>`;
+                    html += `<p><b>Practice Areas:</b><br>${(lawyer.practiceAreas || lawyer.professionalInfo?.practiceAreas || []).join(', ')}</p>`;
+                    html += `</div></div>`;
+                    html += `<div style='margin-top:18px;text-align:right;'><button onclick='window.history.back()' class="btn btn-secondary">Close</button></div>`;
+                    html += `</div>`;
+                    document.getElementById('profileCard').innerHTML = html;
+                    document.getElementById('profileCard').style.display = 'block';
+                }
+                localStorage.removeItem('prefillLawyerProfile');
+            } else {
+                document.getElementById('lawyerProfileForm').style.display = 'block';
+                document.getElementById('profileCard').style.display = 'none';
+            }
+        });
+
+        // Back button
+        document.getElementById('backToDashboardBtn').onclick = function() {
+            window.location.href = 'lawyer-dashboard.html';
+        };
+    </script>
+</body>
+</html>
