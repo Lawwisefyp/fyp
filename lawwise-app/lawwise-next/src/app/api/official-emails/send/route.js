@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyAuth } from '@/lib/auth';
-import { sendEmail } from '@/lib/utils/emailService';
+import { sendOfficialEmail } from '@/lib/services/emailService';
 
 export async function POST(req) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req) {
       }, { status: 400 });
     }
 
-    const result = await sendEmail(to, subject, content);
+    const result = await sendOfficialEmail(to, subject, content, 'Lawwise Admin');
 
     if (result.success) {
       return NextResponse.json({

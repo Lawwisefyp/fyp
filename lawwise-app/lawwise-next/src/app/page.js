@@ -86,6 +86,28 @@ const LandingPage = () => {
                     </div>
 
                     <div className="feature-card">
+                        <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #0f172a, #334155)' }}>
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" fill="white"/>
+                            </svg>
+                        </div>
+                        <h3>AI Legal Assistant</h3>
+                        <p>Get instant answers to your legal queries with our advanced RAG-powered chatbot trained on legal databases.</p>
+                        <Link href="/chatbot" className="text-accent font-bold mt-4 inline-block hover:underline">Try Chatbot →</Link>
+                    </div>
+
+                    <div className="feature-card">
+                        <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #c19651, #d4af37)' }}>
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="white"/>
+                            </svg>
+                        </div>
+                        <h3>AI Document Drafting</h3>
+                        <p>Draft professional legal notices, contracts, and petitions in minutes with our intelligent document generator.</p>
+                        <Link href="/ai-drafting" className="text-accent font-bold mt-4 inline-block hover:underline">Start Drafting →</Link>
+                    </div>
+
+                    <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #9bc4e2, #7eaed6)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />

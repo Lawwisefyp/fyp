@@ -8,11 +8,14 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
+    "body-parser": "^2.2.2",
     "cheerio": "^1.2.0",
+    "chromadb": "^3.3.3",
     "cors": "^2.8.5",
-    "docx": "^9.6.0",
+    "docx": "^9.6.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
