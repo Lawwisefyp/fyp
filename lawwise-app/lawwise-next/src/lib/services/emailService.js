@@ -1,18 +1,32 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
-  secure: process.env.SMTP_PORT === '465',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+let transporter = null;
+
+const getTransporter = () => {
+  if (transporter) return transporter;
+  
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error('❌ SMTP configuration is missing in environment variables');
+      return null;
+  }
+
+  transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '465'),
+    secure: process.env.SMTP_PORT === '465' || !process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+  return transporter;
+};
 
 
 export const sendLoginNotification = async (email, name) => {
   try {
+    const transporter = getTransporter();
+    if (!transporter) return { success: false, error: 'Email configuration missing' };
     await transporter.sendMail({
       from: `"Lawwise" <${process.env.SMTP_USER}>`,
       to: email,
@@ -37,6 +51,8 @@ export const sendVerificationEmail = async (email, name, token, type) => {
   const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${token}&type=${type}`;
   
   try {
+    const transporter = getTransporter();
+    if (!transporter) return { success: false, error: 'Email configuration missing' };
     await transporter.sendMail({
       from: `"Lawwise" <${process.env.SMTP_USER}>`,
       to: email,
@@ -59,6 +75,8 @@ export const sendVerificationEmail = async (email, name, token, type) => {
 
 export const sendOTPEmail = async (email, otp) => {
   try {
+    const transporter = getTransporter();
+    if (!transporter) return { success: false, error: 'Email configuration missing' };
     await transporter.sendMail({
       from: `"Lawwise" <${process.env.SMTP_USER}>`,
       to: email,
@@ -80,6 +98,8 @@ export const sendOTPEmail = async (email, otp) => {
 
 export const sendOfficialEmail = async (to, subject, content, senderName) => {
   try {
+    const transporter = getTransporter();
+    if (!transporter) return { success: false, error: 'Email configuration missing' };
     await transporter.sendMail({
       from: `"${senderName} via Lawwise" <${process.env.SMTP_USER}>`,
       to: to,
