@@ -14,10 +14,36 @@ type FieldType = "text" | "textarea";
 interface Field { name: string; label: string; placeholder: string; type?: FieldType; optional?: boolean; }
 interface DocSection { title: string; icon: React.ReactNode; fields: Field[]; }
 
-const partyFields = (role: string): Field[] => [
-  { name: `${role}Name`, label: "Full Name", placeholder: "e.g. Muhammad Usman", type: "text" },
-  { name: `${role}Address`, label: "Address", placeholder: "Street, City", type: "text", optional: true },
-  { name: `${role}ID`, label: "ID / Reference", placeholder: "e.g. National ID or Reg No.", type: "text", optional: true },
+const partyFields = (roleId: string, displayName?: string): Field[] => {
+  const prefix = (displayName || roleId).charAt(0).toUpperCase() + (displayName || roleId).slice(1);
+  return [
+    { name: `${roleId}Name`, label: `${prefix} Full Name`, placeholder: `Full Name`, type: "text" },
+    { name: `${roleId}Address`, label: `${prefix} Address`, placeholder: "Address Details", type: "text", optional: true },
+    { name: `${roleId}ID`, label: `${prefix} ID / Reference`, placeholder: `CNIC or Reg No.`, type: "text", optional: true },
+  ];
+};
+
+const DOC_CATEGORIES = [
+  {
+    label: "A. Pre-Litigation Documents",
+    items: ["Legal Notice", "Affidavit", "Undertaking", "Agreement"]
+  },
+  {
+    label: "B. Civil Court Documents",
+    items: ["Plaint", "Written Statement", "CMA", "Affidavit in Evidence"]
+  },
+  {
+    label: "C. Criminal Law Documents",
+    items: ["Bail Application", "Criminal Complaint", "FIR format"]
+  },
+  {
+    label: "D. Constitutional / High Court",
+    items: ["Writ Petition"]
+  },
+  {
+    label: "E. Property & Business Documents",
+    items: ["Sale Agreement", "Rent Agreement", "Power of Attorney", "Partnership Deed"]
+  }
 ];
 
 const docConfig: Record<string, DocSection[]> = {
@@ -26,46 +52,211 @@ const docConfig: Record<string, DocSection[]> = {
     { title: "Receiver", icon: <Building2 size={15} />, fields: partyFields("receiver") },
     {
       title: "Notice Details", icon: <FileText size={15} />, fields: [
-        { name: "matter", label: "Subject", placeholder: "e.g. Recovery of Outstanding Dues", type: "text" },
-        { name: "details", label: "Background & Facts", placeholder: "Describe the incident or legal violation...", type: "textarea" },
-        { name: "finalWarning", label: "Demand / Warning", placeholder: "If demands are not met within 15 days...", type: "textarea" },
+        { name: "matter", label: "Subject", placeholder: "Subject of Notice", type: "text" },
+    { name: "details", label: "Background & Facts", placeholder: "Incident details...", type: "textarea" },
+    { name: "finalWarning", label: "Demand / Warning", placeholder: "Final ultimatum...", type: "textarea" },
       ]
     },
   ],
-  Contract: [
-    { title: "Party A", icon: <UserIcon size={15} />, fields: partyFields("partyA") },
-    { title: "Party B", icon: <Building2 size={15} />, fields: partyFields("partyB") },
-    {
-      title: "Contract Terms", icon: <FileCheck size={15} />, fields: [
-        { name: "financials", label: "Financial Terms", placeholder: "e.g. USD 5,000 monthly", type: "text" },
-        { name: "duration", label: "Duration", placeholder: "e.g. 1 Jan 2024 for 2 years", type: "text" },
-        { name: "liability", label: "Liability / Indemnification", placeholder: "Party B shall indemnify...", type: "textarea", optional: true },
-        { name: "arbitration", label: "Arbitration / Dispute", placeholder: "Any dispute shall be referred to...", type: "textarea", optional: true },
-      ]
-    },
-  ],
-  Petition: [
-    {
-      title: "Court & Parties", icon: <Gavel size={15} />, fields: [
-        { name: "court", label: "Court Name", placeholder: "e.g. High Court of Justice", type: "text" },
-        ...partyFields("petitioner"),
-        ...partyFields("respondent"),
-      ]
-    },
-    {
-      title: "Legal Grounds", icon: <FileText size={15} />, fields: [
-        { name: "legalGrounds", label: "Cause of Action", placeholder: "That the respondent has failed to...", type: "textarea" },
-        { name: "reliefDetails", label: "Relief Sought", placeholder: "It is prayed that...", type: "textarea" },
-      ]
-    },
-  ],
-  Affidavit: [
+  "Affidavit": [
     { title: "Deponent", icon: <UserIcon size={15} />, fields: partyFields("deponent") },
     {
       title: "Affidavit Content", icon: <FileCheck size={15} />, fields: [
-        { name: "headingJurisdiction", label: "Jurisdiction / Before Whom", placeholder: "Before the Notary Public...", type: "text" },
-        { name: "details", label: "Declaration Statements", placeholder: "I solemnly affirm and declare that...", type: "textarea" },
-        { name: "witnessInfo", label: "Witness Info", placeholder: "Identified by...", type: "textarea", optional: true },
+        { name: "headingJurisdiction", label: "Jurisdiction / Before Whom", placeholder: "Court / Office name", type: "text" },
+    { name: "details", label: "Declaration Statements", placeholder: "Statements of facts...", type: "textarea" },
+    { name: "witnessInfo", label: "Witness Info", placeholder: "Witness details", type: "textarea", optional: true },
+      ]
+    },
+  ],
+  "Undertaking": [
+    { title: "Parties", icon: <UserIcon size={15} />, fields: [...partyFields("undertaker", "Undertaker"), ...partyFields("recipient", "Recipient")] },
+    {
+      title: "Terms", icon: <FileCheck size={15} />, fields: [
+        { name: "terms", label: "Terms of Undertaking", placeholder: "Terms...", type: "textarea" },
+    { name: "liability", label: "Liability / Consequences", placeholder: "Consequences of breach", type: "textarea", optional: true },
+      ]
+    },
+  ],
+  "Agreement": [
+    { title: "Party A", icon: <UserIcon size={15} />, fields: partyFields("partyA", "Party A") },
+    { title: "Party B", icon: <Building2 size={15} />, fields: partyFields("partyB", "Party B") },
+    {
+      title: "Contract Terms", icon: <FileCheck size={15} />, fields: [
+        { name: "purpose", label: "Purpose", placeholder: "Purpose of agreement", type: "text" },
+    { name: "financials", label: "Financial Terms", placeholder: "Amount/Payment terms", type: "text" },
+    { name: "duration", label: "Duration", placeholder: "Effective date & period", type: "text" },
+    { name: "arbitration", label: "Arbitration / Dispute", placeholder: "Dispute resolution clause", type: "textarea", optional: true },
+      ]
+    },
+  ],
+  "Plaint": [
+    {
+      title: "Court & Parties", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "Full court name", type: "text" },
+        ...partyFields("plaintiff"),
+        ...partyFields("defendant"),
+      ]
+    },
+    {
+      title: "Legal Details", icon: <FileText size={15} />, fields: [
+        { name: "facts", label: "Facts of the Case", placeholder: "Facts of dispute...", type: "textarea" },
+        { name: "causeOfAction", label: "Cause of Action", placeholder: "When/where action arose...", type: "textarea" },
+        { name: "jurisdiction", label: "Jurisdiction Paragraph", placeholder: "Legal jurisdiction...", type: "textarea" },
+        { name: "valuation", label: "Valuation of Suit", placeholder: "Value for court fee", type: "text" },
+        { name: "relief", label: "Relief / Prayer", placeholder: "Relief sought...", type: "textarea" },
+      ]
+    },
+  ],
+  "Written Statement": [
+    {
+      title: "Court & Parties", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "Full court name", type: "text" },
+        ...partyFields("plaintiff"),
+        ...partyFields("defendant"),
+      ]
+    },
+    {
+      title: "Response", icon: <FileText size={15} />, fields: [
+        { name: "preliminaryObjections", label: "Preliminary Objections", placeholder: "Objections...", type: "textarea" },
+        { name: "paragraphReply", label: "Paragraph-wise Reply", placeholder: "Reply to paragraphs...", type: "textarea" },
+        { name: "prayer", label: "Prayer", placeholder: "Dismissal request...", type: "textarea" },
+      ]
+    },
+  ],
+  "CMA": [
+    {
+      title: "Case Details", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "Court office", type: "text" },
+        { name: "caseNo", label: "Case Number", placeholder: "Case number/year", type: "text" },
+        ...partyFields("applicant", "Applicant"),
+        ...partyFields("respondent", "Respondent"),
+      ]
+    },
+    {
+      title: "Application", icon: <FileText size={15} />, fields: [
+        { name: "purpose", label: "Purpose / Relief", placeholder: "Application purpose", type: "text" },
+        { name: "grounds", label: "Grounds / Facts", placeholder: "Factual grounds...", type: "textarea" },
+        { name: "prayer", label: "Prayer", placeholder: "Prayer...", type: "textarea" },
+      ]
+    },
+  ],
+  "Affidavit in Evidence": [
+    { title: "Deponent Info", icon: <UserIcon size={15} />, fields: partyFields("deponent") },
+    {
+      title: "Case Info", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "Full court name", type: "text" },
+        { name: "caseTitle", label: "Case Title (A vs B)", placeholder: "Party names", type: "text" },
+      ]
+    },
+    {
+      title: "Statements", icon: <FileCheck size={15} />, fields: [
+        { name: "statements", label: "Factual Statements", placeholder: "Your statements...", type: "textarea" },
+      ]
+    },
+  ],
+  "Bail Application": [
+    {
+      title: "Case Details", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "e.g. Session Court", type: "text" },
+        { name: "firNo", label: "FIR Number", placeholder: "e.g. 123/24", type: "text" },
+        { name: "station", label: "Police Station", placeholder: "e.g. North Cantonment", type: "text" },
+        { name: "offences", label: "Offences (Sections)", placeholder: "e.g. 302/34 PPC", type: "text" },
+        ...partyFields("applicant"),
+      ]
+    },
+    {
+      title: "Grounds", icon: <FileText size={15} />, fields: [
+        { name: "grounds", label: "Grounds for Bail", placeholder: "Factual grounds...", type: "textarea" },
+        { name: "prayer", label: "Prayer", placeholder: "Bail request...", type: "textarea" },
+      ]
+    },
+  ],
+  "Criminal Complaint": [
+    {
+      title: "Parties", icon: <Gavel size={15} />, fields: [
+        { name: "court", label: "Court Name", placeholder: "e.g. Judicial Magistrate", type: "text" },
+        ...partyFields("complainant"),
+        ...partyFields("accused"),
+      ]
+    },
+    {
+      title: "Incident", icon: <FileText size={15} />, fields: [
+        { name: "offenceFacts", label: "Facts of Offence", placeholder: "Offence details...", type: "textarea" },
+        { name: "prayer", label: "Prayer", placeholder: "Summoning request...", type: "textarea" },
+      ]
+    },
+  ],
+  "FIR format": [
+    {
+      title: "Basics", icon: <Building2 size={15} />, fields: [
+        { name: "station", label: "Police Station", placeholder: "Station name", type: "text" },
+        { name: "district", label: "District", placeholder: "District name", type: "text" },
+        { name: "informant", label: "Informant Name", placeholder: "Informant's name", type: "text" },
+      ]
+    },
+    {
+      title: "Occurrence", icon: <FileText size={15} />, fields: [
+        { name: "occurrenceDetails", label: "Details of Occurrence", placeholder: "Time, place, event...", type: "textarea" },
+        { name: "accusedDescription", label: "Accused Description", placeholder: "Physical features...", type: "textarea", optional: true },
+      ]
+    },
+  ],
+  "Writ Petition": [
+    {
+      title: "Court & Parties", icon: <Gavel size={15} />, fields: [
+        { name: "highCourt", label: "High Court (e.g. Lahore)", placeholder: "Court branch", type: "text" },
+        ...partyFields("petitioner"),
+        ...partyFields("respondents"),
+      ]
+    },
+    {
+      title: "Grounds", icon: <FileText size={15} />, fields: [
+        { name: "facts", label: "Facts giving rise to Petition", placeholder: "Relevant facts...", type: "textarea" },
+        { name: "grounds", label: "Legal Grounds", placeholder: "Legal grounds...", type: "textarea" },
+        { name: "relief", label: "Relief Sought", placeholder: "Relief details...", type: "textarea" },
+      ]
+    },
+  ],
+  "Sale Agreement": [
+    { title: "Parties", icon: <UserIcon size={15} />, fields: [...partyFields("seller", "Seller"), ...partyFields("buyer", "Buyer")] },
+    {
+      title: "Property & Price", icon: <Building2 size={15} />, fields: [
+        { name: "propertyDetails", label: "Property Details", placeholder: "Area, boundaries, address...", type: "textarea" },
+        { name: "price", label: "Consideration Price", placeholder: "e.g. PKR 1,000,000", type: "text" },
+        { name: "paymentTerms", label: "Payment Terms", placeholder: "Installments, token money...", type: "textarea" },
+      ]
+    },
+  ],
+  "Rent Agreement": [
+    { title: "Parties", icon: <UserIcon size={15} />, fields: [...partyFields("landlord", "Landlord"), ...partyFields("tenant", "Tenant")] },
+    {
+      title: "Property & Rent", icon: <Building2 size={15} />, fields: [
+        { name: "propertyDetails", label: "Property Details", placeholder: "Shop No. 1, Block A...", type: "textarea" },
+        { name: "rent", label: "Monthly Rent", placeholder: "e.g. PKR 25,000", type: "text" },
+        { name: "deposit", label: "Security Deposit", placeholder: "e.g. PKR 50,000", type: "text" },
+        { name: "period", label: "Agreement Period", placeholder: "e.g. 11 months", type: "text" },
+      ]
+    },
+  ],
+  "Power of Attorney": [
+    { title: "Parties", icon: <UserIcon size={15} />, fields: [...partyFields("principal", "Principal"), ...partyFields("attorney", "Attorney")] },
+    {
+      title: "Powers", icon: <FileCheck size={15} />, fields: [
+        { name: "powers", label: "Powers Granted", placeholder: "To sell, to appear in court, etc.", type: "textarea" },
+        { name: "terms", label: "Special Terms / Duration", placeholder: "Specific conditions if any...", type: "textarea", optional: true },
+      ]
+    },
+  ],
+  "Partnership Deed": [
+    { title: "Business Info", icon: <Building2 size={15} />, fields: [
+      { name: "firmName", label: "Firm Name", placeholder: "e.g. ABC Associates", type: "text" },
+      { name: "nature", label: "Nature of Business", placeholder: "e.g. Trading and Services", type: "text" },
+    ] },
+    {
+      title: "Terms", icon: <FileCheck size={15} />, fields: [
+        { name: "partners", label: "Partners & Contributions", placeholder: "Partner names & shares", type: "textarea" },
+        { name: "profitSharing", label: "Profit / Loss Sharing", placeholder: "Sharing ratio/terms", type: "text" },
+        { name: "dissolution", label: "Dissolution Terms", placeholder: "Termination terms...", type: "textarea", optional: true },
       ]
     },
   ],
@@ -94,8 +285,7 @@ const textareaStyle: React.CSSProperties = {
 };
 
 export default function DraftingBox() {
-  const docTypes = Object.keys(docConfig);
-  const [docType, setDocType] = useState(docTypes[0]);
+  const [docType, setDocType] = useState("Legal Notice");
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [generatedDoc, setGeneratedDoc] = useState("");
   const [loading, setLoading] = useState(false);
@@ -166,39 +356,47 @@ export default function DraftingBox() {
               Download .docx
             </button>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(193,150,81,0.15)", border: "1px solid rgba(193,150,81,0.3)", borderRadius: 99, padding: "5px 12px" }}>
-            <Zap size={11} color="#c19651" />
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#c19651", textTransform: "uppercase", letterSpacing: "0.2em" }}>Powered by RAG</span>
-          </div>
         </div>
       </div>
 
-      {/* ── Doc Type Tabs ── */}
-      <div style={{ display: "flex", gap: 6, padding: "14px 28px", borderBottom: "1px solid #f1f5f9", background: "#fff", flexShrink: 0, overflowX: "auto" }}>
-        {docTypes.map((t) => (
-          <button
-            key={t}
-            onClick={() => setDocType(t)}
-            style={{
-              padding: "8px 20px",
-              borderRadius: 10,
-              border: "1.5px solid",
-              borderColor: docType === t ? "#0f172a" : "#e2e8f0",
-              background: docType === t ? "#0f172a" : "transparent",
-              color: docType === t ? "white" : "#64748b",
-              fontSize: 12,
-              fontWeight: 800,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              whiteSpace: "nowrap",
-              transition: "all 0.15s",
-            }}
-          >
-            {t}
-          </button>
-        ))}
+      {/* ── Doc Type Category Selection ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 28px", borderBottom: "1px solid #f1f5f9", background: "#f8fafc", flexShrink: 0 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.1em" }}>Select Document Category:</span>
+        <select
+          value={docType}
+          onChange={(e) => setDocType(e.target.value)}
+          style={{
+            flex: 1,
+            maxWidth: 400,
+            padding: "10px 16px",
+            borderRadius: 12,
+            border: "1.5px solid #e2e8f0",
+            background: "white",
+            color: "#0f172a",
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+            outline: "none",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+            transition: "all 0.2s",
+          }}
+          onFocus={(e) => (e.target.style.borderColor = "#c19651")}
+          onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+        >
+          {DOC_CATEGORIES.map((cat) => (
+            <optgroup key={cat.label} label={cat.label}>
+              {cat.items.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#c19651" }}></div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a" }}>{docType}</span>
+        </div>
       </div>
+
 
       {/* ── Body: Form + Preview ── */}
       <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", overflow: "hidden", minHeight: 0 }}>
@@ -223,7 +421,7 @@ export default function DraftingBox() {
                         {field.label}
                       </label>
                       {field.optional && (
-                        <span style={{ fontSize: 9, fontWeight: 700, color: "#cbd5e1", textTransform: "uppercase", letterSpacing: "0.1em" }}>Optional</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#c19651", textTransform: "uppercase", letterSpacing: "0.1em" }}>Optional</span>
                       )}
                     </div>
                     {field.type === "textarea" ? (

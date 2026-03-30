@@ -53,7 +53,11 @@ const generateLegalDocument = async (docType, userInputs) => {
       You are an expert Legal Draftsman and Attorney specializing in Pakistani Law.
       Your task is to draft a formal, professional, and legally sound document of type: "${docType}".
       
-      The document MUST strictly adhere to Pakistani legal drafting standards (e.g., High Court Rules, Civil Procedure Code where applicable).
+      The document MUST strictly adhere to Pakistani legal drafting standards and relevant statutes:
+      - Civil Documents: Code of Civil Procedure (CPC) 1908.
+      - Criminal Documents: Code of Criminal Procedure (CrPC) 1898.
+      - Contracts & Business: Contract Act 1872 and Transfer of Property Act 1882.
+      - Constitutional: Constitution of Pakistan 1973 (e.g., Article 199 for Writ Petitions).
       
       INPUT PARAMETERS:
       ${formattedInputs || "No specific details provided."}
@@ -61,25 +65,27 @@ const generateLegalDocument = async (docType, userInputs) => {
       CRITICAL INSTRUCTIONS:
       1. DOCUMENT preamble:
          - Formally introduce all parties with their Full Names, Addresses, and CNIC numbers (if provided).
-         - Identify roles correctly (e.g., Petitioner vs Respondent, First Party vs Second Party).
-         - For Petitions and Affidavits, use the formal court heading format.
+         - Identify roles correctly (e.g., Petitioner vs Respondent, Plaintiff vs Defendant, First Party vs Second Party).
+         - For Court Documents (Petitions, Plaints, Applications), use the formal court heading format (In the Court of..., etc.).
 
       2. SPECIALIZED SECTIONS (Integrate if provided in inputs):
          - JURISDICTION: Include a specific paragraph justifying the jurisdiction of the court/authority.
-         - LEGAL GROUNDS: Elaborate on the "Cause of Action" using professional legal logic.
+         - LEGAL GROUNDS: Elaborate on the "Cause of Action" or "Grounds" using professional legal logic and citing relevant sections (e.g., Section 9 CPC, Section 497 CrPC).
          - ARBITRATION/NOTICES: For Contracts, if provided, draft a standard Pakistani-style Arbitration or Notice clause.
          - FORCE MAJEURE: If relevant or provided, include a standard "Acts of God" clause tailored to the contract context.
          - ANNEXURES: At the end of Petitions, list the provided Annexures formally (e.g., Annex-A, Annex-B).
       
       3. STRUCTURE & PHRASING:
+         - LANGUAGE: Use clear, modern, and easily understandable language that a layperson (normal person) can comprehend. Avoid unnecessary or archaic legalese (e.g., avoid "inter-alia", "hereinafter", "whereas" unless strictly necessary for the formal structure).
          - Use numbered paragraphs for all factual and legal claims.
-         - Use precise terminology: "deponent", "hereinafter", "whereas", "inter-alia", "prayer".
-         - Include a formal "Prayer" section for Petitions or "Demand" for Legal Notices.
-         - Verification: Every Petition or Affidavit MUST end with a formal Verification block.
+         - Use precise but accessible terminology: "applicant", "respondent", "prayer", "verification".
+         - Include a formal "Prayer" section for Petitions/Suits or "Demand" for Legal Notices.
+         - Verification: Every Petition, Suit, or Affidavit MUST end with a formal Verification block as per High Court Rules.
          
       4. FORMATTING:
          - Output ONLY the professional document text. No conversational filler.
-         - Use bracketed placeholders [LIKE THIS] for any standard professional information that is missing but legally necessary.
+         - Ensure the document is well-organized and easy to read.
+         - Use bracketed placeholders [LIKE THIS] for any standard professional information that is missing but legally necessary (e.g., [CNIC No.], [Date]).
     `;
 
     const result = await model.generateContent(prompt);
