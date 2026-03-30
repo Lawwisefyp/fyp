@@ -1,15 +1,4 @@
-/**
- * ingest_ppc.js
- *
- * Reads the PPC 1860 text file, splits it into per-section chunks,
- * embeds each chunk using Gemini text-embedding-004, and stores them
- * in the Chroma DB "legal_documents" collection.
- *
- * Usage:
- *   node ingest_ppc.js
- *
- * Make sure Chroma DB is running (chroma run) before executing.
- */
+
 
 require("dotenv").config();
 const fs = require("fs");
@@ -17,13 +6,13 @@ const path = require("path");
 const { ChromaClient } = require("chromadb");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// ── Config ────────────────────────────────────────────────────────────────────
+
 const PPC_FILE = path.join(__dirname, "ppc 1860.txt");
 const COLLECTION_NAME = "legal_documents";
 const CHROMA_URL = process.env.CHROMA_URL || "http://localhost:8000";
-const BATCH_SIZE = 5; // embed & upsert N sections at a time (rate-limit friendly)
+const BATCH_SIZE = 5; 
 
-// ── Clients ───────────────────────────────────────────────────────────────────
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const chromaUrl = new URL(CHROMA_URL);
@@ -47,30 +36,19 @@ const geminiEmbeddingFunction = {
   },
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * Sleep for ms milliseconds (used to respect Gemini rate limits).
- */
+
+
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-/**
- * Parse the raw PPC text into an array of section objects:
- * [{ id, sectionNumber, title, content, chapter }]
- *
- * Strategy:
- *  - Track the current chapter heading (CHAPTER X / roman numeral headings).
- *  - A new section starts when a line matches /^\d+[\.-]/ (e.g. "76." or "108-A").
- *  - Everything until the next section start is part of the current section.
- */
 function parseSections(rawText) {
   const lines = rawText.split(/\r?\n/);
   const sections = [];
 
-  // Regex: line starts with a section number like "76." or "120-A" or "108-A."
+ 
   const sectionStart = /^(\d+[\w-]*)\.\s+(.+)/;
 
-  // Simple chapter heading detector
+ 
   const chapterHeader = /^CHAPTER\s+/i;
 
   let currentChapter = "Introduction";
@@ -79,7 +57,6 @@ function parseSections(rawText) {
   for (const line of lines) {
     const trimmed = line.trim();
 
-    // Detect chapter headers (e.g. "CHAPTER I", "CHAPTER IV")
     if (chapterHeader.test(trimmed)) {
       currentChapter = trimmed;
       continue;
@@ -87,7 +64,7 @@ function parseSections(rawText) {
 
     const match = trimmed.match(sectionStart);
     if (match) {
-      // Save previous section
+      
       if (currentSection) {
         currentSection.content = currentSection.content.trim();
         if (currentSection.content.length > 20) {
@@ -95,7 +72,7 @@ function parseSections(rawText) {
         }
       }
 
-      // Start new section
+    
       currentSection = {
         id: `ppc_section_${match[1].toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
         sectionNumber: match[1],
@@ -104,12 +81,12 @@ function parseSections(rawText) {
         content: `Section ${match[1]}: ${match[2].trim()}\n`,
       };
     } else if (currentSection && trimmed.length > 0) {
-      // Append to current section content
+      
       currentSection.content += trimmed + "\n";
     }
   }
 
-  // Don't forget the last section
+  
   if (currentSection) {
     currentSection.content = currentSection.content.trim();
     if (currentSection.content.length > 20) {
@@ -120,15 +97,12 @@ function parseSections(rawText) {
   return sections;
 }
 
-/**
- * Embed a batch of texts using Gemini.
- * Returns an array of embedding vectors.
- */
+
 async function embedTexts(texts) {
   return await geminiEmbeddingFunction.generate(texts);
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+
 async function main() {
   console.log("📖 Reading PPC file...");
   if (!fs.existsSync(PPC_FILE)) {
@@ -159,7 +133,7 @@ async function main() {
   for (let i = 0; i < sections.length; i += BATCH_SIZE) {
     const batch = sections.slice(i, i + BATCH_SIZE);
 
-    // Build texts to embed (section number + title + content)
+  
     const texts = batch.map((s) => s.content);
     const ids = batch.map((s) => s.id);
     const metadatas = batch.map((s) => ({
@@ -194,9 +168,9 @@ async function main() {
       skipped += batch.length;
     }
 
-    // Pause between batches to respect Gemini rate limits (15 RPM free tier)
+    
     if (i + BATCH_SIZE < sections.length) {
-      await sleep(4500); // ~4.5 s → ~13 batches/min → safe for 15 RPM
+      await sleep(4500); 
     }
   }
 

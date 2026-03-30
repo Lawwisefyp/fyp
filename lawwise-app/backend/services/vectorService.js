@@ -1,13 +1,8 @@
-/**
- * vectorService.js
- * 
- * Handles interaction with Chroma DB and Google Gemini Embeddings.
- */
 const { ChromaClient } = require("chromadb");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 
-// server/services/vectorService.js
+
 let chroma = null;
 let genAI = null;
 
@@ -41,7 +36,7 @@ const geminiEmbeddingFunction = {
       return results.map((r) => r.embedding.values);
     } catch (error) {
       console.error("Gemini Embedding Error:", error.message);
-      return texts.map(() => new Array(768).fill(0));
+      return texts.map(() => new Array(3072).fill(0));
     }
   },
 };
@@ -50,7 +45,7 @@ const queryVectorStore = async (queryText, nResults = 5) => {
   try {
     const client = getChromaClient();
     const collection = await client.getOrCreateCollection({
-      name: "legal_documents",
+      name: "legal_kb",
       embeddingFunction: geminiEmbeddingFunction,
     });
 

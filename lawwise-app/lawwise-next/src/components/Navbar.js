@@ -13,7 +13,7 @@ const Navbar = () => {
           <li><Link href="/lawyer-portal">Lawyer Portal</Link></li>
           <li><Link href="/client-portal">Client Portal</Link></li>
           <li><Link href="/chatbot">Legal AI</Link></li>
-          <li><Link href="/ai-drafting" className="btn-accent-nav">AI Drafting</Link></li>
+          <li><Link href="/ai-drafting">AI Drafting</Link></li>
         </ul>
       </div>
     </nav>

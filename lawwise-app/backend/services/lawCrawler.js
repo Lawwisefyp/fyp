@@ -1,27 +1,23 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-/**
- * Service to crawl Pakistani law data.
- */
+
 const lawCrawler = {
-    /**
-     * Primary search logic.
-     */
+ 
     searchOnline: async (query) => {
         const results = [];
 
         try {
-            // Priority 1: Curated Authentic Laws
+            
             const commonLaws = lawCrawler.getCommonLawResults(query);
 
-            // Priority 2: Scraped Results
+            
             const pakOrgResults = await lawCrawler.searchPakistaniOrg(query);
 
-            // Combine
+            
             const allResults = [...commonLaws, ...pakOrgResults];
 
-            // Filter duplicates by title
+            
             const uniqueResults = [];
             const titles = new Set();
             for (const law of allResults) {
@@ -46,11 +42,9 @@ const lawCrawler = {
         }
     },
 
-    /**
-     * Scrape pakistani.org 
-     */
+
     searchPakistaniOrg: async (query) => {
-        if (!query) return []; // Only scrape when searching
+        if (!query) return [];
         try {
             const baseUrl = 'https://www.pakistani.org';
             const response = await axios.get(`${baseUrl}/pakistan/constitution/`, { timeout: 5000 });
@@ -79,9 +73,7 @@ const lawCrawler = {
         }
     },
 
-    /**
-     * A curated index of major Pakistani laws.
-     */
+  
     getCommonLawResults: (query) => {
         const q = query ? query.toLowerCase() : '';
         const lawLibrary = [
@@ -264,9 +256,7 @@ const lawCrawler = {
         );
     },
 
-    /**
-     * Use Gemini to search for academic notes and legal documents from the web.
-     */
+ 
     searchWebForNotes: async (query, studentInfo = {}) => {
         if (!query) return { success: true, count: 0, laws: [] };
 
@@ -308,7 +298,7 @@ const lawCrawler = {
             let contentText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (!contentText) throw new Error('Empty response from Gemini');
 
-            // Robust JSON extraction
+            
             const jsonMatch = contentText.match(/\[[\s\S]*\]/);
             if (!jsonMatch) throw new Error('Could not find JSON in response');
 
@@ -322,10 +312,10 @@ const lawCrawler = {
         } catch (error) {
             console.error('Gemini Search Error:', error.response?.data || error.message);
 
-            // HIGH-QUALITY FALLBACK for common student queries to ensure "Google-like" results always exist
+          
             const q = query.toLowerCase();
 
-            // Generic fallback results template
+            
             let fallbackResults = [];
 
             if (q.includes('political science')) {

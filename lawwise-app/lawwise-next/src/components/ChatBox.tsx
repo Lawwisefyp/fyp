@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Loader2, Info, Scale, Zap, BookOpen, Shield, MessageSquare } from "lucide-react";
+import { Send, Loader2, Info, Scale, Zap, BookOpen, Shield, MessageSquare, Bot, Cpu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 interface Message {
   role: "user" | "ai";
@@ -243,7 +244,7 @@ export default function ChatBox() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {msg.role === "user" ? "You" : "AI"}
+                    {msg.role === "user" ? "You" : <Bot size={16} color="#c19651" />}
                   </div>
 
                   {/* Bubble */}
@@ -263,7 +264,99 @@ export default function ChatBox() {
                       <p style={{ margin: 0, fontWeight: 500 }}>{msg.content}</p>
                     ) : (
                       <div className="prose prose-sm max-w-none prose-strong:text-amber-600 prose-headings:text-slate-900 prose-headings:font-black prose-p:my-1 prose-li:my-0.5">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]} 
+                          rehypePlugins={[rehypeRaw]}
+                          components={{
+                            u: ({node, ...props}: any) => (
+                              <u 
+                                style={{ 
+                                  textDecoration: "none", 
+                                  borderBottom: "2.5px solid #c19651", 
+                                  paddingBottom: "1px",
+                                  fontWeight: 700,
+                                  color: "#c19651"
+                                }} 
+                                {...props} 
+                              />
+                            ),
+                            h3: ({node, ...props}: any) => (
+                              <h3 
+                                style={{ 
+                                  borderLeft: "4px solid #c19651", 
+                                  paddingLeft: "12px", 
+                                  margin: "24px 0 12px", 
+                                  fontWeight: 900, 
+                                  color: "#0f172a",
+                                  fontSize: "1.1rem",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em"
+                                }} 
+                                {...props} 
+                              />
+                            ),
+                            "law-statute": ({node, name, url, children, ...props}: any) => (
+                              <span style={{ color: "#c19651" }} {...props}>
+                                {children}
+                              </span>
+                            ),
+                            "law-penalty": ({node, children, ...props}: any) => (
+                              <motion.span
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                style={{
+                                  display: "inline-block",
+                                  color: "#c19651",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.02em",
+                                  borderBottom: "2px solid #c19651",
+                                  margin: "0 4px"
+                                }}
+                                {...props}
+                              >
+                                {children}
+                              </motion.span>
+                            ),
+                            "law-details": ({node, children, ...props}: any) => {
+                              // We use a small internal state-like behavior via CSS/Framer
+                              return (
+                                <motion.div
+                                  initial={{ height: 65 }}
+                                  whileHover={{ height: "auto" }}
+                                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                  style={{
+                                    overflow: "hidden",
+                                    position: "relative",
+                                    background: "#f8fafc",
+                                    border: "1px dashed #cbd5e1",
+                                    borderRadius: "12px",
+                                    padding: "16px",
+                                    margin: "12px 0",
+                                    cursor: "pointer"
+                                  }}
+                                  {...props}
+                                >
+                                  <div style={{ fontSize: "0.95em", color: "#475569", fontStyle: "italic" }}>
+                                    {children}
+                                  </div>
+                                  <motion.div 
+                                    initial={{ opacity: 1 }}
+                                    whileHover={{ opacity: 0 }}
+                                    style={{
+                                      position: "absolute",
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      height: "32px",
+                                      background: "linear-gradient(transparent, #f8fafc)",
+                                      pointerEvents: "none"
+                                    }}
+                                  />
+                                </motion.div>
+                              );
+                            }
+                          } as any}
+                        >
                           {msg.content}
                         </ReactMarkdown>
                       </div>
@@ -274,7 +367,7 @@ export default function ChatBox() {
                       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid #e2e8f0" }}>
                         <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", color: "#94a3b8", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}>
                           <Info size={10} />
-                          Legal Sources
+                          International Case Laws
                         </p>
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           {msg.context.external.map((res, i) => (
@@ -321,8 +414,8 @@ export default function ChatBox() {
                 animate={{ opacity: 1 }}
                 style={{ display: "flex", gap: 14, alignItems: "flex-start" }}
               >
-                <div style={{ width: 34, height: 34, borderRadius: 10, background: "#f1f5f9", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "#64748b", flexShrink: 0 }}>
-                  AI
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: "#f1f5f9", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bot size={16} color="#c19651" />
                 </div>
                 <div style={{ padding: "14px 20px", borderRadius: "4px 20px 20px 20px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 10 }}>
                   <Loader2 size={15} color="#c19651" className="animate-spin" />
