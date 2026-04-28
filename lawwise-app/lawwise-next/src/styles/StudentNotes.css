@@ -48,8 +48,8 @@
 }
 
 .folder-item.active {
-    background: #fff7ed;
-    color: #f57c00;
+    background: #eff6ff;
+    color: #1e3a8a;
 }
 
 .add-folder-btn {
@@ -68,9 +68,9 @@
 }
 
 .add-folder-btn:hover {
-    border-color: #f57c00;
-    color: #f57c00;
-    background: #fff7ed;
+    border-color: #111827;
+    color: #111827;
+    background: #f8fafc;
 }
 
 /* Main Content Styling */
@@ -113,7 +113,7 @@
 }
 
 .note-tab.active {
-    color: #f57c00;
+    color: #111827;
 }
 
 .note-tab.active::after {
@@ -123,7 +123,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: #f57c00;
+    background: #111827;
 }
 
 /* Note Card Refinement */
@@ -195,13 +195,13 @@
 }
 
 .btn-primary {
-    background: #f57c00;
+    background: #111827;
     color: white;
     border: none;
 }
 
 .btn-primary:hover {
-    background: #e65100;
+    background: #000;
 }
 
 .btn-secondary {
@@ -226,9 +226,9 @@
 }
 
 .btn-quiz {
-    background: #fff7ed;
-    color: #f57c00;
-    border: 1px solid #ffedd5;
+    background: #eff6ff;
+    color: #1e3a8a;
+    border: 1px solid #dbeafe;
 }
 
 .btn-quiz:hover {
@@ -284,7 +284,7 @@
 }
 
 .ai-exp-section h4 {
-    color: #f57c00;
+    color: #111827;
     margin-bottom: 10px;
     display: flex;
     align-items: center;

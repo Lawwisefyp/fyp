@@ -69,78 +69,109 @@ const StudentDashboard = () => {
         }
     ];
 
+    const initials = student.fullName ? student.fullName.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase() : 'S';
+
     return (
         <div className="dashboard-body">
-            <div className="top-header" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}>
-                <div className="top-header-content">
-                    <div className="logo-section">
-                        <div className="logo-icon">🎓</div>
-                        <div className="logo-text">
-                            <h1>Lawwise Academy</h1>
-                            <p>Student Learning & Resource Portal</p>
-                        </div>
+            {/* ── Left Sidebar ── */}
+            <aside className="dashboard-sidebar">
+                <div className="sidebar-logo">
+                    <h1>LAW<span>WISE</span></h1>
+                    <p>Student Academy</p>
+                </div>
+
+                <nav className="sidebar-nav">
+                    <div className="sidebar-section-label">Main</div>
+                    <div className="sidebar-nav-item active">
+                        <span className="sidebar-nav-icon">🏠</span> Dashboard
                     </div>
-                    <div className="header-user-info">
-                        <div className="user-avatar" style={{ background: '#334155', color: 'white' }}>👨‍🎓</div>
-                        <div className="user-details">
-                            <h3 style={{ color: 'white' }}>{student.fullName}</h3>
-                            <p style={{ color: 'rgba(255,255,255,0.7)' }}>{student.university || 'Law Student'}</p>
+
+                    <div className="sidebar-section-label">Learning Modules</div>
+                    {features.map((f, i) => (
+                        <div key={i} className="sidebar-nav-item" onClick={() => router.push(f.path)}>
+                            <span className="sidebar-nav-icon">{f.icon}</span> {f.title}
+                        </div>
+                    ))}
+
+                    <div className="sidebar-section-label">Account</div>
+                    <div className="sidebar-nav-item" onClick={() => router.push('/student-profile')}>
+                        <span className="sidebar-nav-icon">👤</span> My Profile
+                    </div>
+                    <div className="sidebar-nav-item" onClick={logout}>
+                        <span className="sidebar-nav-icon">🚪</span> Logout
+                    </div>
+                </nav>
+
+                <div className="sidebar-footer">
+                    <div className="sidebar-user">
+                        <div className="sidebar-avatar">{initials}</div>
+                        <div className="sidebar-user-info">
+                            <h4>{student.fullName}</h4>
+                            <p>{student.university || 'Law Student'}</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </aside>
 
-            <div className="dashboard-container">
-                <div className="dashboard-header">
-                    <div className="header-left">
-                        <div className="dashboard-title">Student Dashboard</div>
-                        <div className="dashboard-welcome">Welcome back! Ready to advance your legal studies?</div>
+            {/* ── Main Content ── */}
+            <div className="dashboard-main">
+                {/* Top Header */}
+                <header className="top-header">
+                    <div className="top-header-left">
+                        <h2>Student Dashboard</h2>
+                        <p>Welcome back, {student.fullName}. Continue your legal education.</p>
                     </div>
                     <div className="header-actions">
                         <button className="btn-logout" onClick={logout}>
                             Logout
                         </button>
                     </div>
-                </div>
+                </header>
 
-                <div className="profile-card" style={{ borderLeft: '5px solid #334155' }}>
-                    <div className="profile-header">
-                        <div className="profile-header-content">
-                            <div className="profile-avatar" style={{ background: '#334155' }}>
-                                {student.fullName ? student.fullName.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase() : 'S'}
-                            </div>
-                            <div className="profile-main-info">
-                                <h2 className="profile-name">{student.fullName}</h2>
-                                <div className="profile-title">{student.yearOfStudy} Law Student</div>
-                                <div className="profile-stats">
-                                    <div className="stat-item">
-                                        <span className="stat-value">5</span>
-                                        <span className="stat-label">Courses</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-value">12</span>
-                                        <span className="stat-label">Quizzes Taken</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-value">8</span>
-                                        <span className="stat-label">Notes Shared</span>
+                {/* Content */}
+                <div className="dashboard-container">
+
+                    {/* Profile Banner */}
+                    <div className="profile-card">
+                        <div className="profile-header">
+                            <div className="profile-header-content">
+                                <div className="profile-avatar">{initials}</div>
+                                <div className="profile-main-info">
+                                    <h2 className="profile-name">{student.fullName}</h2>
+                                    <div className="profile-title">{student.yearOfStudy} Law Student | {student.university}</div>
+                                    <div className="profile-stats">
+                                        <div className="stat-item">
+                                            <span className="stat-value">5</span>
+                                            <span className="stat-label">Active Courses</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="stat-value">12</span>
+                                            <span className="stat-label">Quizzes Passed</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="stat-value">8</span>
+                                            <span className="stat-label">Shared Notes</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="dashboard-features">
-                    {features.map((f, i) => (
-                        <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2 }}>
-                            <div className="feature-header">
-                                <div className="feature-icon" style={{ background: f.bg, color: f.color1 }}>{f.icon}</div>
-                                <h3 className="feature-title" style={{ color: f.color1 }}>{f.title}</h3>
+                    {/* Modules Grid */}
+                    <div className="dashboard-section-title">Academic Modules</div>
+                    <div className="dashboard-features">
+                        {features.map((f, i) => (
+                            <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2 }}>
+                                <div className="feature-header">
+                                    <div className="feature-icon" style={{ background: f.bg, color: f.color1 }}>{f.icon}</div>
+                                    <h3 className="feature-title">{f.title}</h3>
+                                </div>
+                                <p className="feature-desc">{f.desc}</p>
                             </div>
-                            <p className="feature-desc">{f.desc}</p>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+
                 </div>
             </div>
         </div>

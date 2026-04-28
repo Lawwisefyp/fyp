@@ -54,12 +54,15 @@ const LawyerCaseMarketplacePage = () => {
     return (
         <div className="case-history-body">
             <div className="case-history-container">
-                <Link href="/lawyer-dashboard" style={{ color: '#fff', fontWeight: '700', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}>← Back to Dashboard</Link>
+                <Link href="/lawyer-dashboard" className="btn-back-dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back to Dashboard
+                </Link>
 
                 <header className="case-history-header">
                     <div className="case-header-top">
                         <div className="case-header-title">
-                            <h1>🌐 Case Marketplace</h1>
+                            <h1>Case Marketplace</h1>
                             <p>Browse and claim unassigned cases filed by clients in the platform.</p>
                         </div>
                     </div>
@@ -79,8 +82,8 @@ const LawyerCaseMarketplacePage = () => {
                                     <div className="case-card-badge" style={{ background: '#e1f5fe', color: '#0288d1' }}>
                                         {c.caseType?.toUpperCase() || 'NEW FILE'}
                                     </div>
-                                    <div className="case-card-badge" style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' }}>
-                                        ✨ EXPERTISE MATCH
+                                    <div className="case-card-badge" style={{ background: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb' }}>
+                                        EXPERTISE MATCH
                                     </div>
                                 </div>
 
@@ -107,7 +110,7 @@ const LawyerCaseMarketplacePage = () => {
                                     </div>
                                 </div>
 
-                                <div className="case-description" style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', borderRadius: '10px', fontSize: '0.9rem', color: '#475569', borderLeft: '4px solid #c19651' }}>
+                                <div className="case-description" style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', borderRadius: '10px', fontSize: '0.9rem', color: '#475569', borderLeft: '4px solid #111827' }}>
                                     <div style={{ fontWeight: '700', marginBottom: '5px', color: '#1e293b' }}>Description:</div>
                                     {c.description || "No description provided."}
                                 </div>
@@ -125,11 +128,13 @@ const LawyerCaseMarketplacePage = () => {
                             </div>
                         ))
                     ) : (
-                        <div style={{ textAlign: 'center', padding: '60px', background: 'rgba(255,255,255,0.9)', borderRadius: '20px' }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🌍</div>
+                        <div style={{ textAlign: 'center', padding: '60px', background: '#ffffff', borderRadius: '14px', border: '1px solid #e5e7eb' }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            </div>
                             <h3>Marketplace is Clear</h3>
                             <p>There are no unassigned cases at the moment. Check back later!</p>
-                            <button className="btn-case-action btn-case-info" style={{ marginTop: '20px', background: '#c19651', color: 'white' }} onClick={fetchMarketplace}>
+                            <button className="btn-case-action btn-case-success" style={{ marginTop: '20px' }} onClick={fetchMarketplace}>
                                 Refresh Marketplace
                             </button>
                         </div>

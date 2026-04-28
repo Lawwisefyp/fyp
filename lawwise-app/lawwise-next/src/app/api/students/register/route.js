@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import dbConnect from '@/lib/dbConnect';
 import Student from '@/lib/models/Student';
 import { sendVerificationEmail } from '@/lib/services/emailService';
@@ -42,9 +42,12 @@ export async function POST(req) {
 
     await student.save();
 
+    console.log('✅ Student saved successfully:', student._id);
+
     const emailResult = await sendVerificationEmail(student.email, student.fullName, student.emailVerificationToken, 'student');
 
     if (!emailResult.success) {
+      console.error('❌ Failed to send verification email:', emailResult.error);
       await Student.findByIdAndDelete(student._id);
       return NextResponse.json({
         error: emailResult.error || 'Failed to send verification email.'
@@ -58,8 +61,24 @@ export async function POST(req) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Student registration error:', error);
-    return NextResponse.json({ error: 'Server error during student registration' }, { status: 500 });
+    console.error('❌ Student registration error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return NextResponse.json({ error: messages.join(', ') }, { status: 400 });
+    }
+
+    if (error.code === 11000) {
+      return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
+    }
+
+    return NextResponse.json({ 
+      error: 'Server error during student registration',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
 }
-

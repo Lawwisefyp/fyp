@@ -24,6 +24,24 @@ const LawyerNetworkingPage = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const formatTime = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const formatDateHeader = (dateString) => {
+        const date = new Date(dateString);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) return 'Today';
+        if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+        
+        return date.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
+    };
+
     useEffect(() => {
         if (messages.length > 0) {
             scrollToBottom();
@@ -107,10 +125,10 @@ const LawyerNetworkingPage = () => {
             const res = await authService.sendMessage({
                 receiverId: chatTarget._id,
                 content: newMessage,
-                receiverType: 'Lawyer'
+                receiverModel: 'Lawyer'
             });
             if (res.success) {
-                setMessages([...messages, res.data]);
+                setMessages([...messages, res.message]);
                 setNewMessage('');
             }
         } catch (err) {
@@ -137,9 +155,9 @@ const LawyerNetworkingPage = () => {
                 {/* Left Sidebar */}
                 <aside>
                     <div style={{ background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                        <div style={{ height: '60px', background: '#c19651' }}></div>
+                        <div style={{ height: '60px', background: '#111827' }}></div>
                         <div style={{ padding: '15px', textAlign: 'center', marginTop: '-40px' }}>
-                            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'white', border: '2px solid white', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', color: '#c19651', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'white', border: '2px solid white', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', color: '#111827', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                                 {currentUser ? getInitials(currentUser.fullName) : '??'}
                             </div>
                             <h3 style={{ margin: '10px 0 5px 0', fontSize: '1rem' }}>{currentUser?.fullName}</h3>
@@ -150,13 +168,13 @@ const LawyerNetworkingPage = () => {
                                 onClick={() => setActiveTab('all')}
                                 style={{ padding: '10px 20px', cursor: 'pointer', background: activeTab === 'all' ? '#f3f2ef' : 'transparent', fontWeight: activeTab === 'all' ? '700' : '400', fontSize: '0.9rem' }}
                             >
-                                🌐 Discover Network
+                                Discover Network
                             </div>
                             <div
                                 onClick={() => setActiveTab('connections')}
                                 style={{ padding: '10px 20px', cursor: 'pointer', background: activeTab === 'connections' ? '#f3f2ef' : 'transparent', fontWeight: activeTab === 'connections' ? '700' : '400', fontSize: '0.9rem' }}
                             >
-                                👥 My Connections ({currentUser?.connections?.length || 0})
+                                My Connections ({currentUser?.connections?.length || 0})
                             </div>
                         </div>
                     </div>
@@ -173,7 +191,7 @@ const LawyerNetworkingPage = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 style={{ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #dcdcdc', background: '#f3f2ef', outline: 'none', color: '#333' }}
                             />
-                            <Link href="/lawyer-dashboard" style={{ padding: '10px 20px', borderRadius: '20px', border: '1px solid #c19651', color: '#c19651', textDecoration: 'none', fontWeight: '600' }}>Dashboard</Link>
+                            <Link href="/lawyer-dashboard" style={{ padding: '10px 20px', borderRadius: '20px', border: '1px solid #111827', color: '#111827', textDecoration: 'none', fontWeight: '600' }}>Dashboard</Link>
                         </div>
                     </div>
 
@@ -197,7 +215,7 @@ const LawyerNetworkingPage = () => {
                                     >
                                         <div style={{ height: '60px', background: '#e2e8f0' }}></div>
                                         <div style={{ marginTop: '-35px' }}>
-                                            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'white', border: '2px solid white', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', fontWeight: '800', color: '#c19651', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                                            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'white', border: '2px solid white', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', fontWeight: '800', color: '#111827', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                                                 {getInitials(name)}
                                             </div>
                                         </div>
@@ -205,21 +223,21 @@ const LawyerNetworkingPage = () => {
                                             <h4 style={{ margin: '0 0 5px 0', color: '#1e293b' }}>{name}</h4>
                                             <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', minHeight: '32px' }}>{lawyer.specialization || 'Legal Professional'}</p>
                                             <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '10px' }}>
-                                                📍 {lawyer.personalInfo?.city || 'City'}
+                                                {lawyer.personalInfo?.city || 'City'}
                                             </div>
                                         </div>
                                         <div style={{ padding: '15px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '8px' }}>
                                             {!isConnected ? (
                                                 <button
                                                     onClick={(e) => handleConnect(e, lawyer._id)}
-                                                    style={{ flex: 1, background: 'transparent', border: '2px solid #c19651', color: '#c19651', borderRadius: '20px', padding: '6px 0', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
+                                                    style={{ flex: 1, background: 'transparent', border: '2px solid #111827', color: '#111827', borderRadius: '20px', padding: '6px 0', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
                                                 >
                                                     Connect
                                                 </button>
                                             ) : (
                                                 <button
                                                     onClick={(e) => openChat(e, lawyer)}
-                                                    style={{ flex: 1, background: '#c19651', border: 'none', color: 'white', borderRadius: '20px', padding: '6px 0', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
+                                                    style={{ flex: 1, background: '#111827', border: 'none', color: 'white', borderRadius: '20px', padding: '6px 0', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
                                                 >
                                                     Message
                                                 </button>
@@ -242,7 +260,7 @@ const LawyerNetworkingPage = () => {
                 }}>
                     <div style={{ padding: '12px 15px', background: 'white', borderBottom: '1px solid #ebebeb', borderRadius: '10px 10px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#c19651', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: '800' }}>
+                            <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#111827', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: '800' }}>
                                 {getInitials(chatTarget?.fullName || chatTarget?.personalInfo?.firstName)}
                             </div>
                             <span style={{ fontWeight: '700', fontSize: '0.9rem', color: '#333' }}>{chatTarget?.fullName || `${chatTarget?.personalInfo?.firstName} ${chatTarget?.personalInfo?.lastName}`}</span>
@@ -253,25 +271,69 @@ const LawyerNetworkingPage = () => {
                     <div style={{ flex: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {messages.length === 0 ? (
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#94a3b8' }}>
-                                <span style={{ fontSize: '2rem', marginBottom: '10px' }}>💬</span>
                                 <p style={{ textAlign: 'center', fontSize: '0.85rem' }}>No messages yet.<br />Start the conversation with {chatTarget?.fullName?.split(' ')[0] || chatTarget?.personalInfo?.firstName}!</p>
                             </div>
                         ) : (
                             messages.map((msg, index) => {
-                                const isMine = msg.senderId === currentUser?._id;
+                                const isMine = msg.senderId?.toString() === currentUser?._id?.toString();
+                                const msgDate = new Date(msg.createdAt).toDateString();
+                                const prevMsgDate = index > 0 ? new Date(messages[index - 1].createdAt).toDateString() : null;
+                                const showDateHeader = msgDate !== prevMsgDate;
+
                                 return (
-                                    <div key={index} style={{
-                                        alignSelf: isMine ? 'flex-end' : 'flex-start',
-                                        maxWidth: '80%',
-                                        background: isMine ? '#c19651' : '#f1f5f9',
-                                        color: isMine ? 'white' : '#1e293b',
-                                        padding: '8px 12px',
-                                        borderRadius: isMine ? '15px 15px 2px 15px' : '15px 15px 15px 2px',
-                                        fontSize: '0.85rem',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                                    }}>
-                                        {msg.content}
-                                    </div>
+                                    <React.Fragment key={index}>
+                                        {showDateHeader && (
+                                            <div style={{
+                                                textAlign: 'center',
+                                                margin: '20px 0 10px 0',
+                                                position: 'relative',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <span style={{
+                                                    background: '#e2e8f0',
+                                                    color: '#475569',
+                                                    padding: '4px 12px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: '700',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.5px'
+                                                }}>
+                                                    {formatDateHeader(msg.createdAt)}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div style={{
+                                            alignSelf: isMine ? 'flex-end' : 'flex-start',
+                                            maxWidth: '85%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: isMine ? 'flex-end' : 'flex-start'
+                                        }}>
+                                            <div style={{
+                                                background: isMine ? '#111827' : '#f1f5f9',
+                                                color: isMine ? 'white' : '#1e293b',
+                                                padding: '8px 14px',
+                                                borderRadius: isMine ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
+                                                fontSize: '0.88rem',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                                lineHeight: '1.4'
+                                            }}>
+                                                {msg.content}
+                                            </div>
+                                            <div style={{ 
+                                                fontSize: '0.7rem', 
+                                                color: '#94a3b8', 
+                                                marginTop: '4px',
+                                                marginRight: isMine ? '4px' : '0',
+                                                marginLeft: !isMine ? '4px' : '0'
+                                            }}>
+                                                {formatTime(msg.createdAt)}
+                                            </div>
+                                        </div>
+                                    </React.Fragment>
                                 );
                             })
                         )}
@@ -290,13 +352,13 @@ const LawyerNetworkingPage = () => {
                             <button
                                 type="submit"
                                 style={{
-                                    background: '#c19651', color: 'white', border: 'none', borderRadius: '50%',
+                                    background: '#111827', color: 'white', border: 'none', borderRadius: '50%',
                                     width: '32px', height: '32px', cursor: 'pointer',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     transition: 'transform 0.1s'
                                 }}
                             >
-                                ➤
+                                &#8250;
                             </button>
                         </div>
                     </form>

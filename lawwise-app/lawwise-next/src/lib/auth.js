@@ -7,6 +7,7 @@ import dbConnect from './dbConnect';
 export const verifyAuth = async (req) => {
   try {
     const authHeader = req.headers.get('authorization');
+    console.log('Auth Header received:', authHeader ? 'Present' : 'Missing');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return null;
     }
@@ -37,4 +38,8 @@ export const verifyAuth = async (req) => {
     console.error('Auth verification error:', error);
     return null;
   }
+};
+export const getUserIdFromToken = async (req) => {
+  const auth = await verifyAuth(req);
+  return auth?.user?._id;
 };

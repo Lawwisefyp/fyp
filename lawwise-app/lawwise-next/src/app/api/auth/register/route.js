@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import dbConnect from '@/lib/dbConnect';
 import Lawyer from '@/lib/models/Lawyer';
 import { sendVerificationEmail } from '@/lib/services/emailService';

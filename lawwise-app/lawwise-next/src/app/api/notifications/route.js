@@ -15,9 +15,8 @@ export async function GET(req) {
     let query = {};
     if (auth.role.toLowerCase() === 'lawyer') {
       query = { toLawyerId: auth.user._id };
-    } else {
-      // Logic for client notifications if applicable
-      query = { fromLawyerId: auth.user._id }; // Example placeholder
+    } else if (auth.role.toLowerCase() === 'client') {
+      query = { toClientId: auth.user._id };
     }
 
     const notifications = await Notification.find(query).sort({ createdAt: -1 });

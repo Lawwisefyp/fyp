@@ -78,8 +78,16 @@ const aiService = {
             console.log('Generating quiz for:', noteData.title);
             const rawText = await callGemini(apiKey, prompt);
 
-            // Strip markdown code blocks if present
-            const cleanText = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+            // Find the first '{' and last '}' to extract JSON even if there's conversational text
+            const firstBrace = rawText.indexOf('{');
+            const lastBrace = rawText.lastIndexOf('}');
+            
+            if (firstBrace === -1 || lastBrace === -1) {
+                console.error('Invalid AI response - No JSON found:', rawText);
+                return { success: false, error: 'AI returned invalid format' };
+            }
+            
+            const cleanText = rawText.substring(firstBrace, lastBrace + 1);
             const quizData = JSON.parse(cleanText);
 
             return { success: true, quiz: quizData };

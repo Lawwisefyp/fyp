@@ -37,50 +37,100 @@ const ClientDashboard = () => {
         { title: 'Lawyer Reviews', icon: '⭐', desc: "Read and write reviews", path: '/lawyer-reviews', bg: '#fce4ec', color: '#c2185b' }
     ];
 
+    const initials = client.fullName ? client.fullName.split(' ').map(n => n[0]).join('') : 'C';
+
     return (
         <div className="dashboard-body">
-            <div className="top-header" style={{ background: 'linear-gradient(135deg, #d4a574, #b5894b)' }}>
-                <div className="top-header-content">
-                    <div className="logo-section">
-                        <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #c19651, #d4a574)' }}>⚖️</div>
-                        <div className="logo-text">
-                            <h1>Lawwise</h1>
-                            <p>Client Portal Dashboard</p>
-                        </div>
+
+            {/* ── Left Sidebar ── */}
+            <aside className="dashboard-sidebar">
+                <div className="sidebar-logo">
+                    <h1>LAW<span>WISE</span></h1>
+                    <p>Client Portal</p>
+                </div>
+
+                <nav className="sidebar-nav">
+                    <div className="sidebar-section-label">Main</div>
+                    <div className="sidebar-nav-item active">
+                        <span className="sidebar-nav-icon">🏠</span> Dashboard
                     </div>
-                    <div className="header-user-info">
-                        <div className="user-avatar" style={{ background: 'linear-gradient(135deg, #d4a574, #c19651)' }}>👤</div>
-                        <div className="user-details">
-                            <h3>{client.fullName}</h3>
+
+                    <div className="sidebar-section-label">Modules</div>
+                    {modules.map((m, i) => (
+                        <div key={i} className="sidebar-nav-item" onClick={() => router.push(m.path)}>
+                            <span className="sidebar-nav-icon">{m.icon}</span> {m.title}
+                        </div>
+                    ))}
+
+                    <div className="sidebar-section-label">Account</div>
+                    <div className="sidebar-nav-item" onClick={logout}>
+                        <span className="sidebar-nav-icon">🚪</span> Logout
+                    </div>
+                </nav>
+
+                <div className="sidebar-footer">
+                    <div className="sidebar-user">
+                        <div className="sidebar-avatar">{initials}</div>
+                        <div className="sidebar-user-info">
+                            <h4>{client.fullName}</h4>
                             <p>Client</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </aside>
 
-            <div className="dashboard-container">
-                <div className="dashboard-header">
-                    <div className="header-left">
-                        <div className="dashboard-title" style={{ color: '#c19651' }}>Client Dashboard</div>
-                        <div className="dashboard-welcome">Welcome back! Access your case details and legal tools.</div>
+            {/* ── Main Content ── */}
+            <div className="dashboard-main">
+
+                {/* Top Header */}
+                <header className="top-header">
+                    <div className="top-header-left">
+                        <h2>Client Dashboard</h2>
+                        <p>Welcome back, {client.fullName}. Access your case details and legal tools.</p>
                     </div>
                     <div className="header-actions">
-                        <button className="btn-logout" style={{ background: 'linear-gradient(135deg, #d4a574, #c19651)' }} onClick={logout}>
+                        <button className="btn-logout" onClick={logout}>
                             Logout
                         </button>
                     </div>
-                </div>
+                </header>
 
-                <div className="dashboard-features" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-                    {modules.map((m, i) => (
-                        <div key={i} className="feature-card" onClick={() => router.push(m.path)} style={{ borderTop: `4px solid ${m.color}` }}>
-                            <div className="feature-header">
-                                <div className="feature-icon" style={{ background: m.bg, color: m.color }}>{m.icon}</div>
-                                <h3 className="feature-title" style={{ color: m.color }}>{m.title}</h3>
+                {/* Content */}
+                <div className="dashboard-container">
+
+                    {/* Profile Banner */}
+                    <div className="profile-card">
+                        <div className="profile-header">
+                            <div className="profile-header-content">
+                                <div className="profile-avatar">{initials}</div>
+                                <div className="profile-main-info">
+                                    <h2 className="profile-name">{client.fullName}</h2>
+                                    <div className="profile-title">Client Account</div>
+                                    <div className="profile-stats">
+                                        <div className="stat-item">
+                                            <span className="stat-value">5</span>
+                                            <span className="stat-label">Modules</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <p className="feature-desc">{m.desc}</p>
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Modules Grid */}
+                    <div className="dashboard-section-title">All Modules</div>
+                    <div className="dashboard-features">
+                        {modules.map((m, i) => (
+                            <div key={i} className="feature-card" onClick={() => router.push(m.path)}>
+                                <div className="feature-header">
+                                    <div className="feature-icon" style={{ background: m.bg, color: m.color }}>{m.icon}</div>
+                                    <h3 className="feature-title">{m.title}</h3>
+                                </div>
+                                <p className="feature-desc">{m.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -88,3 +138,4 @@ const ClientDashboard = () => {
 };
 
 export default ClientDashboard;
+

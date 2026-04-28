@@ -214,7 +214,11 @@ export const authService = {
         return response.data;
     },
     getStudentAnalytics: async () => {
-        const response = await api.get('/student/analytics');
+        const response = await api.get('/students/analytics');
+        return response.data;
+    },
+    saveQuizResult: async (resultData) => {
+        const response = await api.post('/students/quizzes/save-result', resultData);
         return response.data;
     },
     // Quiz & Notes Methods

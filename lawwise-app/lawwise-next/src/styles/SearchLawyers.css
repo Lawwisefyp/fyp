@@ -12,7 +12,7 @@
 }
 
 .search-header {
-    background: var(--primary);
+    background: #111827;
     color: white;
     padding: 80px 10%;
     border-radius: 0;
@@ -91,9 +91,9 @@
 .filter-input:focus,
 .filter-select:focus {
     outline: none;
-    border-color: #d4a574;
+    border-color: #111827;
     background: white;
-    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.15);
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.15);
 }
 
 .search-actions {
@@ -104,7 +104,7 @@
 .btn-primary-search {
     flex: 2;
     padding: 14px 28px;
-    background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+    background: #111827;
     color: white;
     border: none;
     border-radius: 12px;
@@ -116,7 +116,7 @@
 
 .btn-primary-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(193, 150, 81, 0.35);
+    box-shadow: 0 8px 25px rgba(17, 24, 39, 0.35);
 }
 
 .btn-secondary-clear {
@@ -157,14 +157,14 @@
 .lawyer-search-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
-    border-color: #d4a574;
+    border-color: #111827;
 }
 
 .lawyer-card-avatar {
     width: 130px;
     height: 130px;
     border-radius: 20px;
-    background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+    background: #111827;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -172,7 +172,7 @@
     color: white;
     font-weight: 700;
     flex-shrink: 0;
-    box-shadow: 0 8px 20px rgba(193, 150, 81, 0.2);
+    box-shadow: 0 8px 20px rgba(17, 24, 39, 0.2);
 }
 
 .lawyer-card-content {
@@ -187,7 +187,7 @@
 }
 
 .lawyer-card-specialty {
-    color: #c19651;
+    color: #1e3a8a;
     font-weight: 600;
     font-size: 1.1rem;
     margin-bottom: 12px;
@@ -227,12 +227,12 @@
 .card-rate {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #c19651;
+    color: #111827;
 }
 
 .btn-card-primary {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #d4a574 0%, #c19651 100%);
+    background: #111827;
     color: white;
     border: none;
     border-radius: 10px;
@@ -244,8 +244,8 @@
 .btn-card-secondary {
     padding: 12px 24px;
     background: white;
-    color: #c19651;
-    border: 2px solid #d4a574;
+    color: #111827;
+    border: 2px solid #111827;
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
@@ -253,7 +253,7 @@
 }
 
 .btn-card-secondary:hover {
-    background: #fff8f0;
+    background: #f1f5f9;
 }
 
 @media (max-width: 992px) {

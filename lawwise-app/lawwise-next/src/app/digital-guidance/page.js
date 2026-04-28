@@ -16,14 +16,14 @@ const LawyerDigitalGuidancePage = () => {
     const [showHistory, setShowHistory] = useState(false);
 
     const topics = [
-        { name: 'Court Procedure', count: 4, icon: '⚖️' },
-        { name: 'Family Law', count: 18, icon: '👨‍👩‍👧' },
-        { name: 'Civil Litigation', count: 27, icon: '🏛️' },
-        { name: 'Corporate Law', count: 22, icon: '💼' },
-        { name: 'Legal Drafting', count: 31, icon: '📄' },
-        { name: 'Constitutional Law', count: 24, icon: '📜' },
-        { name: 'Property Law', count: 15, icon: '🏠' },
-        { name: 'Evidence Law', count: 21, icon: '🔍' },
+        { name: 'Court Procedure' },
+        { name: 'Family Law' },
+        { name: 'Civil Litigation' },
+        { name: 'Corporate Law' },
+        { name: 'Legal Drafting' },
+        { name: 'Constitutional Law' },
+        { name: 'Property Law' },
+        { name: 'Evidence Law' },
     ];
     
 
@@ -95,7 +95,7 @@ const LawyerDigitalGuidancePage = () => {
                 videoList.map(video => (
                     <div key={video.id || video._id} className="guidance-card">
                         <div className="guidance-thumb" style={{ backgroundImage: `url(${video.thumb || video.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                            {!video.thumb && !video.thumbnail && '📺'}
+                            {!video.thumb && !video.thumbnail && <span className="guidance-thumb-placeholder">▶</span>}
                         </div>
                         <div className="guidance-info">
                             <h4 className="guidance-title" dangerouslySetInnerHTML={{ __html: video.title }}></h4>
@@ -124,7 +124,6 @@ const LawyerDigitalGuidancePage = () => {
                 <ul className="guidance-topic-list">
                     <li className={`guidance-topic-item ${!showHistory ? 'active-sidebar-tab' : ''}`} onClick={() => { setShowHistory(false); setSelectedTopic(null); }}>
                         Home
-                        <span className="guidance-topic-count">🏠</span>
                     </li>
                     <li className={`guidance-topic-item ${showHistory ? 'active-sidebar-tab' : ''}`} onClick={() => { setShowHistory(true); setSelectedTopic(null); }}>
                         Watch History
@@ -136,7 +135,6 @@ const LawyerDigitalGuidancePage = () => {
                     {topics.map(topic => (
                         <li key={topic.name} className="guidance-topic-item" onClick={() => { setSelectedTopic(topic.name); setShowHistory(false); fetchVideos(topic.name); }}>
                             {topic.name}
-                            <span className="guidance-topic-count">{topic.icon}</span>
                         </li>
                     ))}
                 </ul>
@@ -146,14 +144,17 @@ const LawyerDigitalGuidancePage = () => {
                 {showHistory ? (
                     <div>
                         <div className="guidance-header" style={{ marginBottom: '20px' }}>
-                            <h1>📜 Watch History</h1>
+                            <h1>Watch History</h1>
                             <p>Your recently watched videos from various legal topics</p>
                         </div>
                         {renderVideoGrid(history)}
                     </div>
                 ) : selectedTopic ? (
                     <div>
-                        <button className="guidance-tab" onClick={() => setSelectedTopic(null)} style={{ marginBottom: '20px' }}>← Back to Home</button>
+                        <button className="guidance-back-btn" onClick={() => setSelectedTopic(null)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                            Back to Home
+                        </button>
                         <div className="guidance-header">
                             <h1>{selectedTopic} Resources</h1>
                             <p>Comprehensive video resources for {selectedTopic.toLowerCase()}</p>
@@ -183,13 +184,41 @@ const LawyerDigitalGuidancePage = () => {
     return (
         <div className="guidance-body">
             <div className="guidance-container">
-                <Link href="/lawyer-dashboard" style={{ color: '#0369a1', fontWeight: '700', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}>← Back to Dashboard</Link>
-
                 <header className="guidance-header">
-                    <h1>🎓 Digital Guidance</h1>
-                    <p>Search and watch any legal education videos directly from YouTube</p>
+                    <div className="header-title-row">
+                        <div className="header-main-info">
+                            <h1>Digital Guidance</h1>
+                            <p>Search and watch any legal education videos directly from YouTube</p>
+                            
+                            <div className="header-stats">
+                                <div className="stat-item">
+                                    <span className="stat-value">{history.length}</span>
+                                    <span className="stat-label">Videos Watched</span>
+                                </div>
+                                {videos.length > 0 && (
+                                    <div className="stat-item">
+                                        <span className="stat-value">{videos.length}</span>
+                                        <span className="stat-label">Available Resources</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <Link href="/lawyer-dashboard" className="btn-back-dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                            Back to Dashboard
+                        </Link>
+                    </div>
+
                     <div className="guidance-search-container">
-                        <span className="guidance-search-icon">🔍</span>
+                        <span className="guidance-search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        </span>
                         <input
                             type="text"
                             className="guidance-search-input"

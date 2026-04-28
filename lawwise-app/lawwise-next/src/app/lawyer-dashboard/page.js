@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/lib/services/api';
 import '@/styles/Dashboard.css';
 
 const LawyerDashboard = () => {
@@ -17,7 +18,18 @@ const LawyerDashboard = () => {
             return;
         }
 
-        setLawyer(JSON.parse(info));
+        const parsedLawyer = JSON.parse(info);
+        setLawyer(parsedLawyer);
+
+        // Sync notifications for reminders
+        const syncNotifs = async () => {
+            try {
+                await authService.syncNotifications();
+            } catch (err) {
+                console.error('Failed to sync notifications on dashboard:', err);
+            }
+        };
+        syncNotifs();
     }, [router]);
 
     const logout = () => {
@@ -42,32 +54,59 @@ const LawyerDashboard = () => {
         { title: 'Networking', icon: '🤝', desc: 'A platform for lawyers to connect and collaborate with others.', path: '/networking', color1: '#689f38', color2: '#7cb342', bg: '#f1f8e9' }
     ];
 
+    const initials = lawyer.fullName ? lawyer.fullName.split(' ').map(n => n[0]).join('') : 'L';
+
     return (
         <div className="dashboard-body">
-            <div className="top-header">
-                <div className="top-header-content">
-                    <div className="logo-section">
-                        <div className="logo-icon">⚖️</div>
-                        <div className="logo-text">
-                            <h1>Lawwise</h1>
-                            <p>Your Legal Practice Management System</p>
-                        </div>
+
+            {/* ── Left Sidebar ── */}
+            <aside className="dashboard-sidebar">
+                <div className="sidebar-logo">
+                    <h1>LAW<span>WISE</span></h1>
+                    <p>Legal Practice Management</p>
+                </div>
+
+                <nav className="sidebar-nav">
+                    <div className="sidebar-section-label">Main</div>
+                    <div className="sidebar-nav-item active">
+                        <span className="sidebar-nav-icon">🏠</span> Dashboard
                     </div>
-                    <div className="header-user-info">
-                        <div className="user-avatar">👨‍⚖️</div>
-                        <div className="user-details">
-                            <h3>{lawyer.fullName}</h3>
+
+                    <div className="sidebar-section-label">Modules</div>
+                    {features.map((f, i) => (
+                        <div key={i} className="sidebar-nav-item" onClick={() => router.push(f.path)}>
+                            <span className="sidebar-nav-icon">{f.icon}</span> {f.title}
+                        </div>
+                    ))}
+
+                    <div className="sidebar-section-label">Account</div>
+                    <div className="sidebar-nav-item" onClick={() => router.push('/lawyer-profile')}>
+                        <span className="sidebar-nav-icon">👤</span> Edit Profile
+                    </div>
+                    <div className="sidebar-nav-item" onClick={logout}>
+                        <span className="sidebar-nav-icon">🚪</span> Logout
+                    </div>
+                </nav>
+
+                <div className="sidebar-footer">
+                    <div className="sidebar-user">
+                        <div className="sidebar-avatar">{initials}</div>
+                        <div className="sidebar-user-info">
+                            <h4>{lawyer.fullName}</h4>
                             <p>{lawyer.specialization || 'Lawyer'}</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </aside>
 
-            <div className="dashboard-container">
-                <div className="dashboard-header">
-                    <div className="header-left">
-                        <div className="dashboard-title">Dashboard</div>
-                        <div className="dashboard-welcome">Welcome back, counselor! Manage your practice efficiently.</div>
+            {/* ── Main Content ── */}
+            <div className="dashboard-main">
+
+                {/* Top Header */}
+                <header className="top-header">
+                    <div className="top-header-left">
+                        <h2>Lawyer Dashboard</h2>
+                        <p>Welcome back, {lawyer.fullName}. Manage your practice efficiently.</p>
                     </div>
                     <div className="header-actions">
                         <button className="btn-secondary" onClick={() => router.push('/lawyer-profile')}>
@@ -77,42 +116,48 @@ const LawyerDashboard = () => {
                             Logout
                         </button>
                     </div>
-                </div>
+                </header>
 
-                <div className="profile-card">
-                    <div className="profile-header">
-                        <div className="profile-header-content">
-                            <div className="profile-avatar">
-                                {lawyer.fullName ? lawyer.fullName.split(' ').map(n => n[0]).join('') : 'L'}
-                            </div>
-                            <div className="profile-main-info">
-                                <h2 className="profile-name">{lawyer.fullName}</h2>
-                                <div className="profile-title">{lawyer.specialization} Advocate</div>
-                                <div className="profile-stats">
-                                    <div className="stat-item">
-                                        <span className="stat-value">12</span>
-                                        <span className="stat-label">Active Cases</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-value">48</span>
-                                        <span className="stat-label">Clients</span>
+                {/* Content */}
+                <div className="dashboard-container">
+
+                    {/* Profile Banner */}
+                    <div className="profile-card">
+                        <div className="profile-header">
+                            <div className="profile-header-content">
+                                <div className="profile-avatar">{initials}</div>
+                                <div className="profile-main-info">
+                                    <h2 className="profile-name">{lawyer.fullName}</h2>
+                                    <div className="profile-title">{lawyer.specialization} Advocate</div>
+                                    <div className="profile-stats">
+                                        <div className="stat-item">
+                                            <span className="stat-value">12</span>
+                                            <span className="stat-label">Active Cases</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="stat-value">48</span>
+                                            <span className="stat-label">Clients</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="dashboard-features">
-                    {features.map((f, i) => (
-                        <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2 }}>
-                            <div className="feature-header">
-                                <div className="feature-icon" style={{ background: f.bg, color: f.color1 }}>{f.icon}</div>
-                                <h3 className="feature-title" style={{ color: f.color1 }}>{f.title}</h3>
+                    {/* Modules Grid */}
+                    <div className="dashboard-section-title">All Modules</div>
+                    <div className="dashboard-features">
+                        {features.map((f, i) => (
+                            <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2 }}>
+                                <div className="feature-header">
+                                    <div className="feature-icon" style={{ background: f.bg, color: f.color1 }}>{f.icon}</div>
+                                    <h3 className="feature-title">{f.title}</h3>
+                                </div>
+                                <p className="feature-desc">{f.desc}</p>
                             </div>
-                            <p className="feature-desc">{f.desc}</p>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -120,3 +165,4 @@ const LawyerDashboard = () => {
 };
 
 export default LawyerDashboard;
+

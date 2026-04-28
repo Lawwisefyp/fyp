@@ -33,7 +33,7 @@
 }
 
 .left-panel {
-    background: linear-gradient(160deg, #5e92f3 0%, #7ba7f5 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     flex: 1;
     display: flex;
     align-items: center;
@@ -121,12 +121,12 @@
 .login-title {
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--primary);
+    color: #1e3a8a;
     margin-bottom: 12px;
 }
 
 .login-subtitle {
-    color: #5a7ca8;
+    color: #6b7280;
     font-size: 1rem;
     font-weight: 500;
 }
@@ -150,9 +150,9 @@
 
 .form-input:focus {
     outline: none;
-    border-color: #7ba7f5;
+    border-color: #2563eb;
     background: white;
-    box-shadow: 0 0 0 4px rgba(123, 167, 245, 0.12);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.10);
 }
 
 .input-icon {
@@ -160,7 +160,7 @@
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #5e92f3;
+    color: #1e3a8a;
     font-size: 1.2rem;
 }
 
@@ -180,19 +180,19 @@
 .checkbox {
     width: 20px;
     height: 20px;
-    accent-color: #5e92f3;
+    accent-color: #1e3a8a;
     cursor: pointer;
 }
 
 .checkbox-label {
     font-size: 0.95rem;
-    color: #2c5aa0;
+    color: #1e3a8a;
     font-weight: 500;
     cursor: pointer;
 }
 
 .forgot-link {
-    color: #5e92f3;
+    color: #1e3a8a;
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 600;
@@ -202,7 +202,7 @@
 .login-btn {
     width: 100%;
     padding: 18px;
-    background: linear-gradient(135deg, #5e92f3 0%, #7ba7f5 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -212,23 +212,23 @@
     transition: all 0.3s ease;
     margin-bottom: 25px;
     letter-spacing: 0.5px;
-    box-shadow: 0 8px 20px rgba(94, 146, 243, 0.25);
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
 }
 
 .login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(94, 146, 243, 0.35);
+    box-shadow: 0 12px 30px rgba(30, 58, 138, 0.35);
 }
 
 .signup-link {
     text-align: center;
-    color: #5a7ca8;
+    color: #6b7280;
     font-size: 0.95rem;
     font-weight: 500;
 }
 
 .signup-link a {
-    color: #2c5aa0;
+    color: #1e3a8a;
     text-decoration: none;
     font-weight: 700;
     transition: color 0.3s;
@@ -258,10 +258,10 @@
 .back-btn {
     width: auto;
     padding: 12px 35px;
-    background: rgba(123, 167, 245, 0.12);
-    color: #2c5aa0;
+    background: rgba(30, 58, 138, 0.08);
+    color: #1e3a8a;
     font-weight: 600;
-    border: 2px solid #7ba7f5;
+    border: 2px solid #2563eb;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -288,7 +288,7 @@
 .divider span {
     background: #fafafa;
     padding: 0 15px;
-    color: #5e92f3;
+    color: #1e3a8a;
     font-size: 0.9rem;
     position: relative;
     z-index: 1;

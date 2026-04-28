@@ -49,7 +49,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #c19651;
+    background: #111827;
     color: white;
     display: flex;
     align-items: center;
@@ -194,7 +194,7 @@
 }
 
 .unread-badge {
-    background: #c19651;
+    background: #111827;
     color: white;
     border-radius: 50%;
     min-width: 18px;
@@ -379,7 +379,7 @@
 }
 
 .send-btn {
-    color: #c19651 !important;
+    color: #111827 !important;
 }
 
 /* Welcome Screen */
@@ -390,7 +390,7 @@
     justify-content: center;
     text-align: center;
     background: #f0f2f5;
-    border-bottom: 6px solid #c19651;
+    border-bottom: 6px solid #111827;
 }
 
 .welcome-logo {
@@ -445,7 +445,7 @@
     align-items: center;
     height: 100vh;
     font-size: 1.5rem;
-    color: #c19651;
+    color: #111827;
 }
 
 /* Email Modal Styles */
@@ -523,7 +523,7 @@
 
 .email-modal-form input:focus,
 .email-modal-form textarea:focus {
-    border-color: #c19651;
+    border-color: #111827;
 }
 
 .email-modal-form textarea {
@@ -550,7 +550,7 @@
 
 .btn-send-email {
     padding: 10px 24px;
-    background: #c19651;
+    background: #111827;
     color: white;
     border: none;
     border-radius: 8px;
@@ -560,7 +560,7 @@
 }
 
 .btn-send-email:hover {
-    background: #a87f43;
+    background: #0f172a;
 }
 
 .btn-send-email:disabled {

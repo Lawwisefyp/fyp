@@ -31,7 +31,7 @@
 }
 
 .quiz-sidebar-logo span {
-    color: #f57c00;
+    color: #111827;
 }
 
 .quiz-sidebar-section h4 {
@@ -63,8 +63,8 @@
 }
 
 .quiz-nav-item.active {
-    background: #fff7ed;
-    color: #f57c00;
+    background: #eff6ff;
+    color: #1e3a8a;
     font-weight: 700;
 }
 
@@ -118,7 +118,7 @@
 
 .quiz-cta-btn {
     padding: 16px 32px;
-    background: #f57c00;
+    background: #111827;
     color: white;
     border: none;
     border-radius: 14px;
@@ -127,11 +127,11 @@
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(17, 24, 39, 0.4);
 }
 
 .quiz-cta-btn:hover {
-    background: #e65100;
+    background: #000;
     transform: translateY(-1px);
 }
 
@@ -159,15 +159,15 @@
 }
 
 .note-pick-card:hover {
-    border-color: #f57c00;
-    box-shadow: 0 6px 20px rgba(245, 124, 0, 0.08);
+    border-color: #111827;
+    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);
     transform: translateY(-2px);
 }
 
 .note-pick-card.selected {
-    border-color: #f57c00;
-    background: #fff7ed;
-    box-shadow: 0 6px 20px rgba(245, 124, 0, 0.15);
+    border-color: #111827;
+    background: #eff6ff;
+    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.15);
 }
 
 .note-pick-check {
@@ -176,7 +176,7 @@
     right: 14px;
     width: 26px;
     height: 26px;
-    background: #f57c00;
+    background: #111827;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -188,8 +188,8 @@
 
 .note-tag {
     display: inline-block;
-    background: #fff7ed;
-    color: #f57c00;
+    background: #eff6ff;
+    color: #1e3a8a;
     padding: 3px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -269,7 +269,7 @@
 
 .quiz-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #f57c00, #ffa726);
+    background: linear-gradient(90deg, #111827, #1e3a8a);
     border-radius: 3px;
     animation: progress 1.8s ease-in-out infinite;
 }
@@ -363,7 +363,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: #f57c00;
+    color: #1e3a8a;
     display: block;
     margin-bottom: 5px;
 }
@@ -396,15 +396,15 @@
 }
 
 .mcq-option:not(:disabled):hover {
-    border-color: #f57c00;
-    background: #fff7ed;
-    color: #f57c00;
+    border-color: #111827;
+    background: #eff6ff;
+    color: #1e3a8a;
 }
 
 .mcq-option.selected {
-    border-color: #f57c00;
-    background: #fff7ed;
-    color: #f57c00;
+    border-color: #111827;
+    background: #eff6ff;
+    color: #1e3a8a;
 }
 
 .mcq-option.correct {
@@ -434,7 +434,7 @@
 
 .answer-textarea:focus {
     outline: none;
-    border-color: #f57c00;
+    border-color: #111827;
 }
 
 .professor-insight {
@@ -482,7 +482,7 @@
     width: 100%;
     padding: 18px;
     border-radius: 18px;
-    background: #f57c00;
+    background: #111827;
     color: white;
     font-size: 1rem;
     font-weight: 700;
@@ -493,7 +493,7 @@
 }
 
 .retry-quiz-btn:hover {
-    background: #e65100;
+    background: #000;
 }
 
 /* ── Animations ── */

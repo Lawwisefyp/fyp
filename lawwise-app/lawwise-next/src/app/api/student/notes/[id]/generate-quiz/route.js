@@ -23,8 +23,14 @@ export async function POST(req, { params }) {
             return NextResponse.json({ error: 'Access denied' }, { status: 403 });
         }
 
+        console.log('Generating quiz for note ID:', id);
         const aiResult = await aiService.generateQuizFromNote(note);
-        if (!aiResult.success) return NextResponse.json(aiResult, { status: 500 });
+        if (!aiResult.success) {
+            console.error('AI Service failed:', aiResult.error);
+            return NextResponse.json(aiResult, { status: 500 });
+        }
+
+        console.log('AI Quiz Data received successfully');
 
         // Save the generated quiz to the database
         const quiz = new Quiz({
@@ -40,6 +46,9 @@ export async function POST(req, { params }) {
         return NextResponse.json({ success: true, quizId: quiz._id }, { status: 201 });
     } catch (error) {
         console.error('Quiz generation route error:', error);
-        return NextResponse.json({ error: 'Server error generating quiz' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Server error generating quiz', 
+            details: error.message 
+        }, { status: 500 });
     }
 }

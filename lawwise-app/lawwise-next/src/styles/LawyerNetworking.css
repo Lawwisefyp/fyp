@@ -1,5 +1,5 @@
 .networking-body {
-    background: linear-gradient(135deg, #f1f8e9 0%, #aed581 100%);
+    background: #f8fafc;
     min-height: 100vh;
     padding: 40px 20px;
 }
@@ -28,24 +28,21 @@
     font-size: 2.8rem;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(45deg, #689f38, #558b2f);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #111827;
 }
 
 .btn-networking-back {
-    color: #689f38;
+    color: #111827;
     text-decoration: none;
     font-weight: 700;
     padding: 10px 20px;
     border-radius: 12px;
     transition: all 0.2s;
-    background: rgba(104, 159, 56, 0.05);
+    background: rgba(17, 24, 39, 0.05);
 }
 
 .btn-networking-back:hover {
-    background: rgba(104, 159, 56, 0.1);
+    background: rgba(17, 24, 39, 0.1);
 }
 
 .networking-search-box {
@@ -64,8 +61,8 @@
 }
 
 .networking-search-input:focus {
-    border-color: #689f38;
-    box-shadow: 0 0 0 4px rgba(104, 159, 56, 0.1);
+    border-color: #111827;
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.1);
 }
 
 .networking-lawyer-grid {
@@ -95,7 +92,7 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    background: #689f38;
+    background: #111827;
     color: white;
     padding: 5px 15px;
     border-radius: 20px;
@@ -137,14 +134,14 @@
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #689f38, #558b2f);
+    background: #111827;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 2rem;
     font-weight: 800;
-    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.2);
+    box-shadow: 0 5px 15px rgba(17, 24, 39, 0.2);
 }
 
 .networking-lawyer-name {
@@ -156,7 +153,7 @@
 
 .networking-lawyer-spec {
     font-size: 0.95rem;
-    color: #689f38;
+    color: #1e3a8a;
     font-weight: 600;
     margin-top: 4px;
 }
@@ -175,8 +172,8 @@
 }
 
 .networking-tag {
-    background: #f1f8e9;
-    color: #689f38;
+    background: #f1f5f9;
+    color: #111827;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -186,7 +183,7 @@
 .btn-networking-connect {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(45deg, #689f38, #558b2f);
+    background: #111827;
     color: white;
     border: none;
     border-radius: 12px;
@@ -198,7 +195,7 @@
 
 .btn-networking-connect:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.3);
+    box-shadow: 0 5px 15px rgba(17, 24, 39, 0.3);
 }
 
 @media (max-width: 768px) {

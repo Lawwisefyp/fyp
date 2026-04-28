@@ -486,6 +486,13 @@ app.post('/api/students/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Student registration error:', error);
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ error: errors.join(', ') });
+        }
+        if (error.code === 11000) {
+            return res.status(400).json({ error: 'Email already registered' });
+        }
         res.status(500).json({ error: 'Server error during student registration' });
     }
 });

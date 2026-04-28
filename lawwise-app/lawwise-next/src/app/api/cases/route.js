@@ -51,6 +51,25 @@ export async function POST(req) {
     });
 
     await newCase.save();
+
+    // Create notification if hearing date is set
+    if (newCase.nextHearingDate) {
+      try {
+        const Notification = (await import('@/lib/models/Notification')).default;
+        const reminder = new Notification({
+          toLawyerId: auth.user._id,
+          title: '⚖️ New Hearing Scheduled',
+          message: `A new hearing for "${newCase.title}" has been set for ${new Date(newCase.nextHearingDate).toLocaleDateString()}.`,
+          type: 'hearing_reminder',
+          status: 'unread'
+        });
+        await reminder.save();
+      } catch (notifError) {
+        console.error('Failed to create initial hearing notification:', notifError);
+        // Don't fail the whole request if notification fails
+      }
+    }
+
     return NextResponse.json({ success: true, case: newCase }, { status: 201 });
   } catch (error) {
     console.error('Create case error:', error);

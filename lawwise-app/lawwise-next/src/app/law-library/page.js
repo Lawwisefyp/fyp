@@ -26,13 +26,7 @@ const LawyerMiniLawLibraryPage = () => {
     const [docxHtml, setDocxHtml] = useState('');
     const [loadingDocx, setLoadingDocx] = useState(false);
 
-    const categories = [
-        { id: 'all', name: 'All Documents', icon: '📁' },
-        { id: 'statutes', name: 'Statutes', icon: '📜' },
-        { id: 'rules', name: 'Rules', icon: '⚖️' },
-        { id: 'cases', name: 'Case Law', icon: '🏛️' },
-        { id: 'personal', name: 'Personal', icon: '👤' }
-    ];
+    // Categories removed as per user request
 
     const fetchDocuments = useCallback(async () => {
         setLoading(true);
@@ -64,13 +58,15 @@ const LawyerMiniLawLibraryPage = () => {
         }
 
         setUploading(true);
+        console.log('Starting document upload...', { name: newDocName, file: selectedFile?.name });
         const formData = new FormData();
-        formData.append('document', selectedFile);
+        formData.append('file', selectedFile);
         formData.append('title', newDocName || selectedFile.name);
         formData.append('category', newDocCategory);
 
         try {
             const response = await authService.uploadDocument(formData);
+            console.log('Upload response:', response);
             if (response.success) {
                 alert('Document uploaded successfully!');
                 setShowUploadModal(false);
@@ -126,7 +122,6 @@ const LawyerMiniLawLibraryPage = () => {
                 console.error('Failed to convert DOCX:', error);
                 setDocxHtml(`
                     <div style="text-align: center; padding: 40px; color: #64748b;">
-                        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
                         <h3 style="color: #1e293b;">Integrated viewing failed</h3>
                         <p>This DOCX file could not be rendered on screen. This can happen with complex layouts or password protection.</p>
                         <p style="font-size: 0.8rem; margin-top: 10px;">Error Details: ${error.message}</p>
@@ -138,7 +133,6 @@ const LawyerMiniLawLibraryPage = () => {
         } else if (doc.fileType === 'DOC') {
             setDocxHtml(`
                 <div style="text-align: center; padding: 40px; color: #64748b;">
-                    <div style="font-size: 3rem; margin-bottom: 20px;">📜</div>
                     <h3 style="color: #1e293b;">Legacy .doc file detected</h3>
                     <p>Older Word documents (.doc) do not support integrated viewing. Please download the file to view it in Microsoft Word or another editor.</p>
                 </div>
@@ -156,12 +150,14 @@ const LawyerMiniLawLibraryPage = () => {
     };
 
     const filteredDocs = documents.filter(doc => {
-        const matchesCategory = activeCategory === 'all' || doc.category === activeCategory;
-        const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+        return doc.title.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
-    const getFullUrl = (filePath) => `/api/documents/raw?path=${encodeURIComponent(filePath)}`;
+    const getFullUrl = (filePath) => {
+        // Files are stored in public/uploads/documents/...
+        // They are accessible at /uploads/documents/...
+        return `/${filePath}`;
+    };
 
     const isImage = (doc) => {
         const imgExts = ['JPG', 'JPEG', 'PNG', 'GIF'];
@@ -171,40 +167,35 @@ const LawyerMiniLawLibraryPage = () => {
     return (
         <div className="library-body">
             <div className="library-container">
-                <Link href="/lawyer-dashboard" style={{ color: '#fff', fontWeight: '700', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}>← Back to Dashboard</Link>
-
                 <header className="library-header">
-                    <h1>📚 Personal Law Library</h1>
-                    <p>Access and manage your own important legal documents and research files.</p>
-                    <div className="library-header-actions">
-                        <div className="library-search-container">
-                            <span className="library-search-icon">🔍</span>
-                            <input
-                                type="text"
-                                className="library-search-input"
-                                placeholder="Search your documents..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                    <div className="header-content">
+                        <h1>Personal Law Library</h1>
+                        <p>Access and manage your own important legal documents and research files.</p>
+                        <div className="library-header-actions">
+                            <div className="library-search-container">
+                                <span className="library-search-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="library-search-input"
+                                    placeholder="Search your documents..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <button className="btn-library-upload" onClick={() => setShowUploadModal(true)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Upload Document
+                            </button>
                         </div>
-                        <button className="btn-library-upload" onClick={() => setShowUploadModal(true)}>📤 Upload Document</button>
                     </div>
-                </header>
 
-                <div className="guidance-filter-tabs">
-                    {categories.map(cat => (
-                        <button
-                            key={cat.id}
-                            className={`guidance-tab ${activeCategory === cat.id ? 'active' : ''}`}
-                            onClick={() => setActiveCategory(cat.id)}
-                        >
-                            {cat.icon} {cat.name}
-                            <span className="tab-badge" style={{ marginLeft: '10px', fontSize: '0.8rem', opacity: 0.8 }}>
-                                {loading ? '...' : (cat.id === 'all' ? documents.length : documents.filter(d => d.category === cat.id).length)}
-                            </span>
-                        </button>
-                    ))}
-                </div>
+                    <Link href="/lawyer-dashboard" className="btn-back-dashboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back to Dashboard
+                    </Link>
+                </header>
 
                 <div className="library-grid">
                     {loading ? (
@@ -215,29 +206,28 @@ const LawyerMiniLawLibraryPage = () => {
                     ) : filteredDocs.map(doc => (
                         <div key={doc._id} className="library-card">
                             <div className="library-doc-icon">
-                                {doc.category === 'statutes' ? '📜' : doc.category === 'rules' ? '⚖️' : doc.category === 'cases' ? '🏛️' : '👤'}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </div>
                             <h3 className="library-doc-title">{doc.title}</h3>
-                            <div className="library-doc-category">
-                                {categories.find(c => c.id === doc.category)?.name}
+                            <div className="library-doc-meta" style={{ marginTop: '10px' }}>
+                                <span>Type: {doc.fileType}</span>
+                                <span>Size: {doc.fileSize}</span>
                             </div>
                             <div className="library-doc-meta">
-                                <span>📄 Type: {doc.fileType}</span>
-                                <span>💾 Size: {doc.fileSize}</span>
-                            </div>
-                            <div className="library-doc-meta">
-                                <span>📅 {new Date(doc.uploadedAt).toLocaleDateString()}</span>
+                                <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
                             </div>
                             <div className="library-doc-actions">
-                                <button className="btn-doc-action btn-doc-view" onClick={() => handleView(doc)}>👁️ View</button>
-                                <button className="btn-doc-action btn-doc-download" onClick={() => handleDownload(doc.filePath, doc.fileName)}>⬇️</button>
-                                <button className="btn-doc-action btn-doc-delete" onClick={() => handleDelete(doc._id)}>🗑️</button>
+                                <button className="btn-doc-action btn-doc-view" onClick={() => handleView(doc)}>View</button>
+                                <button className="btn-doc-action btn-doc-download" onClick={() => handleDownload(doc.filePath, doc.fileName)}>Download</button>
+                                <button className="btn-doc-action btn-doc-delete" onClick={() => handleDelete(doc._id)}>Delete</button>
                             </div>
                         </div>
                     ))}
                     {!loading && filteredDocs.length === 0 && (
                         <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px', background: 'rgba(255,255,255,0.8)', borderRadius: '24px' }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>📂</div>
+                            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            </div>
                             <h3>No documents found</h3>
                             <p>Upload your own documents to build your personal law library.</p>
                         </div>
@@ -249,28 +239,22 @@ const LawyerMiniLawLibraryPage = () => {
                 <div className="modal-overlay">
                     <div className="modal-box">
                         <div className="modal-title">
-                            <span>📤 Upload to Personal Library</span>
-                            <button onClick={() => setShowUploadModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+                            <span>Upload to Personal Library</span>
+                            <button onClick={() => setShowUploadModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
                         </div>
                         <form onSubmit={handleUpload}>
                             <div className="form-group">
                                 <label className="form-label">Document Title *</label>
                                 <input className="profile-input" value={newDocName} onChange={(e) => setNewDocName(e.target.value)} required placeholder="e.g. Constitutional Amended Act" />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Category</label>
-                                <select className="profile-select" value={newDocCategory} onChange={(e) => setNewDocCategory(e.target.value)}>
-                                    <option value="personal">Personal Documents</option>
-                                    <option value="statutes">Statute</option>
-                                    <option value="rules">Rules & Regulation</option>
-                                    <option value="cases">Case Law</option>
-                                </select>
-                            </div>
-                            <div className="upload-area" style={{ border: '2px dashed #7b1fa2', padding: '15px', borderRadius: '15px', textAlign: 'center', marginBottom: '15px' }}>
-                                <div style={{ fontSize: '2rem', marginBottom: '5px' }}>📄</div>
-                                <p style={{ fontSize: '0.9rem', marginBottom: '10px' }}>{selectedFile ? selectedFile.name : 'Drag and drop or click to select file'}</p>
+                            {/* Category selection removed as per user request */}
+                            <div className="upload-area" style={{ border: '2px dashed #d1d5db', padding: '20px', borderRadius: '12px', textAlign: 'center', marginBottom: '15px', background: '#f9fafb' }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <p style={{ fontSize: '0.9rem', marginBottom: '12px', color: '#6b7280' }}>{selectedFile ? selectedFile.name : 'Drag and drop or click to select file'}</p>
                                 <input type="file" style={{ display: 'none' }} id="file-up" onChange={handleFileChange} />
-                                <button type="button" onClick={() => document.getElementById('file-up').click()} className="btn-doc-action" style={{ background: '#7b1fa2', color: '#fff', padding: '6px 15px', margin: '0 auto' }}>Select File</button>
+                                <button type="button" onClick={() => document.getElementById('file-up').click()} className="btn-doc-action" style={{ background: '#111827', color: '#fff', padding: '8px 20px', margin: '0 auto' }}>Select File</button>
                             </div>
                             <button type="submit" className="btn-profile-save" style={{ background: '#7b1fa2' }} disabled={uploading}>
                                 {uploading ? 'Uploading...' : 'Upload Document'}
@@ -286,8 +270,8 @@ const LawyerMiniLawLibraryPage = () => {
                         <div className="viewer-header">
                             <h3>{viewingDoc.title}</h3>
                             <div className="viewer-actions">
-                                <button className="btn-viewer-close" onClick={() => handleDownload(viewingDoc.filePath, viewingDoc.fileName)}>⬇️ Download</button>
-                                <button className="btn-viewer-close" onClick={() => setShowViewer(false)}>✕ Close</button>
+                                <button className="btn-viewer-close" onClick={() => handleDownload(viewingDoc.filePath, viewingDoc.fileName)}>Download</button>
+                                <button className="btn-viewer-close" onClick={() => setShowViewer(false)}>Close</button>
                             </div>
                         </div>
                         <div className="viewer-content">
@@ -304,7 +288,6 @@ const LawyerMiniLawLibraryPage = () => {
                                 <div className="docx-viewer-container" dangerouslySetInnerHTML={{ __html: docxHtml }} />
                             ) : (
                                 <div className="viewer-placeholder">
-                                    <div style={{ fontSize: '4rem', marginBottom: '20px' }}>📎</div>
                                     <h3>Integrated viewing not supported for {viewingDoc.fileType} files</h3>
                                     <p>Please download the file to view its content.</p>
                                     <button className="btn-library-upload" style={{ marginTop: '20px' }} onClick={() => handleDownload(viewingDoc.filePath, viewingDoc.fileName)}>Download Now</button>

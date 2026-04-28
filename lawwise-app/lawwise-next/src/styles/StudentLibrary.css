@@ -1,8 +1,8 @@
 :root {
-    --primary-navy: #1a2a3a;
-    --accent-blue: #3498db;
+    --primary-navy: #111827;
+    --accent-blue: #1e3a8a;
     --emerald: #27ae60;
-    --carrot: #e67e22;
+    --carrot: #111827;
     --amethyst: #9b59b6;
     --text-main: #2c3e50;
     --text-muted: #7f8c8d;
@@ -338,7 +338,7 @@
 }
 
 .type-notes .type-badge {
-    background: #ffedd5;
+    background: #f3f4f6;
     color: var(--carrot);
 }
 
