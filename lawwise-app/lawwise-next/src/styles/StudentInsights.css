@@ -1,0 +1,163 @@
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.insight-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+    border-color: #2563eb;
+}
+
+.insight-banner {
+    height: 180px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.insight-content {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.insight-category {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #2563eb;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.insight-card h3 {
+    font-size: 1.4rem;
+    color: #1e293b;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.insight-card p {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.insight-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.read-time {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.read-more-btn {
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.read-more-btn:hover {
+    text-decoration: underline;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.insight-modal {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    border-radius: 30px;
+    padding: 40px;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: #f1f5f9;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.close-modal:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.article-content h2 { color: #1e3a8a; margin: 30px 0 15px 0; }
+.article-content h4 { color: #1e293b; margin: 20px 0 10px 0; }
+.article-content ul { padding-left: 20px; margin-bottom: 20px; }
+.article-content li { margin-bottom: 10px; color: #475569; line-height: 1.6; }
+.article-content p { color: #475569; line-height: 1.8; margin-bottom: 15px; }
+
+.merit-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.merit-table th { background: #f8fafc; color: #1e293b; padding: 12px; text-align: left; }
+.merit-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; color: #475569; }

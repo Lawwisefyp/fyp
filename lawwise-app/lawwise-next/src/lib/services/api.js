@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001') + '/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -198,19 +198,19 @@ export const authService = {
     },
     // Student Library Methods
     searchOnlineLaw: async (q, mode = 'statutes') => {
-        const response = await api.get('/student/library/search-online', { params: { q, mode } });
+        const response = await api.get('/students/library/search-online', { params: { q, mode } });
         return response.data;
     },
     getSavedLibrary: async () => {
-        const response = await api.get('/student/library/saved');
+        const response = await api.get('/students/library/saved');
         return response.data;
     },
     saveToLibrary: async (data) => {
-        const response = await api.post('/student/library/saved', data);
+        const response = await api.post('/students/library/saved', data);
         return response.data;
     },
     removeFromLibrary: async (id) => {
-        const response = await api.delete(`/student/library/saved/${id}`);
+        const response = await api.delete(`/students/library/saved/${id}`);
         return response.data;
     },
     getStudentAnalytics: async () => {
@@ -223,45 +223,60 @@ export const authService = {
     },
     // Quiz & Notes Methods
     getMyNotes: async (folderId = '') => {
-        const response = await api.get('/student/notes', { params: { folderId } });
+        const response = await api.get('/students/notes', { params: { folderId } });
         return response.data;
     },
     getPublicNotes: async () => {
-        const response = await api.get('/student/notes/public');
+        const response = await api.get('/students/notes/public');
         return response.data;
     },
     uploadNote: async (formData) => {
-        const response = await api.post('/student/notes/upload', formData, {
+        const response = await api.post('/students/notes/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         return response.data;
     },
     downloadNote: async (id) => {
-        const response = await api.post(`/student/notes/download/${id}`);
+        const response = await api.post(`/students/notes/download/${id}`);
         return response.data;
     },
     getNoteAIExplanation: async (id) => {
-        const response = await api.post(`/student/notes/ai-explain/${id}`);
+        const response = await api.post(`/students/notes/ai-explain/${id}`);
         return response.data;
     },
     togglePublicNote: async (id, isPublic) => {
-        const response = await api.put(`/student/notes/${id}/public`, { isPublic });
+        const response = await api.put(`/students/notes/${id}/public`, { isPublic });
         return response.data;
     },
     getFolders: async () => {
-        const response = await api.get('/student/folders');
+        const response = await api.get('/students/folders');
         return response.data;
     },
     createFolder: async (name) => {
-        const response = await api.post('/student/folders', { name });
+        const response = await api.post('/students/folders', { name });
         return response.data;
     },
     generateNoteQuiz: async (id) => {
-        const response = await api.post(`/student/notes/${id}/generate-quiz`);
+        const response = await api.post(`/students/notes/${id}/generate-quiz`);
         return response.data;
     },
     getQuizById: async (id) => {
-        const response = await api.get(`/student/quizzes/${id}`);
+        const response = await api.get(`/students/quizzes/${id}`);
+        return response.data;
+    },
+    // Past Papers Methods
+    getPastPapers: async (params) => {
+        const response = await api.get('/students/past-papers', { params });
+        return response.data;
+    },
+    uploadPastPaper: async (formData) => {
+        const response = await api.post('/students/past-papers/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    },
+    downloadPastPaper: async (id) => {
+        const response = await api.post(`/students/past-papers/download/${id}`);
         return response.data;
     },
 };

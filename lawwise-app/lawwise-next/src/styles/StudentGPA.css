@@ -1,0 +1,111 @@
+.gpa-calculator-container {
+    padding: 30px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid #e2e8f0;
+}
+
+.gpa-input-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.gpa-input {
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.gpa-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.remove-subject-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.remove-subject-btn:hover {
+    background: #fecaca;
+}
+
+.add-subject-btn {
+    background: white;
+    color: #2563eb;
+    border: 1.5px dashed #2563eb;
+    padding: 12px;
+    border-radius: 12px;
+    width: 100%;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 30px;
+    transition: all 0.2s;
+}
+
+.add-subject-btn:hover {
+    background: #eff6ff;
+}
+
+.gpa-result-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 24px;
+    text-align: center;
+    margin-top: 30px;
+    box-shadow: 0 10px 25px rgba(30, 41, 59, 0.2);
+}
+
+.gpa-value {
+    font-size: 4rem;
+    font-weight: 800;
+    margin: 10px 0;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gpa-label {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.grade-badge {
+    display: inline-block;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-top: 15px;
+}
+
+.grade-A { background: #dcfce7; color: #166534; }
+.grade-B { background: #dbeafe; color: #1e40af; }
+.grade-C { background: #fef9c3; color: #854d0e; }
+.grade-D { background: #ffedd5; color: #9a3412; }
+.grade-F { background: #fee2e2; color: #991b1b; }

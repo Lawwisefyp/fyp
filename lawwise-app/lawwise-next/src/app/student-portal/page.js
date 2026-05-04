@@ -168,7 +168,7 @@ const StudentPortalPage = () => {
                         <div id="registerSection">
                             <div className="login-header">
                                 <h2 className="login-title">Join the Academy</h2>
-                                <p className="login-subtitle">Register to access law resources and quizzes</p>
+                                <p className="login-subtitle">Register to access law resources and past papers</p>
                             </div>
 
                             {alert.message && <div className={`alert alert-${alert.type}`}>{alert.message}</div>}

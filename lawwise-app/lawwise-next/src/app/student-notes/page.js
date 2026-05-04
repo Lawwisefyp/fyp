@@ -184,7 +184,27 @@ const StudentNotesPage = () => {
         <div className="notes-page-container">
             <div className="notes-sidebar">
                 <div className="sidebar-section">
-                    <button className="back-btn" onClick={() => router.push('/student-dashboard')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>← Dashboard</button>
+                    <button 
+                        onClick={() => router.push('/student-dashboard')}
+                        style={{ 
+                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', 
+                            border: 'none', 
+                            color: 'white', 
+                            padding: '12px 20px', 
+                            borderRadius: '12px', 
+                            fontWeight: '700', 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '25px',
+                            width: '100%',
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        ← Dashboard
+                    </button>
                     <h3>My Organization</h3>
                     <div className="folder-list">
                         <div
@@ -226,8 +246,10 @@ const StudentNotesPage = () => {
             <div className="notes-main-content">
                 <div className="notes-header">
                     <div className="notes-title-sec">
-                        <h1 style={{ color: '#1e293b' }}>{activeTab === 'community' ? 'Community Hub' : 'My Library'}</h1>
-                        <p style={{ color: '#64748b' }}>
+                        <h1 style={{ fontSize: '2.5rem', color: '#1e293b', fontWeight: '800', margin: '0 0 10px 0' }}>
+                            {activeTab === 'community' ? 'Community Hub' : 'My Library'}
+                        </h1>
+                        <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
                             {activeTab === 'community'
                                 ? 'Discover notes shared by law students across the platform.'
                                 : `Managing notes ${activeFolder && activeFolder !== 'all' ? `in ${folders.find(f => f._id === activeFolder)?.name}` : 'across all folders'}.`}

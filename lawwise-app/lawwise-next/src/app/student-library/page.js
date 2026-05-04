@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/services/api';
+import '@/styles/StudentNotes.css';
 import '@/styles/StudentLibrary.css';
 
 const YEAR_SUBJECTS = {
@@ -200,45 +201,79 @@ const StudentLibraryPage = () => {
     };
 
     return (
-        <div className="library-hub-root">
-            <div className="library-hub-container">
-                <nav className="library-nav-bar">
-                    <button className="premium-back-btn" onClick={() => router.push('/student-dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}>
-                        Dashboard
+        <div className="notes-page-container">
+            <div className="notes-sidebar">
+                <div className="sidebar-section">
+                    <button 
+                        onClick={() => router.push('/student-dashboard')}
+                        style={{ 
+                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', 
+                            border: 'none', 
+                            color: 'white', 
+                            padding: '12px 20px', 
+                            borderRadius: '12px', 
+                            fontWeight: '700', 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '25px',
+                            width: '100%',
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        ← Dashboard
                     </button>
-                    <div className="nav-brand-group">
+                    <h3>Library Filters</h3>
+                    <div className="folder-list">
+                        <div
+                            className={`folder-item ${searchMode === 'online' ? 'active' : ''}`}
+                            onClick={() => setSearchMode('online')}
+                        >
+                            🌎 Global Hub
+                        </div>
+                        <div
+                            className={`folder-item ${searchMode === 'saved' ? 'active' : ''}`}
+                            onClick={() => setSearchMode('saved')}
+                        >
+                            📚 My Library
+                        </div>
+                        <div
+                            className="folder-item"
+                            onClick={() => router.push('/student-notes')}
+                        >
+                            📝 Study Notes
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sidebar-section">
+                    <h3>Academic Years</h3>
+                    <div className="folder-list">
+                        {Object.keys(YEAR_SUBJECTS).map(year => (
+                            <div
+                                key={year}
+                                className={`folder-item ${selectedYear === year ? 'active' : ''}`}
+                                onClick={() => { setSelectedYear(year); setSelectedSubject(YEAR_SUBJECTS[year][0]); setSearchMode('online'); }}
+                            >
+                                {year}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="notes-main-content">
+                <header className="library-hub-header" style={{ textAlign: 'left', marginBottom: '30px' }}>
+                    <div className="nav-brand-group" style={{ marginBottom: '20px' }}>
                         <span className="premium-logo-text">LEX LIBRARY</span>
                         <div className="premium-badge">CURATED HUB</div>
                     </div>
-                </nav>
-
-                <header className="library-hub-header">
-                    <h1>Curated LLB Master Resources</h1>
-                    <p>Verified academic materials & Global Search for Law Students</p>
+                    <h1 style={{ fontSize: '2.5rem', color: '#1e293b', fontWeight: '800', margin: '0 0 10px 0' }}>Curated LLB Master Resources</h1>
+                    <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>Verified academic materials & Global Search for Law Students</p>
                 </header>
 
-                <div className="hub-tabs-container">
-                    <div className="hub-mode-tabs">
-                        <button
-                            className={`hub-tab-btn ${searchMode === 'online' ? 'active' : ''}`}
-                            onClick={() => setSearchMode('online')}
-                        >
-                            Resource Hub
-                        </button>
-                        <button
-                            className={`hub-tab-btn ${searchMode === 'saved' ? 'active' : ''}`}
-                            onClick={() => setSearchMode('saved')}
-                        >
-                            My Library
-                        </button>
-                        <button
-                            className="hub-tab-btn"
-                            onClick={() => router.push('/student-notes')}
-                        >
-                            Notes & Community
-                        </button>
-                    </div>
-                </div>
 
                 {searchMode === 'online' && (
                     <div className="hub-global-search-container">

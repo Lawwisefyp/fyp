@@ -96,8 +96,8 @@ const StudentQuizPage = () => {
                 <div className="sidebar-nav-item" onClick={() => router.push('/student-notes')}>
                     <span className="sidebar-nav-icon">📁</span> My Notes
                 </div>
-                <div className="sidebar-nav-item active">
-                    <span className="sidebar-nav-icon">🧠</span> AI Quiz Generator
+                <div className="sidebar-nav-item" onClick={() => router.push('/student-past-papers')}>
+                    <span className="sidebar-nav-icon">📜</span> Past Papers
                 </div>
                 <div className="sidebar-nav-item" onClick={() => router.push('/student-library')}>
                     <span className="sidebar-nav-icon">📖</span> Resource Hub

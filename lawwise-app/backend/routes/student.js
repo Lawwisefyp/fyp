@@ -10,6 +10,7 @@ const path = require('path');
 const Folder = require('../models/Folder');
 const Student = require('../models/Student');
 const aiService = require('../services/aiService');
+const PastPaper = require('../models/PastPaper');
 
 // Configure multer for note uploads
 const storage = multer.diskStorage({
@@ -22,6 +23,18 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// Configure multer for past paper uploads
+const pastPaperStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/past-papers/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const uploadPastPaper = multer({ storage: pastPaperStorage });
 
 // --- Library Routes ---
 
@@ -60,6 +73,11 @@ router.get('/analytics', auth, async (req, res) => {
         // Get total taken quizzes
         const quizzesCount = await Quiz.countDocuments({ owner: studentId });
 
+        // Get total past papers accessed (estimated by downloads count if not tracked per student)
+        // For now, we'll count how many papers they've interacted with (if we had a join table)
+        // Let's just return a placeholder or count system-wide papers if specific tracking is missing
+        const papersCount = await PastPaper.countDocuments({}); 
+
         // Get recent notes aggregated by day for the graph (last 7 days)
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -95,6 +113,7 @@ router.get('/analytics', auth, async (req, res) => {
             analytics: {
                 notesCount,
                 quizzesCount,
+                papersCount,
                 activityGraph
             }
         });
@@ -387,6 +406,209 @@ router.get('/quizzes/:id', auth, async (req, res) => {
         res.json({ success: true, quiz });
     } catch (error) {
         console.error('Get quiz error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// --- Past Paper Routes ---
+
+// Get all past papers
+router.get('/past-papers', auth, async (req, res) => {
+    try {
+        const { subject, year, llbYear } = req.query;
+        let query = {};
+        if (subject) query.subject = new RegExp(subject, 'i');
+        if (year) query.year = year;
+        if (llbYear) query.llbYear = parseInt(llbYear);
+
+        const pastPapers = await PastPaper.find(query)
+            .populate('uploader', 'fullName')
+            .sort({ llbYear: 1, year: -1, createdAt: -1 });
+        res.json({ success: true, pastPapers });
+    } catch (error) {
+        console.error('Fetch past papers error:', error);
+        res.status(500).json({ error: 'Server error fetching past papers' });
+    }
+});
+
+// Upload a past paper
+router.post('/past-papers/upload', auth, uploadPastPaper.fields([
+    { name: 'paperFile', maxCount: 1 },
+    { name: 'answerFile', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const { title, subject, year, description, llbYear } = req.body;
+        
+        if (!req.files || !req.files['paperFile']) {
+            return res.status(400).json({ error: 'Please upload at least the past paper file' });
+        }
+
+        const newPaper = new PastPaper({
+            title,
+            subject,
+            year,
+            llbYear: parseInt(llbYear) || 1, // Default to 1 if not provided
+            description,
+            uploader: req.user._id,
+            fileUrl: req.files['paperFile'][0].path,
+            modelAnswerUrl: req.files['answerFile'] ? req.files['answerFile'][0].path : undefined
+        });
+
+        await newPaper.save();
+        res.status(201).json({ success: true, message: 'Past paper uploaded successfully', paper: newPaper });
+    } catch (error) {
+        console.error('Upload past paper error:', error);
+        res.status(500).json({ error: 'Server error uploading past paper' });
+    }
+});
+
+// Track download for past paper
+router.post('/past-papers/download/:id', auth, async (req, res) => {
+    try {
+        const paper = await PastPaper.findByIdAndUpdate(req.params.id, { $inc: { downloadsCount: 1 } }, { new: true });
+        if (!paper) return res.status(404).json({ error: 'Past paper not found' });
+        res.json({ success: true, downloadsCount: paper.downloadsCount });
+    } catch (error) {
+        console.error('Past paper download tracking error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// --- Study Planner Routes ---
+const StudyTask = require('../models/StudyTask');
+
+// Get all study tasks for the current student
+router.get('/planner', auth, async (req, res) => {
+    try {
+        const tasks = await StudyTask.find({ student: req.user._id }).sort({ date: 1 });
+        res.json({ success: true, tasks });
+    } catch (error) {
+        console.error('Fetch planner tasks error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Create a new study task
+router.post('/planner', auth, async (req, res) => {
+    try {
+        const { subject, title, date, duration } = req.body;
+        const task = new StudyTask({
+            student: req.user._id,
+            subject,
+            title,
+            date,
+            duration
+        });
+        await task.save();
+        res.status(201).json({ success: true, task });
+    } catch (error) {
+        console.error('Create study task error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Toggle task completion
+router.put('/planner/:id', auth, async (req, res) => {
+    try {
+        const task = await StudyTask.findOne({ _id: req.params.id, student: req.user._id });
+        if (!task) return res.status(404).json({ error: 'Task not found' });
+
+        task.completed = !task.completed;
+        task.completedAt = task.completed ? new Date() : undefined;
+        await task.save();
+        res.json({ success: true, task });
+    } catch (error) {
+        console.error('Update task error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Delete task
+router.delete('/planner/:id', auth, async (req, res) => {
+    try {
+        await StudyTask.findOneAndDelete({ _id: req.params.id, student: req.user._id });
+        res.json({ success: true, message: 'Task deleted' });
+    } catch (error) {
+        console.error('Delete task error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get planner stats (Streak & Today's tasks)
+router.get('/planner/stats', auth, async (req, res) => {
+    try {
+        const studentId = req.user._id;
+        
+        // 1. Today's tasks
+        const startOfDay = new Date();
+        startOfDay.setHours(0,0,0,0);
+        const endOfDay = new Date();
+        endOfDay.setHours(23,59,59,999);
+
+        const todaysTasks = await StudyTask.find({
+            student: studentId,
+            completed: false, // Only show due tasks
+            date: { $gte: startOfDay, $lte: endOfDay }
+        });
+
+        // 1.5 Tomorrow's tasks
+        const startOfTomorrow = new Date(startOfDay);
+        startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+        const endOfTomorrow = new Date(endOfDay);
+        endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
+
+        const tomorrowsTasks = await StudyTask.find({
+            student: studentId,
+            completed: false, // Only uncompleted tasks for reminders
+            date: { $gte: startOfTomorrow, $lte: endOfTomorrow }
+        });
+
+        // 2. Calculate Streak
+        // Get all unique dates of completed tasks in descending order
+        const completedDates = await StudyTask.find({
+            student: studentId,
+            completed: true
+        }).sort({ completedAt: -1 }).select('completedAt');
+
+        let streak = 0;
+        if (completedDates.length > 0) {
+            const uniqueDates = [...new Set(completedDates.map(d => d.completedAt.toISOString().split('T')[0]))];
+            
+            let checkDate = new Date();
+            checkDate.setHours(0,0,0,0);
+            
+            // Check if completed something today or yesterday
+            const todayStr = checkDate.toISOString().split('T')[0];
+            checkDate.setDate(checkDate.getDate() - 1);
+            const yesterdayStr = checkDate.toISOString().split('T')[0];
+
+            if (uniqueDates.includes(todayStr) || uniqueDates.includes(yesterdayStr)) {
+                let currentCheck = uniqueDates.includes(todayStr) ? new Date() : checkDate;
+                
+                for (let i = 0; i < uniqueDates.length; i++) {
+                    const currentStr = currentCheck.toISOString().split('T')[0];
+                    if (uniqueDates.includes(currentStr)) {
+                        streak++;
+                        currentCheck.setDate(currentCheck.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            stats: {
+                streak,
+                todaysTasksCount: todaysTasks.length,
+                todaysTasks: todaysTasks.slice(0, 3),
+                tomorrowsTasksCount: tomorrowsTasks.length,
+                tomorrowsTasks: tomorrowsTasks.slice(0, 3)
+            }
+        });
+    } catch (error) {
+        console.error('Fetch planner stats error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
