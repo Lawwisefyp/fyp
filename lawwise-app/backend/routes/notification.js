@@ -6,66 +6,89 @@ const Lawyer = require('../models/Lawyer');
 const Case = require('../models/Case');
 const auth = require('../middleware/auth');
 
-// Sync/Generate notifications for today's hearings and deadlines
-router.get('/sync', auth, async (req, res) => {
-    try {
-        const lawyerId = req.user._id;
-        const todayStr = new Date().toISOString().split('T')[0];
+// Reusable helper to sync notifications for a specific lawyer
+const syncUserNotifications = async (lawyerId) => {
+    const todayStr = new Date().toISOString().split('T')[0];
 
-        // 1. Check for today's hearings
+    // 1. Check for hearings (Today, 1, 2, or 3 days away)
+    const hearingOffsets = [0, 1, 2, 3];
+    const hLabels = { 0: 'TODAY', 1: 'TOMORROW', 2: 'IN 2 DAYS', 3: 'IN 3 DAYS' };
+
+    for (const offset of hearingOffsets) {
+        const hDate = new Date();
+        hDate.setDate(hDate.getDate() + offset);
+        const hDateStr = hDate.toISOString().split('T')[0];
+
         const casesWithHearings = await Case.find({
             lawyerId: lawyerId,
-            nextHearingDate: todayStr
+            nextHearingDate: hDateStr
         });
 
         for (const caseData of casesWithHearings) {
-            // Check if notification already exists for today
             const existing = await Notification.findOne({
                 toLawyerId: lawyerId,
                 type: 'hearing_reminder',
                 message: { $regex: caseData.title },
-                createdAt: { $gte: new Date(todayStr) }
+                title: { $regex: hLabels[offset] }
             });
 
             if (!existing) {
                 await Notification.create({
                     toLawyerId: lawyerId,
-                    title: '⚖️ HEARING TODAY',
-                    message: `You have a scheduled hearing today for case: "${caseData.title}" in ${caseData.court}.`,
+                    caseId: caseData.id,
+                    title: `⚖️ HEARING ${hLabels[offset]}`,
+                    message: `You have a scheduled hearing ${hLabels[offset].toLowerCase()} for case: "${caseData.title}" in ${caseData.court}.`,
                     type: 'hearing_reminder',
                     status: 'unread'
                 });
             }
         }
+    }
 
-        // 2. Check for upcoming deadlines (due today)
+    // 2. Check for upcoming deadlines (due today, 1, 2, or 3 days away)
+    const dayOffsets = [0, 1, 2, 3];
+    const offsetLabels = { 0: 'TODAY', 1: 'TOMORROW', 2: 'IN 2 DAYS', 3: 'IN 3 DAYS' };
+
+    for (const offset of dayOffsets) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + offset);
+        const targetDateStr = targetDate.toISOString().split('T')[0];
+
         const casesWithDeadlines = await Case.find({
             lawyerId: lawyerId,
-            'deadlines.dueDate': todayStr
+            'deadlines.dueDate': targetDateStr
         });
 
         for (const caseData of casesWithDeadlines) {
-            const todayDeadlines = caseData.deadlines.filter(d => d.dueDate === todayStr && !d.isCompleted);
-            for (const d of todayDeadlines) {
+            const targetDeadlines = caseData.deadlines.filter(d => d.dueDate === targetDateStr && !d.isCompleted);
+            for (const d of targetDeadlines) {
                 const existingNotif = await Notification.findOne({
                     toLawyerId: lawyerId,
-                    type: 'deadline',
-                    message: { $regex: d.title },
-                    createdAt: { $gte: new Date(todayStr) }
+                    caseId: caseData.id,
+                    reminderId: d._id.toString(),
+                    title: { $regex: offsetLabels[offset] }
                 });
 
                 if (!existingNotif) {
                     await Notification.create({
                         toLawyerId: lawyerId,
-                        title: '⏰ DEADLINE TODAY',
-                        message: `The deadline "${d.title}" for case "${caseData.title}" is due today.`,
+                        caseId: caseData.id,
+                        reminderId: d._id.toString(),
+                        title: `⏰ DEADLINE ${offsetLabels[offset]}`,
+                        message: `The deadline "${d.title}" for case "${caseData.title}" is ${offsetLabels[offset].toLowerCase()}.`,
                         type: 'deadline',
                         status: 'unread'
                     });
                 }
             }
         }
+    }
+};
 
+// Sync/Generate notifications for today's hearings and deadlines
+router.get('/sync', auth, async (req, res) => {
+    try {
+        await syncUserNotifications(req.user._id);
         res.json({ success: true, message: 'Notifications synced' });
     } catch (error) {
         console.error('Sync error:', error);
@@ -177,13 +200,75 @@ router.post('/connect', auth, async (req, res) => {
     }
 });
 
-// Get all notifications for a lawyer
-router.get('/', async (req, res) => {
+// Get unread notification count
+router.get('/unread-count', auth, async (req, res) => {
     try {
-        const { lawyerId } = req.query;
-        if (!lawyerId) return res.json({ success: true, notifications: [] });
-        // Return all notification types for the lawyer
-        const notifications = await Notification.find({ toLawyerId: lawyerId }).sort({ createdAt: -1 });
+        const query = req.role === 'lawyer' 
+            ? { toLawyerId: req.user._id, status: { $in: ['unread', 'pending'] } } 
+            : { toClientId: req.user._id, status: { $in: ['unread', 'pending'] } };
+
+        const count = await Notification.countDocuments(query);
+        res.json({ success: true, count });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Mark all notifications as read for current user
+router.put('/read-all', auth, async (req, res) => {
+    try {
+        const query = req.role === 'lawyer' 
+            ? { toLawyerId: req.user._id, status: 'unread' } 
+            : { toClientId: req.user._id, status: 'unread' };
+
+        await Notification.updateMany(
+            query,
+            { $set: { status: 'read' } }
+        );
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Utility function to create notifications
+const createNotification = async (data) => {
+    try {
+        const { recipient, recipientModel, type, title, message, relatedId, onModel, status } = data;
+        
+        const notificationData = {
+            title,
+            message,
+            type,
+            relatedId,
+            onModel,
+            status: status || (type === 'connection_request' ? 'pending' : 'unread'),
+            createdAt: Date.now()
+        };
+
+        if (recipientModel === 'Lawyer') {
+            notificationData.toLawyerId = recipient;
+        } else if (recipientModel === 'Client') {
+            notificationData.toClientId = recipient;
+        }
+
+        const notification = new Notification(notificationData);
+        await notification.save();
+        return notification;
+    } catch (error) {
+        console.error('Error creating notification:', error);
+        return null;
+    }
+};
+
+// Get all notifications for current user (Lawyer or Client)
+router.get('/', auth, async (req, res) => {
+    try {
+        const query = req.role === 'lawyer' 
+            ? { toLawyerId: req.user._id } 
+            : { toClientId: req.user._id };
+            
+        const notifications = await Notification.find(query).sort({ createdAt: -1 });
         res.json({ success: true, notifications });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Server error fetching notifications' });
@@ -238,10 +323,9 @@ router.post('/respond', async (req, res) => {
 });
 
 // Get accepted connections for a lawyer from notifications and reminders
-router.get('/connections', async (req, res) => {
+router.get('/connections', auth, async (req, res) => {
     try {
-        const { lawyerId } = req.query;
-        if (!lawyerId) return res.json({ success: true, connections: [] });
+        const lawyerId = req.user._id;
         // Find all accepted connection requests from notifications and reminders
         const accepted = await Notification.find({
             $or: [
@@ -251,7 +335,7 @@ router.get('/connections', async (req, res) => {
         });
         // Get the other lawyer's info for each connection
         const connections = await Promise.all(accepted.map(async (n) => {
-            let otherLawyerId = n.fromLawyerId.toString() === lawyerId ? n.toLawyerId : n.fromLawyerId;
+            let otherLawyerId = n.fromLawyerId?.toString() === lawyerId.toString() ? n.toLawyerId : n.fromLawyerId;
             const lawyer = await Lawyer.findById(otherLawyerId);
             return {
                 name: lawyer ? (lawyer.fullName || (lawyer.personalInfo?.firstName + ' ' + lawyer.personalInfo?.lastName)) : 'Lawyer',
@@ -264,4 +348,18 @@ router.get('/connections', async (req, res) => {
     }
 });
 
-module.exports = router;
+// Delete a specific notification
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        await Notification.findOneAndDelete({ _id: req.params.id, toLawyerId: req.user._id });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+module.exports = {
+    router,
+    syncUserNotifications,
+    createNotification
+};

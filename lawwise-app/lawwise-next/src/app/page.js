@@ -6,6 +6,41 @@ import Link from 'next/link';
 
 const LandingPage = () => {
     const router = useRouter();
+    const [currentBgIndex, setCurrentBgIndex] = React.useState(0);
+
+    const heroImages = [
+        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=2070', // Original
+        'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=2070', // Lady Justice
+        'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=2070', // Law Office
+        'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=2070'  // Legal Library
+    ];
+
+    React.useEffect(() => {
+        const bgInterval = setInterval(() => {
+            setCurrentBgIndex((prev) => (prev + 1) % heroImages.length);
+        }, 2000);
+        return () => clearInterval(bgInterval);
+    }, [heroImages.length]);
+
+    React.useEffect(() => {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        const elements = document.querySelectorAll('.reveal');
+        elements.forEach(el => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, []);
 
     const handlePortalSelect = (portal) => {
         if (portal === 'lawyer') {
@@ -21,6 +56,18 @@ const LandingPage = () => {
         <main>
             {/* Hero Section */}
             <section className="hero">
+                <div className="hero-slider">
+                    {heroImages.map((img, index) => (
+                        <div 
+                            key={index}
+                            className={`hero-slide ${index === currentBgIndex ? 'active' : ''}`}
+                            style={{ 
+                                backgroundImage: `linear-gradient(135deg, rgba(17,24,39,0.85) 0%, rgba(15,23,42,0.9) 100%), url('${img}')`,
+                                transform: `translateX(${(index - currentBgIndex) * 100}%)`
+                            }}
+                        />
+                    ))}
+                </div>
                 <div className="hero-content">
                     <h1>Smarter Legal Solutions <br /><span className="text-accent">For Modern Practices</span></h1>
                     <p>Empowering lawyers and clients with advanced AI-driven tools, secure document management, and seamless communication.</p>
@@ -32,13 +79,14 @@ const LandingPage = () => {
             </section>
 
             {/* Features Section */}
-            <section className="features" id="features">
+            <section className="features reveal" id="features">
                 <h2 className="section-title">Why Choose Lawwise?</h2>
+                <p className="section-subtitle">We combine legal expertise with cutting-edge technology to provide a seamless experience for legal professionals and their clients.</p>
                 <div className="features-grid">
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+                                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" fill="white" />
                             </svg>
                         </div>
                         <h3>Case Management</h3>
@@ -48,7 +96,7 @@ const LandingPage = () => {
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="white" />
                             </svg>
                         </div>
                         <h3>Secure & Compliant</h3>
@@ -58,7 +106,7 @@ const LandingPage = () => {
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="white" />
                             </svg>
                         </div>
                         <h3>Collaboration Tools</h3>
@@ -68,7 +116,7 @@ const LandingPage = () => {
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" fill="white" />
                             </svg>
                         </div>
                         <h3>Analytics & Insights</h3>
@@ -78,7 +126,7 @@ const LandingPage = () => {
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" fill="white" />
                             </svg>
                         </div>
                         <h3>Document Automation</h3>
@@ -110,7 +158,7 @@ const LandingPage = () => {
                     <div className="feature-card">
                         <div className="feature-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="white" />
                             </svg>
                         </div>
                         <h3>24/7 Support</h3>
@@ -120,11 +168,12 @@ const LandingPage = () => {
             </section>
 
             {/* Portals Section */}
-            <section className="portals" id="portals">
+            <section className="portals reveal" id="portals">
                 <h2 className="section-title">Choose Your Portal</h2>
+                <p className="section-subtitle">Dedicated environments tailored for every role in the legal ecosystem.</p>
                 <div className="portal-grid">
                     <div className="portal-card" onClick={() => handlePortalSelect('lawyer')}>
-                        <div className="portal-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
+                        <div className="portal-icon">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 2L3 7V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V7L12 2Z" />
                             </svg>
@@ -135,7 +184,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="portal-card" onClick={() => handlePortalSelect('client')}>
-                        <div className="portal-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
+                        <div className="portal-icon">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M20 6H12L10 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V8C22 6.9 21.1 6 20 6Z" />
                             </svg>
@@ -146,7 +195,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="portal-card" onClick={() => handlePortalSelect('student')}>
-                        <div className="portal-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
+                        <div className="portal-icon">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" />
                             </svg>
@@ -158,8 +207,15 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Stats Section */}
-            <section className="stats" id="about">
+            {/* About Us Section */}
+            <section className="stats reveal" id="about">
+                <div style={{ maxWidth: '1200px', margin: '0 auto', marginBottom: '60px' }}>
+                    <h2 className="section-title" style={{ color: 'white' }}>About Lawwise</h2>
+                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '18px', maxWidth: '800px', margin: '0 auto 40px' }}>
+                        Lawwise is a leading legal technology platform dedicated to modernizing the legal industry. 
+                        Our mission is to make legal services more efficient, accessible, and transparent for everyone involved.
+                    </p>
+                </div>
                 <div className="stats-grid">
                     <div className="stat-item">
                         <h4>10,000+</h4>

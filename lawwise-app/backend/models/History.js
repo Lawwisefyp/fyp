@@ -25,6 +25,10 @@ const historySchema = new mongoose.Schema({
     watchedAt: {
         type: Date,
         default: Date.now
+    },
+    notes: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true

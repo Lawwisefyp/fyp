@@ -6,27 +6,19 @@ const fs = require('fs');
 const Document = require('../models/Document');
 const auth = require('../middleware/auth');
 
-// Multer configuration for document storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/documents/');
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
+// Multer configuration for document storage (Memory storage for DB)
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
     fileFilter: (req, file, cb) => {
-        const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
+        const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt'];
         const ext = path.extname(file.originalname).toLowerCase();
         if (allowedTypes.includes(ext)) {
             cb(null, true);
         } else {
-            cb(new Error('Invalid file type. Only PDF, DOC, DOCX and Images are allowed.'));
+            cb(new Error('Invalid file type. Only PDF, DOC, DOCX, Images and TXT are allowed.'));
         }
     }
 });
@@ -40,7 +32,7 @@ router.post('/upload', auth, upload.single('document'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const { title, category } = req.body;
+        const { title, category, folderId } = req.body;
         const lawyerId = req.lawyer._id;
 
         const formatSize = (bytes) => {
@@ -58,7 +50,9 @@ router.post('/upload', auth, upload.single('document'), async (req, res) => {
             fileName: req.file.originalname,
             fileType: path.extname(req.file.originalname).toUpperCase().replace('.', ''),
             fileSize: formatSize(req.file.size),
-            filePath: req.file.path.replace(/\\/g, '/')
+            fileData: req.file.buffer,
+            contentType: req.file.mimetype,
+            folderId: folderId || undefined
         });
 
         await newDocument.save();
@@ -74,8 +68,45 @@ router.post('/upload', auth, upload.single('document'), async (req, res) => {
     }
 });
 
-// @route   GET /api/documents
-// @desc    Get all personal documents for the lawyer
+// @route   GET /api/documents/view/:id
+// @desc    View document content from DB
+// @access  Private
+router.get('/view/:id', auth, async (req, res) => {
+    try {
+        const document = await Document.findById(req.params.id);
+        if (!document || !document.fileData) {
+            return res.status(404).json({ error: 'Document or file data not found' });
+        }
+
+        res.set('Content-Type', document.contentType);
+        res.send(document.fileData);
+    } catch (error) {
+        console.error('File view error:', error);
+        res.status(500).json({ error: 'Error viewing file' });
+    }
+});
+
+// @route   GET /api/documents/download/:id
+// @desc    Download document from DB
+// @access  Private
+router.get('/download/:id', auth, async (req, res) => {
+    try {
+        const document = await Document.findById(req.params.id);
+        if (!document || !document.fileData) {
+            return res.status(404).json({ error: 'Document not found' });
+        }
+
+        res.set('Content-Type', document.contentType);
+        res.set('Content-Disposition', `attachment; filename="${document.fileName}"`);
+        res.send(document.fileData);
+    } catch (error) {
+        console.error('File download error:', error);
+        res.status(500).json({ error: 'Error downloading file' });
+    }
+});
+
+// @route   DELETE /api/documents/:id
+// @desc    Delete a personal document
 // @access  Private (Lawyer)
 router.get('/', auth, async (req, res) => {
     try {
@@ -93,9 +124,6 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
-// @route   DELETE /api/documents/:id
-// @desc    Delete a personal document
-// @access  Private (Lawyer)
 router.delete('/:id', auth, async (req, res) => {
     try {
         const lawyerId = req.lawyer._id;
@@ -105,10 +133,12 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        // Delete the physical file
-        const filePath = path.join(__dirname, '..', document.filePath);
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+        // Only delete from disk if filePath exists (backward compatibility)
+        if (document.filePath) {
+            const absolutePath = path.join(__dirname, '..', document.filePath);
+            if (fs.existsSync(absolutePath)) {
+                fs.unlinkSync(absolutePath);
+            }
         }
 
         await Document.deleteOne({ _id: req.params.id });

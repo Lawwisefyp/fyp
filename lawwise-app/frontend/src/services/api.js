@@ -231,6 +231,22 @@ export const authService = {
         const response = await api.get('/history');
         return response.data;
     },
+    updateHistoryNotes: async (id, notes) => {
+        const response = await api.put(`/history/${id}/notes`, { notes });
+        return response.data;
+    },
+    getVideoAISummary: async (title, description, channelName) => {
+        const response = await api.post('/history/ai-summary', { title, description, channelName });
+        return response.data;
+    },
+    searchVideos: async (query) => {
+        const response = await api.get('/videos/search', { params: { q: query } });
+        return response.data;
+    },
+    getAnalytics: async () => {
+        const response = await api.get('/analytics');
+        return response.data;
+    },
     uploadDocument: async (formData) => {
         const response = await api.post('/documents/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }

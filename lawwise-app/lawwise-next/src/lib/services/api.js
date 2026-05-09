@@ -16,13 +16,22 @@ api.interceptors.request.use((config) => {
         const studentToken = localStorage.getItem('studentToken') || sessionStorage.getItem('studentToken');
 
         let token = null;
-        const path = window.location.pathname;
 
-        if (path.includes('/client') || path.includes('/search-lawyers')) {
-            token = clientToken || lawyerToken || studentToken;
-        } else if (path.includes('/student')) {
-            token = studentToken || lawyerToken || clientToken;
-        } else {
+        // Use userType as the source of truth for which token to use.
+        // This prevents the wrong token from being sent when a client
+        // visits a URL that doesn't start with '/client' (e.g. lawyer profile pages).
+        const userType = localStorage.getItem('userType');
+
+        if (userType === 'client') {
+            token = clientToken;
+        } else if (userType === 'lawyer') {
+            token = lawyerToken;
+        } else if (userType === 'student') {
+            token = studentToken;
+        }
+
+        // Fallback in case userType is not set
+        if (!token) {
             token = lawyerToken || clientToken || studentToken;
         }
 
@@ -32,6 +41,18 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Response interceptor to handle 429 and other global errors
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 429) {
+            // Silently swallow 429s from polling to avoid console noise
+            return new Promise(() => { }); // Return a pending promise to stop the chain
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const authService = {
     login: async (email, password) => {
@@ -85,6 +106,22 @@ export const authService = {
         const response = await api.get('/notifications/sync');
         return response.data;
     },
+    async getUnreadNotificationCount() {
+        const response = await api.get('/notifications/unread-count');
+        return response.data;
+    },
+    async markNotificationsAsRead() {
+        const response = await api.put('/notifications/read-all');
+        return response.data;
+    },
+    async deleteNotification(id) {
+        const response = await api.delete(`/notifications/${id}`);
+        return response.data;
+    },
+    async getAcceptedConnections() {
+        const response = await api.get('/notifications/connections');
+        return response.data;
+    },
     // Unified Messaging Methods
     async getChatContacts() {
         const response = await api.get('/messages/contacts');
@@ -95,7 +132,16 @@ export const authService = {
         return response.data;
     },
     async sendMessage(messageData) {
-        const response = await api.post('/messages', messageData);
+        // Handle FormData for file uploads if needed
+        const config = messageData instanceof FormData ? {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        } : {};
+
+        const response = await api.post('/messages', messageData, config);
+        return response.data;
+    },
+    async markMessagesAsRead(otherId) {
+        const response = await api.patch(`/messages/mark-read/${otherId}`);
         return response.data;
     },
     async forgotPassword(email, userType) {
@@ -122,8 +168,36 @@ export const authService = {
         const response = await api.post('/history', videoData);
         return response.data;
     },
-    async respondToConnection(notificationId, response) {
-        const res = await api.post('/notifications/respond', { notificationId, response });
+    updateHistoryNotes: async (id, notes) => {
+        const response = await api.put(`/history/${id}/notes`, { notes });
+        return response.data;
+    },
+    getVideoAISummary: async (title, description, channelName) => {
+        const response = await api.post('/history/ai-summary', { title, description, channelName });
+        return response.data;
+    },
+    searchVideos: async (query) => {
+        const response = await api.get('/videos/search', { params: { q: query } });
+        return response.data;
+    },
+    getAnalytics: async () => {
+        const response = await api.get('/analytics');
+        return response.data;
+    },
+    async respondToConnection(requestId, status) {
+        const res = await api.post('/connections/respond', { requestId, status });
+        return res.data;
+    },
+    async getPendingConnections() {
+        const res = await api.get('/connections/pending');
+        return res.data;
+    },
+    async getMyClients() {
+        const res = await api.get('/connections/my-clients');
+        return res.data;
+    },
+    async getConnectionStatus(lawyerId) {
+        const res = await api.get(`/connections/status/${lawyerId}`);
         return res.data;
     },
     async updateLawyerProfile(formData) {
@@ -137,11 +211,11 @@ export const authService = {
         return response.data;
     },
     getLawyerDetails: async (id) => {
-        const response = await api.get(`/lawyer/search/${id}`); // Assuming this route for single lawyer
+        const response = await api.get(`/lawyer/${id}`);
         return response.data;
     },
-    sendConnectionRequest: async (targetLawyerId) => {
-        const response = await api.post('/notifications/connect', { targetLawyerId });
+    sendConnectionRequest: async (lawyerId) => {
+        const response = await api.post('/connections/request', { lawyerId });
         return response.data;
     },
     sendOfficialEmail: async (emailData) => {
@@ -158,6 +232,32 @@ export const authService = {
         });
         return response.data;
     },
+    fileCaseRequest: async (formData) => {
+        const response = await api.post('/case-requests/file', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    },
+    assignLawyerToRequest: async (requestId, lawyerId) => {
+        const response = await api.post('/case-requests/assign-lawyer', { requestId, lawyerId });
+        return response.data;
+    },
+    getCaseRequestsMarketplace: async () => {
+        const response = await api.get('/case-requests/marketplace');
+        return response.data;
+    },
+    updateAvailability: async (availability) => {
+        const response = await api.put('/lawyer/availability', { availability });
+        return response.data;
+    },
+    getMyCaseRequests: async () => {
+        const response = await api.get('/case-requests/my-requests');
+        return response.data;
+    },
+    respondToCaseRequest: async (requestId, data) => {
+        const response = await api.post(`/case-requests/${requestId}/respond`, data);
+        return response.data;
+    },
     getCases: async () => {
         const response = await api.get('/cases');
         return response.data;
@@ -166,20 +266,45 @@ export const authService = {
         const response = await api.post('/cases', caseData);
         return response.data;
     },
+    addReminder: async (caseId, formData) => {
+        const response = await api.post(`/cases/${caseId}/reminders`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    },
     updateCase: async (caseId, updateData) => {
         const response = await api.put(`/cases/${caseId}`, updateData);
+        return response.data;
+    },
+    // Explicitly set case status: 'pending' | 'active' | 'completed'
+    updateCaseStatus: async (caseId, status) => {
+        const response = await api.patch(`/cases/${caseId}/status`, { status });
         return response.data;
     },
     updateCaseProgress: async (caseId, stageId) => {
         const response = await api.put(`/cases/${caseId}/progress`, { stageId });
         return response.data;
     },
+    downloadFile: async (caseId, filename) => {
+        const response = await api.get(`/cases/${caseId}/documents/${filename}`, {
+            responseType: 'blob'
+        });
+        return response.data;
+    },
     getUnassignedCases: async () => {
+        const response = await api.get('/cases/unassigned');
+        return response.data;
+    },
+    getMarketplaceCases: async () => {
         const response = await api.get('/cases/unassigned');
         return response.data;
     },
     claimCase: async (caseId) => {
         const response = await api.post(`/cases/claim/${caseId}`);
+        return response.data;
+    },
+    deleteCase: async (caseId) => {
+        const response = await api.delete(`/cases/${caseId}`);
         return response.data;
     },
     getTemplates: async () => {
@@ -279,6 +404,21 @@ export const authService = {
         const response = await api.post(`/students/past-papers/download/${id}`);
         return response.data;
     },
+};
+
+export const appointmentService = {
+    getLawyerSlots: async (lawyerId) => {
+        const response = await api.get(`/appointments/lawyer/${lawyerId}/slots`);
+        return response.data;
+    },
+    bookAppointment: async (data) => {
+        const response = await api.post('/appointments/book', data);
+        return response.data;
+    },
+    getMyAppointments: async () => {
+        const response = await api.get('/appointments/my-appointments');
+        return response.data;
+    }
 };
 
 export default api;

@@ -9,7 +9,7 @@ const MessageSchema = new mongoose.Schema({
     senderModel: {
         type: String,
         required: true,
-        enum: ['Lawyer', 'Client']
+        enum: ['Lawyer', 'Client', 'Student']
     },
     receiverId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,12 +19,22 @@ const MessageSchema = new mongoose.Schema({
     receiverModel: {
         type: String,
         required: true,
-        enum: ['Lawyer', 'Client']
+        enum: ['Lawyer', 'Client', 'Student']
     },
     content: {
         type: String,
-        required: true,
+        required: false,
         trim: true
+    },
+    attachment: {
+        fileUrl: String,
+        fileName: String,
+        fileType: String,
+        fileSize: Number
+    },
+    isDelivered: {
+        type: Boolean,
+        default: false
     },
     isRead: {
         type: Boolean,

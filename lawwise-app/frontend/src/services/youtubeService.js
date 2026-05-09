@@ -1,37 +1,18 @@
-import axios from 'axios';
+import { authService } from './api';
 
-const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-const BASE_URL = 'https://www.googleapis.com/youtube/v3';
+// YouTube service now calls the backend API instead of YouTube directly.
+// This ensures the API key stays on the server and search always works.
 
 export const youtubeService = {
     searchVideos: async (query) => {
         try {
-            if (!API_KEY) {
-                console.error('YouTube API Key is missing');
-                return [];
+            const response = await authService.searchVideos(query);
+            if (response.success) {
+                return response.videos;
             }
-
-            const response = await axios.get(`${BASE_URL}/search`, {
-                params: {
-                    part: 'snippet',
-                    maxResults: 12,
-                    q: query,
-                    type: 'video',
-                    key: API_KEY
-                }
-            });
-
-            return response.data.items.map(item => ({
-                id: item.id.videoId,
-                title: item.snippet.title,
-                channel: item.snippet.channelTitle,
-                description: item.snippet.description,
-                thumb: item.snippet.thumbnails.high.url,
-                date: new Date(item.snippet.publishedAt).toLocaleDateString(),
-                url: `https://www.youtube.com/watch?v=${item.id.videoId}`
-            }));
+            return [];
         } catch (error) {
-            console.error('YouTube search error:', error);
+            console.error('Video search error:', error);
             return [];
         }
     }

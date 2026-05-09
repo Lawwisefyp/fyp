@@ -4,9 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authService } from '@/lib/services/api';
+import ClientSidebar from '@/components/ClientSidebar';
+import { ShieldCheck, Search, MapPin, Briefcase, Star, CheckCircle } from 'lucide-react';
 import '@/styles/SearchLawyers.css';
 
 const SearchLawyersPage = () => {
+    // ... existing state ...
     const router = useRouter();
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(false);
@@ -53,7 +56,9 @@ const SearchLawyersPage = () => {
     const performSearch = async (page = 1, currentFilters = filters) => {
         setLoading(true);
         try {
-            const params = { ...currentFilters, page, limit: 10, showAll: true };
+            // We request only verified lawyers from the backend
+            const params = { ...currentFilters, page, limit: 10, isVerified: true };
+            
             // Remove empty filters
             Object.keys(params).forEach(key => {
                 if (params[key] === '' || params[key] === null) delete params[key];
@@ -61,7 +66,11 @@ const SearchLawyersPage = () => {
 
             const data = await authService.searchLawyers(params);
             if (data.success) {
-                setResults(data.lawyers);
+                // Double-check on frontend to ensure only verified and registered lawyers are shown
+                const verifiedLawyers = data.lawyers.filter(lawyer => 
+                    lawyer.isVerified === true || lawyer.isEmailVerified === true
+                );
+                setResults(verifiedLawyers);
                 setPagination(data.pagination);
             }
         } catch (error) {
@@ -87,12 +96,11 @@ const SearchLawyersPage = () => {
     };
 
     return (
-        <div className="search-page-body">
-            <div className="search-container">
-                <Link href="/client-dashboard" className="back-link" style={{ textDecoration: 'none', color: '#666', fontWeight: '600', marginBottom: '20px', display: 'inline-block' }}>← Back to Dashboard</Link>
-
+        <div className="dashboard-body">
+            <ClientSidebar />
+            <div className="search-container" style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
                 <div className="search-header">
-                    <h1>🔍 Find the Right Lawyer</h1>
+                    <h1>Find the Right Lawyer</h1>
                     <p>Search through our network of experienced and qualified legal professionals</p>
                 </div>
 
@@ -181,7 +189,24 @@ const SearchLawyersPage = () => {
                                     {lawyer.fullName ? lawyer.fullName.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase() : 'L'}
                                 </div>
                                 <div className="lawyer-card-content">
-                                    <h2 className="lawyer-card-name" style={{ color: '#1e293b' }}>{lawyer.fullName}</h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <h2 className="lawyer-card-name" style={{ color: '#1e293b', margin: 0 }}>{lawyer.fullName}</h2>
+                                        {(lawyer.isVerified || lawyer.isEmailVerified) && (
+                                            <span style={{ 
+                                                display: 'inline-flex', 
+                                                alignItems: 'center', 
+                                                gap: '4px', 
+                                                fontSize: '0.75rem', 
+                                                background: '#e0f2fe', 
+                                                color: '#0a66c2', 
+                                                padding: '2px 8px', 
+                                                borderRadius: '20px',
+                                                fontWeight: '700'
+                                            }}>
+                                                <ShieldCheck size={14} /> Verified
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="lawyer-card-specialty">{lawyer.specialization || 'General Advocate'}</div>
                                     <div className="lawyer-card-stats">
                                         <div className="card-stat">📍 {lawyer.personalInfo?.city || 'N/A'}</div>

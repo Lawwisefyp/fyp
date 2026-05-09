@@ -30,7 +30,20 @@ const documentSchema = new mongoose.Schema({
     },
     filePath: {
         type: String,
-        required: true
+        required: false // Optional if stored in DB
+    },
+    fileData: {
+        type: Buffer,
+        required: false
+    },
+    contentType: {
+        type: String,
+        required: false
+    },
+    folderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Folder',
+        required: false
     },
     uploadedAt: {
         type: Date,

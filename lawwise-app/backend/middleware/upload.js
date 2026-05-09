@@ -20,6 +20,8 @@ const storage = multer.diskStorage({
       folder += 'certificates/';
     } else if (file.fieldname === 'documents') {
       folder += 'cases/documents/';
+    } else if (file.fieldname === 'chatAttachment') {
+      folder += 'chat/';
     }
     
     // Create folder if it doesn't exist
@@ -59,11 +61,22 @@ const fileFilter = (req, file, cb) => {
     // Allow case documents: PDF, DOC, DOCX, JPG, PNG
     const allowedTypes = ['application/pdf', 'application/msword', 
                          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                         'image/jpeg', 'image/png'];
+                         'image/jpeg', 'image/png', 'text/plain'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF, DOC, DOCX, JPG, PNG files are allowed for case documents'), false);
+      cb(new Error('Only PDF, DOC, DOCX, JPG, PNG, TXT files are allowed for case documents'), false);
+    }
+    } else if (file.fieldname === 'chatAttachment') {
+    // Allow images and documents for chat
+    const allowedTypes = ['application/pdf', 'application/msword', 
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'image/jpeg', 'image/png', 'image/gif', 'text/plain',
+                         'audio/webm', 'audio/ogg', 'audio/mpeg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type for chat attachment'), false);
     }
   } else {
     cb(new Error('Unexpected field'), false);

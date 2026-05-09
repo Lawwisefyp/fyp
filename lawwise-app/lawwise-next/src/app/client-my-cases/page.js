@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { authService } from '@/lib/services/api';
+import ClientSidebar from '@/components/ClientSidebar';
 import '@/styles/ClientMyCases.css';
 
 const STAGES = [
+    // ... stages ...
     { id: 1, name: 'Case Filed', duration: 0, desc: 'Initial petition filed' },
     { id: 2, name: 'Case Admitted', duration: 30, desc: 'Court admits the case' },
     { id: 3, name: 'Notice Issued', duration: 15, desc: 'Notice served to opposing party' },
@@ -18,6 +20,7 @@ const STAGES = [
 ];
 
 const ClientMyCasesPage = () => {
+    // ... state ...
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('');
@@ -27,7 +30,7 @@ const ClientMyCasesPage = () => {
     useEffect(() => {
         const fetchCases = async () => {
             try {
-                const data = await authService.getClientCases();
+                const data = await authService.getCases();
                 setCases(data.cases || []);
             } catch (error) {
                 console.error('Failed to load cases:', error);
@@ -44,18 +47,18 @@ const ClientMyCasesPage = () => {
         return matchesStatus && matchesType;
     });
 
-    const activeCount = cases.filter(c => ['filed', 'assigned', 'in-progress'].includes(c.status)).length;
-    const completedCount = cases.filter(c => c.status === 'completed').length;
+    const activeCount = cases.filter(c => (c.realTimeStatus || c.status) === 'active').length;
+    const pendingCount = cases.filter(c => (c.realTimeStatus || c.status) === 'pending').length;
+    const completedCount = cases.filter(c => (c.realTimeStatus || c.status) === 'completed').length;
 
     const formatDate = (date) => new Date(date).toLocaleDateString();
 
     return (
-        <div className="mycases-body">
-            <div className="mycases-container">
-                <Link href="/client-dashboard" className="back-link" style={{ textDecoration: 'none', color: '#666', fontWeight: '600', marginBottom: '20px', display: 'inline-block' }}>← Back to Portal</Link>
-
+        <div className="dashboard-body">
+            <ClientSidebar />
+            <div className="mycases-container" style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
                 <header className="mycases-header">
-                    <h1>📋 My Cases</h1>
+                    <h1>My Cases</h1>
                     <p>Track and manage your filed cases</p>
                     <div className="mycases-header-actions">
                         <Link href="/client-efiling" className="btn-mycases btn-mycases-primary" style={{ textDecoration: 'none' }}>+ File New Case</Link>
@@ -73,6 +76,10 @@ const ClientMyCasesPage = () => {
                         <div className="stat-lbl">Active</div>
                     </div>
                     <div className="mycase-stat-card">
+                        <div className="stat-val">{pendingCount}</div>
+                        <div className="stat-lbl">Pending</div>
+                    </div>
+                    <div className="mycase-stat-card">
                         <div className="stat-val">{completedCount}</div>
                         <div className="stat-lbl">Completed</div>
                     </div>
@@ -83,9 +90,8 @@ const ClientMyCasesPage = () => {
                         <label>Status:</label>
                         <select className="filter-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ color: '#333' }}>
                             <option value="">All Status</option>
-                            <option value="filed">Filed</option>
-                            <option value="assigned">Assigned</option>
-                            <option value="in-progress">In Progress</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
                             <option value="completed">Completed</option>
                         </select>
                     </div>
@@ -119,8 +125,8 @@ const ClientMyCasesPage = () => {
                                         <h3 style={{ color: '#1e293b' }}>{c.title}</h3>
                                         <span className="mycase-id">ID: {c.id || c._id?.slice(-8).toUpperCase()}</span>
                                     </div>
-                                    <span className={`mycase-status-badge status-${c.status === 'in-progress' ? 'progress' : c.status}`}>
-                                        {c.status}
+                                    <span className={`mycase-status-badge status-${c.realTimeStatus || c.status}`}>
+                                        {c.realTimeStatus || c.status}
                                     </span>
                                 </div>
                                 <div className="mycase-card-body">
@@ -179,7 +185,7 @@ const ClientMyCasesPage = () => {
                                     <div className="detail-item"><strong style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block' }}>Judge</strong> <span style={{ color: '#1e293b', fontWeight: '600' }}>{selectedCase.judge || 'N/A'}</span></div>
                                     <div className="detail-item"><strong style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block' }}>Jurisdiction</strong> <span style={{ color: '#1e293b', fontWeight: '600' }}>{selectedCase.jurisdiction}</span></div>
                                     <div className="detail-item"><strong style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block' }}>Filing Date</strong> <span style={{ color: '#1e293b', fontWeight: '600' }}>{new Date(selectedCase.filingDate).toLocaleDateString()}</span></div>
-                                    <div className="detail-item"><strong style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block' }}>Status</strong> <span style={{ color: '#c19651', fontWeight: '800' }}>{selectedCase.status.toUpperCase()}</span></div>
+                                    <div className="detail-item"><strong style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block' }}>Status</strong> <span style={{ color: '#c19651', fontWeight: '800' }}>{(selectedCase.realTimeStatus || selectedCase.status).toUpperCase()}</span></div>
                                 </div>
                             </div>
 

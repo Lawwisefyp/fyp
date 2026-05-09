@@ -2,17 +2,42 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import LawyerSidebar from '@/components/LawyerSidebar';
 import '@/styles/LawyerMiniLawLibrary.css';
 import { authService } from '@/lib/services/api';
 import mammoth from 'mammoth';
 import axios from 'axios';
 
 const LawyerMiniLawLibraryPage = () => {
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showChatSelectionModal, setShowChatSelectionModal] = useState(false);
+    const [selectedChatDocs, setSelectedChatDocs] = useState([]);
+
+    const handleStartAIChat = () => {
+        if (selectedChatDocs.length === 0) {
+            alert('Please select at least one document to discuss.');
+            return;
+        }
+        const docIds = selectedChatDocs.join(',');
+        router.push(`/chatbot?docs=${docIds}`);
+    };
+
+    const toggleDocSelection = (docId) => {
+        if (selectedChatDocs.includes(docId)) {
+            setSelectedChatDocs(selectedChatDocs.filter(id => id !== docId));
+        } else {
+            setSelectedChatDocs([...selectedChatDocs, docId]);
+        }
+    };
+    const [folders, setFolders] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [showFolderModal, setShowFolderModal] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
 
     // Form state
     const [newDocName, setNewDocName] = useState('');
@@ -25,26 +50,45 @@ const LawyerMiniLawLibraryPage = () => {
     const [viewingDoc, setViewingDoc] = useState(null);
     const [docxHtml, setDocxHtml] = useState('');
     const [loadingDocx, setLoadingDocx] = useState(false);
+    const [selectedFolder, setSelectedFolder] = useState(null);
 
-    // Categories removed as per user request
-
-    const fetchDocuments = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await authService.getDocuments();
-            if (response.success) {
-                setDocuments(response.documents);
-            }
+            const [docRes, folderRes] = await Promise.all([
+                authService.getDocuments(),
+                authService.getFolders()
+            ]);
+
+            if (docRes.success) setDocuments(docRes.documents);
+            if (folderRes.success) setFolders(folderRes.folders);
         } catch (error) {
-            console.error('Failed to fetch documents:', error);
+            console.error('Failed to fetch data:', error);
         } finally {
             setLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        fetchDocuments();
-    }, [fetchDocuments]);
+        fetchData();
+    }, [fetchData]);
+
+    const handleCreateFolder = async (e) => {
+        e.preventDefault();
+        if (!newFolderName.trim()) return;
+
+        try {
+            const response = await authService.createFolder(newFolderName);
+            if (response.success) {
+                setFolders([response.folder, ...folders]);
+                setShowFolderModal(false);
+                setNewFolderName('');
+            }
+        } catch (error) {
+            console.error('Failed to create folder:', error);
+            alert('Error creating folder');
+        }
+    };
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
@@ -58,11 +102,14 @@ const LawyerMiniLawLibraryPage = () => {
         }
 
         setUploading(true);
-        console.log('Starting document upload...', { name: newDocName, file: selectedFile?.name });
         const formData = new FormData();
-        formData.append('file', selectedFile);
+        formData.append('document', selectedFile);
         formData.append('title', newDocName || selectedFile.name);
         formData.append('category', newDocCategory);
+
+        if (selectedFolder) {
+            formData.append('folderId', selectedFolder._id);
+        }
 
         try {
             const response = await authService.uploadDocument(formData);
@@ -72,13 +119,32 @@ const LawyerMiniLawLibraryPage = () => {
                 setShowUploadModal(false);
                 setNewDocName('');
                 setSelectedFile(null);
-                fetchDocuments(); // Refresh list
+                fetchData(); // Refresh list
             }
         } catch (error) {
             console.error('Upload failed:', error);
             alert(error.response?.data?.error || 'Failed to upload document');
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleDeleteFolder = async (folderId) => {
+        if (window.confirm('Are you sure you want to delete this folder and all its documents?')) {
+            try {
+                const response = await authService.deleteFolder(folderId);
+                if (response.success) {
+                    setFolders(folders.filter(f => f._id !== folderId));
+                    // Also remove documents belonging to this folder from local state
+                    setDocuments(documents.filter(d => d.folderId !== folderId));
+                    if (selectedFolder && selectedFolder._id === folderId) {
+                        setSelectedFolder(null);
+                    }
+                }
+            } catch (error) {
+                console.error('Delete folder failed:', error);
+                alert('Failed to delete folder');
+            }
         }
     };
 
@@ -100,64 +166,44 @@ const LawyerMiniLawLibraryPage = () => {
         }
     };
 
-    const handleView = async (doc) => {
-        setViewingDoc(doc);
-        setShowViewer(true);
-        setDocxHtml('');
-
-        if (doc.fileType === 'DOCX') {
-            setLoadingDocx(true);
-            try {
-                const response = await axios.get(getFullUrl(doc.filePath), {
-                    responseType: 'arraybuffer'
-                });
-
-                if (!response.data || response.data.byteLength === 0) {
-                    throw new Error('Downloaded file is empty');
-                }
-
-                const result = await mammoth.convertToHtml({ arrayBuffer: response.data });
-                setDocxHtml(result.value);
-            } catch (error) {
-                console.error('Failed to convert DOCX:', error);
-                setDocxHtml(`
-                    <div style="text-align: center; padding: 40px; color: #64748b;">
-                        <h3 style="color: #1e293b;">Integrated viewing failed</h3>
-                        <p>This DOCX file could not be rendered on screen. This can happen with complex layouts or password protection.</p>
-                        <p style="font-size: 0.8rem; margin-top: 10px;">Error Details: ${error.message}</p>
-                    </div>
-                `);
-            } finally {
-                setLoadingDocx(false);
-            }
-        } else if (doc.fileType === 'DOC') {
-            setDocxHtml(`
-                <div style="text-align: center; padding: 40px; color: #64748b;">
-                    <h3 style="color: #1e293b;">Legacy .doc file detected</h3>
-                    <p>Older Word documents (.doc) do not support integrated viewing. Please download the file to view it in Microsoft Word or another editor.</p>
-                </div>
-            `);
-        }
+    const handleWhatsAppShare = (doc) => {
+        const fileUrl = window.location.origin + getFullUrl(doc);
+        const text = `Lawwise Document Share: ${doc.title}\n\nYou can view the document here: ${fileUrl}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
     };
 
-    const handleDownload = (filePath, fileName) => {
-        const link = document.createElement('a');
-        link.href = getFullUrl(filePath);
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+
+
+    const getFullUrl = (doc) => {
+        if (!doc) return "";
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        if (doc._id && !doc.filePath) {
+            return `${API_BASE}/api/documents/download/${doc._id}`;
+        }
+        return `${API_BASE}/${doc.filePath}`;
+    };
+
+    const handleDownload = (doc) => {
+        const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001');
+        const token = localStorage.getItem('lawyerToken') || sessionStorage.getItem('lawyerToken');
+
+        let url = doc.filePath
+            ? `${API_BASE}/${doc.filePath}`
+            : `${API_BASE}/api/documents/download/${doc._id}`;
+
+        // Append token for direct download authentication
+        if (token) {
+            url += `${url.includes('?') ? '&' : '?'}token=${token}`;
+        }
+
+        // Open in new tab which triggers download due to Content-Disposition header
+        window.open(url, '_blank');
     };
 
     const filteredDocs = documents.filter(doc => {
         return doc.title.toLowerCase().includes(searchQuery.toLowerCase());
     });
-
-    const getFullUrl = (filePath) => {
-        // Files are stored in public/uploads/documents/...
-        // They are accessible at /uploads/documents/...
-        return `/${filePath}`;
-    };
 
     const isImage = (doc) => {
         const imgExts = ['JPG', 'JPEG', 'PNG', 'GIF'];
@@ -165,138 +211,270 @@ const LawyerMiniLawLibraryPage = () => {
     };
 
     return (
-        <div className="library-body">
-            <div className="library-container">
-                <header className="library-header">
-                    <div className="header-content">
-                        <h1>Personal Law Library</h1>
-                        <p>Access and manage your own important legal documents and research files.</p>
-                        <div className="library-header-actions">
-                            <div className="library-search-container">
-                                <span className="library-search-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                </span>
+        <div className="dashboard-body">
+            <LawyerSidebar />
+            <div className="dashboard-main library-body">
+                <div className="library-container">
+                    <div className="briefcase-top-bar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+                        <span>Briefcase</span>
+                    </div>
+
+                    <header className="briefcase-page-header">
+                        <div className="briefcase-header-left">
+                            <h1>My Folders</h1>
+                            <p>Manage your legal cases and documents.</p>
+                        </div>
+                        <div className="briefcase-header-right">
+                            <div className="briefcase-search-box">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                                 <input
                                     type="text"
-                                    className="library-search-input"
-                                    placeholder="Search your documents..."
+                                    placeholder="Search folders..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
-                            <button className="btn-library-upload" onClick={() => setShowUploadModal(true)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                Upload Document
+                            <button className="btn-add-folder" onClick={() => setShowFolderModal(true)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                Add Folder
                             </button>
                         </div>
+                    </header>
+
+                    <div className="folders-main-container">
+                        {!selectedFolder ? (
+                            <>
+                                {loading ? (
+                                    <div className="folders-loading">
+                                        <div className="loading-spinner"></div>
+                                        <p>Opening briefcase...</p>
+                                    </div>
+                                ) : (folders.length === 0) ? (
+                                    <div className="empty-folders-state">
+                                        <div className="empty-icon-circle">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
+                                        </div>
+                                        <h3>No folders created yet</h3>
+                                        <p>Organize your cases and documents by creating your first folder.</p>
+                                    </div>
+                                ) : (
+                                    <div className="folders-grid">
+                                        {folders.map(folder => (
+                                            <div key={folder._id} className="folder-card" onClick={() => setSelectedFolder(folder)}>
+                                                <div className="folder-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
+                                                </div>
+                                                <div className="folder-info">
+                                                    <h4>{folder.name}</h4>
+                                                    <p>{documents.filter(d => d.folderId === folder._id).length} items</p>
+                                                </div>
+                                                <div className="folder-more" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder._id); }}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="folder-detail-view">
+                                <div className="folder-detail-header">
+                                    <div className="folder-title-area">
+                                        <button className="btn-back" onClick={() => setSelectedFolder(null)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+                                        </button>
+                                        <div className="folder-title-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
+                                        </div>
+                                        <h2>{selectedFolder.name}</h2>
+                                    </div>
+                                    <div className="folder-header-actions">
+                                        <button className="btn-delete-folder" onClick={() => handleDeleteFolder(selectedFolder._id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="folder-split-content">
+                                    <div className="folder-content-left">
+                                        <div className="section-header">
+                                            <div className="section-title">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                                                <h3>Documents</h3>
+                                                <span className="count-badge">{documents.filter(d => d.folderId === selectedFolder._id).length}</span>
+                                            </div>
+                                            <div className="section-actions">
+                                                <button className="btn-refresh" onClick={fetchData}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+                                                </button>
+                                                <button className="btn-upload-black" onClick={() => setShowUploadModal(true)}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                                                    Upload
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="docs-table-container">
+                                            <table className="docs-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>NAME</th>
+                                                        <th>DATE</th>
+                                                        <th>STATUS</th>
+                                                        <th>ACTION</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {documents.filter(d => d.folderId === selectedFolder._id).map(doc => (
+                                                        <tr key={doc._id}>
+                                                            <td className="doc-name-cell" onClick={() => handleDownload(doc)} title="Click to download">{doc.title}</td>
+                                                            <td>{new Date(doc.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                                                            <td>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                                            </td>
+                                                            <td className="doc-table-actions">
+                                                                <button className="btn-table-action" onClick={() => handleDownload(doc)} title="Download">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                                                                </button>
+                                                                <button className="btn-table-action" onClick={() => handleWhatsAppShare(doc)} title="Share to WhatsApp">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+                                                                </button>
+                                                                <button className="btn-table-action" onClick={() => handleDelete(doc._id)} title="Delete">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {documents.filter(d => d.folderId === selectedFolder._id).length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="4" className="table-empty">No documents yet. Click Upload to add files.</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="folder-content-right">
+                                        <div className="section-header">
+                                            <div className="section-title">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                                                <h3>Discussions</h3>
+                                                <span className="count-badge">0</span>
+                                            </div>
+                                            <button className="btn-upload-black" onClick={() => setShowChatSelectionModal(true)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                                New Chat
+                                            </button>
+                                        </div>
+
+                                        <div className="empty-discussions">
+                                            <div className="empty-icon-box">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
+                                            </div>
+                                            <h4>No discussions yet</h4>
+                                            <p>Start a new chat to analyze documents in this folder using AI.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    <Link href="/lawyer-dashboard" className="btn-back-dashboard">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                        Back to Dashboard
-                    </Link>
-                </header>
-
-                <div className="library-grid">
-                    {loading ? (
-                        <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px' }}>
-                            <div className="loading-spinner"></div>
-                            <p>Loading your library...</p>
-                        </div>
-                    ) : filteredDocs.map(doc => (
-                        <div key={doc._id} className="library-card">
-                            <div className="library-doc-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            </div>
-                            <h3 className="library-doc-title">{doc.title}</h3>
-                            <div className="library-doc-meta" style={{ marginTop: '10px' }}>
-                                <span>Type: {doc.fileType}</span>
-                                <span>Size: {doc.fileSize}</span>
-                            </div>
-                            <div className="library-doc-meta">
-                                <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
-                            </div>
-                            <div className="library-doc-actions">
-                                <button className="btn-doc-action btn-doc-view" onClick={() => handleView(doc)}>View</button>
-                                <button className="btn-doc-action btn-doc-download" onClick={() => handleDownload(doc.filePath, doc.fileName)}>Download</button>
-                                <button className="btn-doc-action btn-doc-delete" onClick={() => handleDelete(doc._id)}>Delete</button>
-                            </div>
-                        </div>
-                    ))}
-                    {!loading && filteredDocs.length === 0 && (
-                        <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '100px', background: 'rgba(255,255,255,0.8)', borderRadius: '24px' }}>
-                            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            </div>
-                            <h3>No documents found</h3>
-                            <p>Upload your own documents to build your personal law library.</p>
-                        </div>
-                    )}
                 </div>
+
+                {showFolderModal && (
+                    <div className="modal-overlay">
+                        <div className="modal-box">
+                            <div className="modal-title">
+                                <span>Create New Folder</span>
+                                <button onClick={() => setShowFolderModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+                            </div>
+                            <form onSubmit={handleCreateFolder}>
+                                <div className="form-group">
+                                    <label className="form-label">Folder Name *</label>
+                                    <input
+                                        className="profile-input"
+                                        value={newFolderName}
+                                        onChange={(e) => setNewFolderName(e.target.value)}
+                                        required
+                                        placeholder="e.g. Constitutional Cases"
+                                        autoFocus
+                                    />
+                                </div>
+                                <button type="submit" className="btn-profile-save" style={{ background: '#000000' }}>
+                                    Create Folder
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+                {showUploadModal && (
+                    <div className="modal-overlay">
+                        <div className="modal-box">
+                            <div className="modal-title">
+                                <span>Upload to Briefcase</span>
+                                <button onClick={() => setShowUploadModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+                            </div>
+                            <form onSubmit={handleUpload}>
+                                <div className="form-group">
+                                    <label className="form-label">Document Title *</label>
+                                    <input className="profile-input" value={newDocName} onChange={(e) => setNewDocName(e.target.value)} required placeholder="e.g. Constitutional Amended Act" />
+                                </div>
+                                {/* Category selection removed as per user request */}
+                                <div className="upload-area" style={{ border: '2px dashed #d1d5db', padding: '20px', borderRadius: '12px', textAlign: 'center', marginBottom: '15px', background: '#f9fafb' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                                    </div>
+                                    <p style={{ fontSize: '0.9rem', marginBottom: '12px', color: '#6b7280' }}>{selectedFile ? selectedFile.name : 'Drag and drop or click to select file'}</p>
+                                    <input type="file" style={{ display: 'none' }} id="file-up" onChange={handleFileChange} />
+                                    <button type="button" onClick={() => document.getElementById('file-up').click()} className="btn-doc-action" style={{ background: '#111827', color: '#fff', padding: '8px 20px', margin: '0 auto' }}>Select File</button>
+                                </div>
+                                <button type="submit" className="btn-profile-save" style={{ background: '#7b1fa2' }} disabled={uploading}>
+                                    {uploading ? 'Uploading...' : 'Upload Document'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+
+                {showChatSelectionModal && (
+                    <div className="modal-overlay">
+                        <div className="modal-box chat-selection-modal">
+                            <div className="modal-title">
+                                <span>Select Documents for AI Analysis</span>
+                                <button onClick={() => setShowChatSelectionModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+                            </div>
+                            <div className="selection-list">
+                                <p className="selection-hint">Select the files you want to summarize or ask questions about:</p>
+                                {documents.filter(d => d.folderId === selectedFolder._id).map(doc => (
+                                    <div key={doc._id} className={`selection-item ${selectedChatDocs.includes(doc._id) ? 'selected' : ''}`} onClick={() => toggleDocSelection(doc._id)}>
+                                        <div className="selection-checkbox">
+                                            {selectedChatDocs.includes(doc._id) && (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                            )}
+                                        </div>
+                                        <div className="selection-doc-info">
+                                            <span className="doc-name">{doc.title}</span>
+                                            <span className="doc-meta">{doc.fileType} • {doc.fileSize}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {documents.filter(d => d.folderId === selectedFolder._id).length === 0 && (
+                                    <p className="no-docs-hint">No documents found in this folder. Upload some files first.</p>
+                                )}
+                            </div>
+                            <div className="selection-actions">
+                                <button className="btn-cancel" onClick={() => setShowChatSelectionModal(false)}>Cancel</button>
+                                <button className="btn-start-chat" onClick={handleStartAIChat} disabled={selectedChatDocs.length === 0}>
+                                    Start Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {showUploadModal && (
-                <div className="modal-overlay">
-                    <div className="modal-box">
-                        <div className="modal-title">
-                            <span>Upload to Personal Library</span>
-                            <button onClick={() => setShowUploadModal(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
-                        </div>
-                        <form onSubmit={handleUpload}>
-                            <div className="form-group">
-                                <label className="form-label">Document Title *</label>
-                                <input className="profile-input" value={newDocName} onChange={(e) => setNewDocName(e.target.value)} required placeholder="e.g. Constitutional Amended Act" />
-                            </div>
-                            {/* Category selection removed as per user request */}
-                            <div className="upload-area" style={{ border: '2px dashed #d1d5db', padding: '20px', borderRadius: '12px', textAlign: 'center', marginBottom: '15px', background: '#f9fafb' }}>
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                </div>
-                                <p style={{ fontSize: '0.9rem', marginBottom: '12px', color: '#6b7280' }}>{selectedFile ? selectedFile.name : 'Drag and drop or click to select file'}</p>
-                                <input type="file" style={{ display: 'none' }} id="file-up" onChange={handleFileChange} />
-                                <button type="button" onClick={() => document.getElementById('file-up').click()} className="btn-doc-action" style={{ background: '#111827', color: '#fff', padding: '8px 20px', margin: '0 auto' }}>Select File</button>
-                            </div>
-                            <button type="submit" className="btn-profile-save" style={{ background: '#7b1fa2' }} disabled={uploading}>
-                                {uploading ? 'Uploading...' : 'Upload Document'}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {showViewer && viewingDoc && (
-                <div className="viewer-overlay">
-                    <div className="viewer-box">
-                        <div className="viewer-header">
-                            <h3>{viewingDoc.title}</h3>
-                            <div className="viewer-actions">
-                                <button className="btn-viewer-close" onClick={() => handleDownload(viewingDoc.filePath, viewingDoc.fileName)}>Download</button>
-                                <button className="btn-viewer-close" onClick={() => setShowViewer(false)}>Close</button>
-                            </div>
-                        </div>
-                        <div className="viewer-content">
-                            {loadingDocx ? (
-                                <div style={{ textAlign: 'center' }}>
-                                    <div className="loading-spinner"></div>
-                                    <p>Converting document for display...</p>
-                                </div>
-                            ) : isImage(viewingDoc) ? (
-                                <img src={getFullUrl(viewingDoc.filePath)} alt={viewingDoc.title} className="viewer-img" />
-                            ) : viewingDoc.fileType === 'PDF' ? (
-                                <iframe src={getFullUrl(viewingDoc.filePath)} title={viewingDoc.title} className="viewer-iframe" />
-                            ) : (viewingDoc.fileType === 'DOCX' || viewingDoc.fileType === 'DOC') ? (
-                                <div className="docx-viewer-container" dangerouslySetInnerHTML={{ __html: docxHtml }} />
-                            ) : (
-                                <div className="viewer-placeholder">
-                                    <h3>Integrated viewing not supported for {viewingDoc.fileType} files</h3>
-                                    <p>Please download the file to view its content.</p>
-                                    <button className="btn-library-upload" style={{ marginTop: '20px' }} onClick={() => handleDownload(viewingDoc.filePath, viewingDoc.fileName)}>Download Now</button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

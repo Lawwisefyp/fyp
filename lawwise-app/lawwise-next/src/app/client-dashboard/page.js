@@ -2,10 +2,26 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ClientSidebar from '@/components/ClientSidebar';
+import { authService } from '@/lib/services/api';
+import {
+    Bell,
+    MessageSquare,
+    Upload,
+    Search,
+    Star,
+    Clock,
+    CheckCircle,
+    XCircle,
+    Shield,
+    FileText
+} from 'lucide-react';
 import '@/styles/Dashboard.css';
 
 const ClientDashboard = () => {
     const [client, setClient] = useState(null);
+    const [myRequests, setMyRequests] = useState([]);
+    const [loadingRequests, setLoadingRequests] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
@@ -18,7 +34,21 @@ const ClientDashboard = () => {
         }
 
         setClient(JSON.parse(info));
+        fetchRequests();
     }, [router]);
+
+    const fetchRequests = async () => {
+        try {
+            const res = await authService.getMyCaseRequests();
+            if (res.success) {
+                setMyRequests(res.requests);
+            }
+        } catch (err) {
+            console.error('Error fetching requests:', err);
+        } finally {
+            setLoadingRequests(false);
+        }
+    };
 
     const logout = () => {
         localStorage.removeItem('clientToken');
@@ -30,59 +60,30 @@ const ClientDashboard = () => {
     if (!client) return <div className="dashboard-body"><div className="dashboard-container">Loading...</div></div>;
 
     const modules = [
-        { title: 'Notifications', icon: '🔔', desc: "View important messages", path: '/notifications', bg: '#e3f2fd', color: '#1976d2' },
-        { title: 'Communication', icon: '💬', desc: "Secure messaging with your lawyer", path: '/communication', bg: '#e0f2f1', color: '#00796b' },
-        { title: 'E-Filing Case', icon: '📤', desc: "Upload your case files", path: '/client-efiling', bg: '#fff3e0', color: '#f57c00' },
-        { title: 'Lawyer Filtering', icon: '🧑‍⚖️', desc: "Search and filter lawyers", path: '/search-lawyers', bg: '#e8f5e9', color: '#388e3c' },
-        { title: 'Lawyer Reviews', icon: '⭐', desc: "Read and write reviews", path: '/lawyer-reviews', bg: '#fce4ec', color: '#c2185b' }
+        { title: 'Notifications', icon: Bell, desc: "View important messages", path: '/client-notifications', bg: '#eff6ff', color: '#3b82f6' },
+        { title: 'Communication', icon: MessageSquare, desc: "Secure messaging with your lawyer", path: '/client-communication', bg: '#ecfdf5', color: '#10b981' },
+        { title: 'Filed Cases', icon: FileText, desc: "Track your legal history", path: '/client-filed-cases', bg: '#fef2f2', color: '#ef4444' },
+        { title: 'E-Filing Case', icon: Upload, desc: "Upload your case files", path: '/client-efiling', bg: '#fffbeb', color: '#f59e0b' },
+        { title: 'Lawyer Filtering', icon: Search, desc: "Search and filter lawyers", path: '/search-lawyers', bg: '#f0f9ff', color: '#0ea5e9' },
+        { title: 'Lawyer Reviews', icon: Star, desc: "Read and write reviews", path: '/lawyer-reviews', bg: '#fdf2f8', color: '#ec4899' }
     ];
 
     const initials = client.fullName ? client.fullName.split(' ').map(n => n[0]).join('') : 'C';
 
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'accepted': return { bg: '#ecfdf5', color: '#10b981', icon: CheckCircle };
+            case 'rejected': return { bg: '#fef2f2', color: '#ef4444', icon: XCircle };
+            case 'pending_review': return { bg: '#fffbeb', color: '#f59e0b', icon: Clock };
+            default: return { bg: '#f8fafc', color: '#64748b', icon: Shield };
+        }
+    };
+
     return (
         <div className="dashboard-body">
+            <ClientSidebar />
 
-            {/* ── Left Sidebar ── */}
-            <aside className="dashboard-sidebar">
-                <div className="sidebar-logo">
-                    <h1>LAW<span>WISE</span></h1>
-                    <p>Client Portal</p>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className="sidebar-section-label">Main</div>
-                    <div className="sidebar-nav-item active">
-                        <span className="sidebar-nav-icon">🏠</span> Dashboard
-                    </div>
-
-                    <div className="sidebar-section-label">Modules</div>
-                    {modules.map((m, i) => (
-                        <div key={i} className="sidebar-nav-item" onClick={() => router.push(m.path)}>
-                            <span className="sidebar-nav-icon">{m.icon}</span> {m.title}
-                        </div>
-                    ))}
-
-                    <div className="sidebar-section-label">Account</div>
-                    <div className="sidebar-nav-item" onClick={logout}>
-                        <span className="sidebar-nav-icon">🚪</span> Logout
-                    </div>
-                </nav>
-
-                <div className="sidebar-footer">
-                    <div className="sidebar-user">
-                        <div className="sidebar-avatar">{initials}</div>
-                        <div className="sidebar-user-info">
-                            <h4>{client.fullName}</h4>
-                            <p>Client</p>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            {/* ── Main Content ── */}
             <div className="dashboard-main">
-
-                {/* Top Header */}
                 <header className="top-header">
                     <div className="top-header-left">
                         <h2>Client Dashboard</h2>
@@ -95,9 +96,7 @@ const ClientDashboard = () => {
                     </div>
                 </header>
 
-                {/* Content */}
                 <div className="dashboard-container">
-
                     {/* Profile Banner */}
                     <div className="profile-card">
                         <div className="profile-header">
@@ -108,7 +107,7 @@ const ClientDashboard = () => {
                                     <div className="profile-title">Client Account</div>
                                     <div className="profile-stats">
                                         <div className="stat-item">
-                                            <span className="stat-value">5</span>
+                                            <span className="stat-value">6</span>
                                             <span className="stat-label">Modules</span>
                                         </div>
                                     </div>
@@ -118,19 +117,20 @@ const ClientDashboard = () => {
                     </div>
 
                     {/* Modules Grid */}
-                    <div className="dashboard-section-title">All Modules</div>
+                    <div className="dashboard-section-title">Case Management Modules</div>
                     <div className="dashboard-features">
                         {modules.map((m, i) => (
                             <div key={i} className="feature-card" onClick={() => router.push(m.path)}>
                                 <div className="feature-header">
-                                    <div className="feature-icon" style={{ background: m.bg, color: m.color }}>{m.icon}</div>
+                                    <div className="feature-icon" style={{ background: m.bg, color: m.color }}>
+                                        <m.icon size={24} />
+                                    </div>
                                     <h3 className="feature-title">{m.title}</h3>
                                 </div>
                                 <p className="feature-desc">{m.desc}</p>
                             </div>
                         ))}
                     </div>
-
                 </div>
             </div>
         </div>

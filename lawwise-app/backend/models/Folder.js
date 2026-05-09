@@ -8,7 +8,7 @@ const FolderSchema = new mongoose.Schema({
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student',
+        ref: 'Lawyer',
         required: true
     }
 }, { timestamps: true });

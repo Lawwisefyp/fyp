@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Loader2, Info, Scale, Zap, BookOpen, Shield, MessageSquare, Bot, Cpu } from "lucide-react";
+import { Send, Loader2, Info, Scale, Zap, BookOpen, Shield, MessageSquare, Bot, Cpu, Clock, Search, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface Message {
   role: "user" | "ai";
@@ -30,11 +31,54 @@ const CHIPS = [
 ];
 
 export default function ChatBox() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const docsParam = searchParams.get('docs');
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [historySessions, setHistorySessions] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem('lawyerToken') || sessionStorage.getItem('lawyerToken');
+      if (!token) return;
+      const res = await axios.get("http://localhost:5001/api/chat/history", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setHistorySessions(res.data);
+    } catch (err) {
+      console.error("Error fetching chat history", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const loadSession = async (id: string) => {
+    try {
+      const token = localStorage.getItem('lawyerToken') || sessionStorage.getItem('lawyerToken');
+      const res = await axios.get(`http://localhost:5001/api/chat/history/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSessionId(res.data._id);
+      setMessages(res.data.messages);
+      router.push('/chatbot'); // Clear docs param from URL if present
+    } catch (err) {
+      console.error("Error loading session", err);
+    }
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setSessionId(null);
+    router.push('/chatbot');
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -49,11 +93,20 @@ export default function ChatBox() {
     setMessages(newMessages);
     setLoading(true);
     try {
+      const token = localStorage.getItem('lawyerToken') || sessionStorage.getItem('lawyerToken');
       const res = await axios.post("http://localhost:5001/api/chat", {
         message: trimmed,
         history: messages,
+        documentIds: docsParam ? docsParam.split(',') : [],
+        sessionId: sessionId
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       setMessages([...newMessages, { role: "ai", content: res.data.response, context: res.data.context }]);
+      if (res.data.sessionId && !sessionId) {
+        setSessionId(res.data.sessionId);
+        fetchHistory(); // Refresh history list after creating a new session
+      }
     } catch {
       setMessages([...newMessages, { role: "ai", content: "I encountered an error. Please try again." }]);
     } finally {
@@ -64,9 +117,84 @@ export default function ChatBox() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "#fff" }}>
+    <div style={{ display: "flex", flexDirection: "row", height: "100%", background: "#fff", overflow: "hidden" }}>
+      
+      {/* ── Chat History Sidebar ── */}
+      <div style={{ width: 280, borderRight: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", flexDirection: "column", flexShrink: 0, height: "100%" }}>
+        <div style={{ padding: "20px", borderBottom: "1px solid #e2e8f0" }}>
+          <button
+            onClick={handleNewChat}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              background: "#0f172a",
+              border: "none",
+              borderRadius: 8,
+              padding: "12px",
+              color: "white",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+          >
+            <span style={{ fontSize: 16 }}>+</span> New Chat
+          </button>
+        </div>
+        <div style={{ padding: "16px", flex: 1, overflowY: "auto", minHeight: 0 }}>
+          <h3 style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+            Recent Chats
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {historySessions.length === 0 ? (
+              <p style={{ fontSize: 12, color: "#cbd5e1", fontStyle: "italic", textAlign: "center", marginTop: 20 }}>No previous chats</p>
+            ) : (
+              historySessions.map(session => (
+                <button
+                  key={session._id}
+                  onClick={() => loadSession(session._id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "12px 10px",
+                    background: sessionId === session._id ? "#e2e8f0" : "transparent",
+                    border: "none",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    transition: "background 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (sessionId !== session._id) (e.currentTarget as HTMLButtonElement).style.background = "#f1f5f9";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (sessionId !== session._id) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  }}
+                >
+                  <MessageSquare size={14} color={sessionId === session._id ? "#0f172a" : "#64748b"} />
+                  <div style={{ flex: 1, overflow: "hidden" }}>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: sessionId === session._id ? 700 : 500, color: sessionId === session._id ? "#0f172a" : "#334155", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {session.title}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>
+                      {new Date(session.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
-      {/* ── Header ── */}
+      {/* ── Main Chat Area ── */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, height: "100%", overflow: "hidden" }}>
+        {/* ── Header ── */}
       <div
         style={{
           display: "flex",
@@ -121,7 +249,7 @@ export default function ChatBox() {
       </div>
 
       {/* ── Messages / Welcome ── */}
-      <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", scrollBehavior: "smooth" }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", scrollBehavior: "smooth", minHeight: 0 }}>
         {isEmpty ? (
           /* WELCOME */
           <div
@@ -505,6 +633,7 @@ export default function ChatBox() {
           <p style={{ textAlign: "center", fontSize: 9, color: "#cbd5e1", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase", margin: 0 }}>
             For informational purposes only · Not a substitute for professional legal advice
           </p>
+        </div>
         </div>
       </div>
     </div>

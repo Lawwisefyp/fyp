@@ -1,0 +1,127 @@
+.my-clients-container {
+    padding: 40px;
+    flex: 1;
+    min-width: 0;
+}
+
+.my-clients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 20px;
+}
+
+.my-clients-header h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.clients-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.client-row {
+    background: transparent;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.client-row:hover {
+    background: #f8fafc;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 8px;
+}
+
+.client-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.client-info {
+    margin-left: 16px;
+}
+
+.client-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.client-info p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.client-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-minimal {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-minimal:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-minimal.primary {
+    background: #1e293b;
+    color: white;
+}
+
+.btn-minimal.primary:hover {
+    background: #0f172a;
+}
+
+.empty-state-clean {
+    text-align: center;
+    padding: 100px 0;
+    color: #94a3b8;
+}
+
+.section-title-clean {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

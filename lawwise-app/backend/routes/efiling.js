@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const auth = require('../middleware/auth');
 const Notification = require('../models/Notification');
+const { syncUserNotifications } = require('./notification');
 
 // Generate unique case ID
 function generateCaseId() {
@@ -25,7 +26,12 @@ router.post('/file', auth, upload.array('documents', 10), async (req, res) => {
       court,
       jurisdiction,
       filingDate,
-      description
+      description,
+      budget,
+      priority,
+      consultationRequested,
+      consultationDate,
+      consultationTime
     } = req.body;
 
     // Validate required fields
@@ -80,8 +86,14 @@ router.post('/file', auth, upload.array('documents', 10), async (req, res) => {
       jurisdiction,
       filingDate,
       description,
+      budget: parseFloat(budget) || 0,
+      priority: priority || 'medium',
+      consultation: {
+        requested: consultationRequested === 'true' || consultationRequested === true,
+        date: consultationDate,
+        time: consultationTime
+      },
       documents,
-      status: 'filed',
       currentStage: 0,
       createdDate: new Date(),
       lastUpdateDate: new Date().toISOString().split('T')[0]
@@ -132,7 +144,7 @@ router.get('/unassigned', auth, async (req, res) => {
     }
 
     const lawyer = req.user;
-    const unassignedCases = await Case.find({ lawyerId: null, status: 'filed' }).sort({ createdDate: -1 });
+    const unassignedCases = await Case.find({ lawyerId: null, status: 'pending' }).sort({ createdDate: -1 });
 
     // Define keywords for each case type
     const typeToSpec = {
@@ -190,7 +202,6 @@ router.post('/claim/:caseId', auth, async (req, res) => {
     }
 
     caseData.lawyerId = req.user._id;
-    caseData.status = 'assigned';
     caseData.lastUpdateDate = new Date().toISOString().split('T')[0];
 
     await caseData.save();
@@ -270,56 +281,92 @@ router.get('/:caseId', auth, async (req, res) => {
   }
 });
 
-// Update case details
+// Helper: compute real-time status from deadline state
+function computeCaseStatus(deadlines) {
+  if (!deadlines || deadlines.length === 0) return 'pending';
+  // Note: Lawyer must manually mark case as 'completed' via the PATCH route
+  return 'active';
+}
+
+// Update case details (handles field edits + deadline isCompleted patches)
 router.put('/:caseId', auth, async (req, res) => {
   try {
-    const { title, opposingParty, court, judge, jurisdiction, nextHearingDate, description } = req.body;
-
-    const updateData = {};
-    if (title) updateData.title = title;
-    if (opposingParty) updateData.opposingParty = opposingParty;
-    if (court) updateData.court = court;
-    if (judge) updateData.judge = judge;
-    if (jurisdiction) updateData.jurisdiction = jurisdiction;
-    if (nextHearingDate) updateData.nextHearingDate = nextHearingDate;
-    if (description) updateData.description = description;
-    updateData.lastUpdateDate = new Date().toISOString().split('T')[0];
-
-    const caseData = await Case.findOneAndUpdate(
-      { id: req.params.caseId, lawyerId: req.user._id },
-      updateData,
-      { new: true }
-    );
+    const { title, opposingParty, court, judge, jurisdiction, nextHearingDate, description, deadlines } = req.body;
+    const caseData = await Case.findOne({ id: req.params.caseId, lawyerId: req.user._id });
 
     if (!caseData) {
-      return res.status(404).json({
-        success: false,
-        message: 'Case not found or unauthorized'
-      });
+      return res.status(404).json({ success: false, message: 'Case not found or unauthorized' });
     }
 
-    // If nextHearingDate was updated, create a notification
-    if (nextHearingDate) {
-      const reminder = new Notification({
-        toLawyerId: req.user._id,
-        title: '⚖️ New Hearing Scheduled',
-        message: `A new hearing for "${caseData.title}" has been set for ${new Date(nextHearingDate).toLocaleDateString()}.`,
-        type: 'hearing_reminder',
-        status: 'unread'
+    // Basic field updates
+    if (title) caseData.title = title;
+    if (opposingParty) caseData.opposingParty = opposingParty;
+    if (court) caseData.court = court;
+    if (judge) caseData.judge = judge;
+    if (jurisdiction) caseData.jurisdiction = jurisdiction;
+    if (nextHearingDate !== undefined) caseData.nextHearingDate = nextHearingDate;
+    if (description) caseData.description = description;
+
+    // Patch individual deadlines by _id (preserves documents attached to each deadline)
+    if (deadlines && Array.isArray(deadlines)) {
+      // Only update isCompleted flag to avoid wiping documents
+      deadlines.forEach(incoming => {
+        const existing = caseData.deadlines.find(
+          d => d._id.toString() === (incoming._id || '').toString()
+        );
+        if (existing) {
+          if (incoming.isCompleted !== undefined) existing.isCompleted = incoming.isCompleted;
+          if (incoming.title) existing.title = incoming.title;
+          if (incoming.dueDate) existing.dueDate = incoming.dueDate;
+        }
       });
-      await reminder.save();
+
+      // Auto-compute status only when not already manually forced to 'completed'
+      if (caseData.status !== 'completed') {
+        caseData.status = computeCaseStatus(caseData.deadlines);
+      }
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Case updated successfully',
-      case: caseData
-    });
+    // Ensure status is valid (migration for old data)
+    const allowedStatuses = ['pending', 'active', 'completed'];
+    if (!allowedStatuses.includes(caseData.status)) {
+      caseData.status = computeCaseStatus(caseData.deadlines);
+    }
+
+    caseData.lastUpdateDate = new Date().toISOString().split('T')[0];
+    await caseData.save();
+
+    // Trigger sync for any new dates
+    await syncUserNotifications(req.user._id);
+
+    res.status(200).json({ success: true, message: 'Case updated successfully', case: caseData });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    console.error('Case update error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PATCH /:caseId/status — lawyer manually marks case as completed
+router.patch('/:caseId/status', auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['pending', 'active', 'completed'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status. Allowed: pending, active, completed' });
+    }
+
+    const caseData = await Case.findOne({ id: req.params.caseId, lawyerId: req.user._id });
+    if (!caseData) {
+      return res.status(404).json({ success: false, message: 'Case not found or unauthorized' });
+    }
+
+    caseData.status = status;
+    caseData.lastUpdateDate = new Date().toISOString().split('T')[0];
+    await caseData.save();
+
+    res.status(200).json({ success: true, message: `Case status updated to '${status}'`, case: caseData });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -368,24 +415,45 @@ router.get('/:caseId/documents/:documentId', auth, async (req, res) => {
       });
     }
 
-    // Verify access
-    if (req.user.role === 'lawyer' && caseData.lawyerId?.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    // Verify access - lawyer must own this case
+    if (req.user.role === 'lawyer' && caseData.lawyerId) {
+      const lawyerIdStr = String(caseData.lawyerId);
+      const userIdStr = String(req.user._id);
+      if (lawyerIdStr !== userIdStr) {
+        console.error(`Auth mismatch: Case ${caseData.id} belongs to ${lawyerIdStr}, requested by ${userIdStr}`);
+        return res.status(403).json({ success: false, message: 'Access denied: You are not the owner of this case' });
+      }
     }
 
-    const document = caseData.documents.find(doc => doc.filename === req.params.documentId);
+    // Search in main case documents
+    let document = caseData.documents.find(doc => doc.filename === req.params.documentId);
+
+    // If not found, search in deadlines/reminders
+    if (!document && caseData.deadlines) {
+      for (const deadline of caseData.deadlines) {
+        const found = deadline.documents?.find(doc => doc.filename === req.params.documentId);
+        if (found) {
+          document = found;
+          break;
+        }
+      }
+    }
 
     if (!document) {
+      console.error(`Document ${req.params.documentId} not found in case ${req.params.caseId}`);
       return res.status(404).json({
         success: false,
-        message: 'Document not found'
+        message: 'Document not found in database record'
       });
     }
 
-    if (!fs.existsSync(document.filepath)) {
+    console.log(`Attempting to download: ${document.filepath}`);
+
+    if (!document.filepath || !fs.existsSync(document.filepath)) {
+      console.error(`File missing on disk: ${document.filepath}`);
       return res.status(404).json({
         success: false,
-        message: 'Document file not found on server'
+        message: 'Document file not found on server storage'
       });
     }
 
@@ -395,6 +463,39 @@ router.get('/:caseId/documents/:documentId', auth, async (req, res) => {
       success: false,
       message: error.message
     });
+  }
+});
+
+// View case document inline
+router.get('/:caseId/documents/:documentId/view', auth, async (req, res) => {
+  try {
+    const caseData = await Case.findOne({ id: req.params.caseId });
+    if (!caseData) return res.status(404).json({ success: false, message: 'Case not found' });
+
+    // Verify access - lawyer must own this case
+    if (req.user.role === 'lawyer' && caseData.lawyerId) {
+      const lawyerIdStr = String(caseData.lawyerId);
+      const userIdStr = String(req.user._id);
+      if (lawyerIdStr !== userIdStr) {
+        return res.status(403).json({ success: false, message: 'Access denied to this case' });
+      }
+    }
+
+    let document = caseData.documents.find(doc => doc.filename === req.params.documentId);
+    if (!document && caseData.deadlines) {
+      for (const deadline of caseData.deadlines) {
+        const found = deadline.documents?.find(doc => doc.filename === req.params.documentId);
+        if (found) { document = found; break; }
+      }
+    }
+
+    if (!document || !fs.existsSync(document.filepath)) {
+      return res.status(404).json({ success: false, message: 'Document not found' });
+    }
+
+    res.sendFile(path.resolve(document.filepath));
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -408,7 +509,6 @@ router.post('/', auth, async (req, res) => {
       ...caseData,
       id: caseId,
       lawyerId: req.user._id,
-      status: 'filed',
       createdDate: new Date(),
       lastUpdateDate: new Date().toISOString().split('T')[0]
     });
@@ -454,12 +554,6 @@ router.put('/:caseId/progress', auth, async (req, res) => {
     caseData.currentStage = stageId;
     caseData.lastUpdateDate = completionDate;
 
-    // Auto-update status based on stage
-    if (stageId === 1) caseData.status = 'filed';
-    if (stageId >= 2 && stageId <= 5) caseData.status = 'in-progress';
-    if (stageId >= 6 && stageId <= 8) caseData.status = 'hearings';
-    if (stageId === 9) caseData.status = 'completed';
-
     await caseData.save();
 
     res.status(200).json({
@@ -467,6 +561,99 @@ router.put('/:caseId/progress', auth, async (req, res) => {
       message: `Stage ${stageId} marked as completed`,
       case: caseData
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Add reminder with documents
+router.post('/:caseId/reminders', auth, upload.array('documents', 5), async (req, res) => {
+  try {
+    const { title, dueDate, description } = req.body;
+    const caseData = await Case.findOne({ id: req.params.caseId, lawyerId: req.user._id });
+
+    if (!caseData) {
+      return res.status(404).json({ success: false, message: 'Case not found' });
+    }
+
+    const reminderDocuments = req.files ? req.files.map(file => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      filepath: file.path
+    })) : [];
+
+    const newReminder = {
+      title,
+      dueDate,
+      description,
+      isCompleted: false,
+      documents: reminderDocuments
+    };
+
+    caseData.deadlines.push(newReminder);
+
+    // Auto-update status when adding a reminder
+    if (caseData.status !== 'completed') {
+      caseData.status = computeCaseStatus(caseData.deadlines);
+    } else {
+      // If case was completed but we are adding a reminder, maybe it should be active again?
+      // User said "case should only be closed hwen the lawyer itself clicked"
+      // So if it was manually completed, we keep it completed unless lawyer changes it?
+      // For now, let's keep it 'completed' as per the manual-only rule.
+    }
+
+    caseData.lastUpdateDate = new Date().toISOString().split('T')[0];
+
+    // Migration: If status is still an old value, force it to a valid one
+    const allowed = ['pending', 'active', 'completed'];
+    if (!allowed.includes(caseData.status)) {
+      caseData.status = computeCaseStatus(caseData.deadlines);
+    }
+
+    await caseData.save();
+
+    // Trigger sync for the newly added reminder
+    await syncUserNotifications(req.user._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Reminder added successfully',
+      reminder: caseData.deadlines[caseData.deadlines.length - 1],
+      case: caseData
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete a reminder
+router.delete('/:caseId/reminders/:reminderId', auth, async (req, res) => {
+  try {
+    const caseData = await Case.findOne({ id: req.params.caseId, lawyerId: req.user._id });
+    if (!caseData) {
+      return res.status(404).json({ success: false, message: 'Case not found' });
+    }
+
+    const reminderIndex = caseData.deadlines.findIndex(d => d._id.toString() === req.params.reminderId);
+    if (reminderIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Reminder not found' });
+    }
+
+    // Delete associated files from storage
+    const reminder = caseData.deadlines[reminderIndex];
+    if (reminder.documents && reminder.documents.length > 0) {
+      reminder.documents.forEach(doc => {
+        if (doc.filepath && fs.existsSync(doc.filepath)) {
+          fs.unlinkSync(doc.filepath);
+        }
+      });
+    }
+
+    caseData.deadlines.splice(reminderIndex, 1);
+    caseData.lastUpdateDate = new Date().toISOString().split('T')[0];
+    await caseData.save();
+
+    res.json({ success: true, message: 'Reminder deleted successfully', case: caseData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -1,24 +1,32 @@
 /* Communication.css */
 .chat-page-container {
-    height: calc(100vh - 80px);
-    /* Adjust based on navbar height */
-    padding: 20px;
-    background-color: #f0f2f5;
+    height: 100vh;
+    background-color: #f3f2ef;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .chat-app {
     width: 100%;
-    max-width: 1400px;
     height: 100%;
     background: #fff;
     display: flex;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
-    overflow: hidden;
+    border-left: 1px solid #e0e0e0;
+}
+
+/* Tab Switcher Styles */
+.tab-switcher {
+    padding: 2px;
+    border: 1px solid #e0e0e0;
+}
+
+.tab-switcher button {
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.tab-switcher button:hover {
+    color: #0a66c2;
 }
 
 /* Sidebar Styling */
@@ -189,9 +197,45 @@
 }
 
 .sent-tick {
-    color: #53bdeb;
-    font-size: 0.8rem;
+    color: #8696a0;
+    font-size: 0.85rem;
+    margin-right: 2px;
 }
+
+/* Three-state tick system */
+.tick-status {
+    font-size: 0.8rem;
+    margin-left: 3px;
+    font-weight: 700;
+    letter-spacing: -1px; /* tighten double ticks */
+}
+
+/* ✓ grey — message saved to server, not yet fetched by receiver */
+.tick-status.sent {
+    color: #8696a0;
+}
+
+/* ✓✓ grey — receiver's device has fetched the message */
+.tick-status.delivered {
+    color: #8696a0;
+}
+
+/* ✓✓ blue — receiver has opened and read the conversation */
+.tick-status.read {
+    color: #53bdeb;
+}
+
+/* Inline ticks in the contact list last-message preview */
+.tick-status-inline {
+    font-size: 0.75rem;
+    margin-right: 3px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.tick-status-inline.sent     { color: #8696a0; }
+.tick-status-inline.delivered { color: #8696a0; }
+.tick-status-inline.read      { color: #53bdeb; }
 
 .unread-badge {
     background: #111827;
@@ -301,11 +345,14 @@
 
 .message-bubble {
     max-width: 65%;
-    padding: 6px 7px 8px 9px;
+    min-width: 90px;
+    padding: 8px 12px 24px 12px;
     border-radius: 8px;
     position: relative;
-    font-size: 0.9rem;
-    box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+    font-size: 0.95rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .sent .message-bubble {
@@ -322,21 +369,20 @@
 
 .message-bubble p {
     margin: 0;
-    padding-right: 40px;
-    line-height: 1.4;
+    padding-right: 5px;
+    line-height: 1.5;
 }
 
 .msg-time {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 3px;
+    gap: 4px;
     font-size: 0.7rem;
     color: #667781;
-    margin-top: 4px;
     position: absolute;
     bottom: 4px;
-    right: 7px;
+    right: 8px;
 }
 
 .tick-status {
@@ -567,4 +613,139 @@
     background: #e2e8f0;
     color: #94a3b8;
     cursor: not-allowed;
+}
+
+/* Emoji Popover Full */
+.emoji-popover-full {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Attachment Styles */
+.pending-attachment {
+    padding: 0 10px;
+}
+
+.attachment-badge {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.chat-attachment-preview {
+    margin-bottom: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.chat-img-msg {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 4px;
+    display: block;
+    cursor: pointer;
+}
+
+.chat-file-msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+    color: #0a66c2;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+.chat-file-msg:hover {
+    background: rgba(0,0,0,0.08);
+}
+
+/* Voice Message Styles */
+.recording-ui {
+    background: #fef2f2;
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid #fee2e2;
+    animation: fadeIn 0.3s ease;
+}
+
+.recording-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.stop-recording-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.stop-recording-btn:hover {
+    transform: scale(1.1);
+}
+
+.chat-audio-player {
+    max-width: 250px;
+    height: 35px;
+    border-radius: 20px;
+}
+
+.voice-msg-container {
+    padding: 5px 0;
+}
+
+.voice-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
 }

@@ -19,6 +19,11 @@ const CaseSchema = new mongoose.Schema({
   filingDate: String,
   nextHearingDate: String,
   description: String,
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'medium'
+  },
   currentStage: { type: Number, default: 0 },
   completedStages: [Number],
   stageHistory: [
@@ -40,19 +45,39 @@ const CaseSchema = new mongoose.Schema({
   ],
   status: {
     type: String,
-    enum: ['filed', 'assigned', 'in-progress', 'hearings', 'completed', 'closed'],
-    default: 'filed'
+    enum: ['pending', 'active', 'completed'],
+    default: 'pending'
   },
   deadlines: [
     {
       title: String,
       dueDate: String,
       description: String,
-      isCompleted: { type: Boolean, default: false }
+      isCompleted: { type: Boolean, default: false },
+      documents: [
+        {
+          filename: String,
+          originalName: String,
+          filepath: String
+        }
+      ]
     }
   ],
   createdDate: { type: Date, default: Date.now },
-  lastUpdateDate: String
+  lastUpdateDate: String,
+  budget: { type: Number, default: 0 },
+  consultation: {
+    requested: { type: Boolean, default: false },
+    date: String,
+    time: String
+  }
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-module.exports = mongoose.model('Case', CaseSchema);
+
+// ---------------------------------------------------------------------------
+// Case model exported
+// ---------------------------------------------------------------------------
+module.exports = mongoose.models.Case || mongoose.model('Case', CaseSchema);

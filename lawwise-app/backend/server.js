@@ -13,7 +13,7 @@ const Student = require('./models/Student');
 const auth = require('./middleware/auth');
 const { sendLoginNotification, sendOTPEmail, sendVerificationEmail, checkAuthenticEmail } = require('./utils/emailService');
 const lawyerRoutes = require('./routes/lawyer');
-const notificationRoutes = require('./routes/notification');
+const { router: notificationRoutes } = require('./routes/notification');
 const messageRoutes = require('./routes/message');
 const chatBotRoutes = require('./routes/chatbot');
 const draftingRoutes = require('./routes/drafting');
@@ -24,6 +24,12 @@ const officialEmailRoutes = require('./routes/officialEmail');
 const studentRoutes = require('./routes/student');
 const chatRoutes = require('./routes/chat');
 const draftRoutes = require('./routes/draft');
+const folderRoutes = require('./routes/folders');
+const connectionRoutes = require('./routes/connection');
+const videoRoutes = require('./routes/videos');
+const analyticsRoutes = require('./routes/analytics');
+const caseRequestRoutes = require('./routes/caseRequest');
+const appointmentRoutes = require('./routes/appointment');
 const jwt = require('jsonwebtoken');
 
 
@@ -34,13 +40,31 @@ app.use(cors({
     origin: true,
     credentials: true
 }));
-app.use('/uploads', express.static('uploads'));
+
+// Serve uploads with explicit MIME types for media
+app.use('/uploads', express.static('uploads', {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.webm')) res.setHeader('Content-Type', 'audio/webm');
+        if (path.endsWith('.ogg')) res.setHeader('Content-Type', 'audio/ogg');
+        if (path.endsWith('.mp4')) res.setHeader('Content-Type', 'video/mp4');
+    }
+}));
 app.use(express.json());
 
-// Rate limiting
+// Rate limiting — generous limit for internal SPA polling
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP
+    max: 2000, // allow 2000 requests per IP (covers frequent polling)
+    skip: (req) => {
+        // Skip rate limiting entirely for high-frequency polling endpoints
+        const pollingPaths = [
+            '/api/notifications/unread-count',
+            '/api/messages',
+            '/api/messages/contacts',
+        ];
+        return pollingPaths.some(p => req.path.startsWith(p));
+    },
+    message: { error: 'Too many requests, please slow down.' }
 });
 app.use(limiter);
 
@@ -55,10 +79,16 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/cases', efilingRoutes);
 app.use('/api/official-emails', officialEmailRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/case-requests', caseRequestRoutes);
 
 // New Modules Integration
 app.use('/api/chat', chatRoutes);
 app.use('/api/draft', draftRoutes);
+app.use('/api/folders', folderRoutes);
+app.use('/api/connections', connectionRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 
 // Root route for GET /

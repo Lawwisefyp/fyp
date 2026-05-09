@@ -182,13 +182,22 @@ const PersonalInfoSchema = new mongoose.Schema({
   profilePicture: { type: String } // path to uploaded image
 }, { _id: false });
 
+const AvailabilitySchema = new mongoose.Schema({
+  day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
+  slots: [{
+    time: { type: String }, // e.g., "10:00 AM"
+    isBooked: { type: Boolean, default: false }
+  }]
+}, { _id: false });
+
 const ProfessionalInfoSchema = new mongoose.Schema({
   yearsOfExperience: { type: Number, default: 0 },
   hourlyRate: { type: Number, default: 0 },
   practiceAreas: [{ type: String }],
   barRegistrationNumber: { type: String, trim: true },
   specialization: { type: String, trim: true },
-  isAvailable: { type: Boolean, default: false }
+  isAvailable: { type: Boolean, default: false },
+  availability: [AvailabilitySchema]
 }, { _id: false });
 
 const RatingsSchema = new mongoose.Schema({

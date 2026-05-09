@@ -165,19 +165,19 @@
     text-transform: uppercase;
 }
 
-.status-filed {
-    background: #e0f2fe;
-    color: #0369a1;
+.status-active {
+    background: #d1fae5;
+    color: #065f46;
 }
 
-.status-assigned {
+.status-pending {
     background: #fef3c7;
     color: #92400e;
 }
 
-.status-progress {
-    background: #d1fae5;
-    color: #065f46;
+.status-completed {
+    background: #e0f2fe;
+    color: #0369a1;
 }
 
 .mycase-card-body {

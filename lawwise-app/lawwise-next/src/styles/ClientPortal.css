@@ -1,6 +1,6 @@
 .client-portal-body {
     background: var(--primary);
-    min-height: 100vh;
+    min-height: calc(100vh - var(--header-height));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -26,7 +26,7 @@
     overflow: hidden;
     width: 100%;
     max-width: 100%;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--header-height));
     display: flex;
     position: relative;
     z-index: 1;
@@ -141,7 +141,7 @@
 
 .form-input {
     width: 100%;
-    padding: 17px 20px 17px 55px;
+    padding: 17px 20px 17px 65px;
     border: 2px solid #dae6f3;
     border-radius: 12px;
     font-size: 1rem;

@@ -545,16 +545,13 @@ router.get('/search', async (req, res) => {
       };
     }
 
-    // Only show active lawyers
+    // Only show active and verified lawyers
     searchCriteria.isActive = true;
+    searchCriteria.isEmailVerified = true;
 
-    // For networking, we might want to show all verified lawyers even if profile isn't "complete"
-    if (showAll === 'true') {
-      // Still prefer verified emails to prevent spam appearing in network
-      searchCriteria.isEmailVerified = true;
-    } else {
-      searchCriteria.isProfileComplete = true;
-    }
+    // For networking, we ONLY show lawyers who have fully registered their profiles
+    // and verified their emails to prevent mock/test accounts from appearing.
+    searchCriteria.isProfileComplete = true;
 
     const skip = (page - 1) * limit;
 
@@ -634,5 +631,22 @@ function isProfileComplete(lawyer) {
     lawyer.qualifications?.length > 0
   );
 }
+
+// Update Lawyer Availability
+router.put('/availability', auth, async (req, res) => {
+  try {
+    const { availability } = req.body;
+    const lawyer = await Lawyer.findById(req.user._id);
+    if (!lawyer) return res.status(404).json({ success: true, message: 'Lawyer not found' });
+
+    if (!lawyer.professionalInfo) lawyer.professionalInfo = {};
+    lawyer.professionalInfo.availability = availability;
+    
+    await lawyer.save();
+    res.json({ success: true, message: 'Availability updated successfully!', availability: lawyer.professionalInfo.availability });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 module.exports = router;

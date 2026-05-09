@@ -123,7 +123,12 @@ const LawyerPortalPage = () => {
 
                             <form onSubmit={handleLoginSubmit}>
                                 <div className="form-group">
-                                    <div className="input-icon">📧</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                            <polyline points="22,6 12,13 2,6" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="email"
                                         className="form-input"
@@ -134,7 +139,12 @@ const LawyerPortalPage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">🔒</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="password"
                                         className="form-input"
@@ -182,7 +192,12 @@ const LawyerPortalPage = () => {
 
                             <form onSubmit={handleRegisterSubmit}>
                                 <div className="form-group">
-                                    <div className="input-icon">👤</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                            <circle cx="12" cy="7" r="4" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="text"
                                         className="form-input"
@@ -193,7 +208,12 @@ const LawyerPortalPage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">📧</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                            <polyline points="22,6 12,13 2,6" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="email"
                                         className="form-input"
@@ -204,7 +224,19 @@ const LawyerPortalPage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">⚖️</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 7V3" />
+                                            <path d="M12 21v-4" />
+                                            <path d="M16 11h6" />
+                                            <path d="M2 11h6" />
+                                            <path d="M6 15l-4 4" />
+                                            <path d="M22 19l-4-4" />
+                                            <path d="M22 3l-4 4" />
+                                            <path d="M6 7l-4-4" />
+                                            <circle cx="12" cy="11" r="3" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="text"
                                         className="form-input"
@@ -215,11 +247,17 @@ const LawyerPortalPage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">🏛️</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M3 21h18" />
+                                            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7l-9-4-9 4z" />
+                                            <path d="M9 21V11h6v10" />
+                                        </svg>
+                                    </div>
                                     <select
                                         className="form-input"
                                         required
-                                        style={{ paddingLeft: '55px' }}
+                                        style={{ paddingLeft: '65px' }}
                                         value={registerData.specialization}
                                         onChange={(e) => setRegisterData({ ...registerData, specialization: e.target.value })}
                                     >
@@ -234,7 +272,12 @@ const LawyerPortalPage = () => {
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">🔒</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="password"
                                         className="form-input"
@@ -246,7 +289,12 @@ const LawyerPortalPage = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="input-icon">🔒</div>
+                                    <div className="input-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                                        </svg>
+                                    </div>
                                     <input
                                         type="password"
                                         className="form-input"
