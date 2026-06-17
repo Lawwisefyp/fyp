@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawWise Interactive Diagrams</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #080c14;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            
+            /* Theme Portal Colors */
+            --color-core: #3b82f6;      /* Blue */
+            --color-lawyer: #fbbf24;    /* Gold */
+            --color-client: #fb923c;    /* Orange/Amber */
+            --color-student: #c084fc;   /* Violet */
+            --color-ai: #2dd4bf;        /* Teal */
+            
+            --glow-core: rgba(59, 130, 246, 0.25);
+            --glow-lawyer: rgba(251, 191, 36, 0.25);
+            --glow-client: rgba(251, 146, 60, 0.25);
+            --glow-student: rgba(192, 132, 252, 0.25);
+            --glow-ai: rgba(45, 212, 191, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            z-index: 10;
+        }
+
+        .header-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            width: 40px;
+            height: 40px;
+            background: #0f1c30;
+            border: 2px solid var(--color-lawyer);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            color: var(--color-lawyer);
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+        }
+
+        .header-title-block h1 {
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, var(--color-lawyer) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title-block p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            background: var(--color-lawyer);
+            color: #080c14;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            font-weight: 700;
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* CANVAS AREA (DIAGRAM DISPLAY) */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            background-color: #0b0f19;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+        }
+
+        .canvas-area:active {
+            cursor: grabbing;
+        }
+
+        .diagram-view {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagram-view.active {
+            display: flex;
+        }
+
+        .diagram-svg {
+            max-width: 100%;
+            max-height: 100%;
+            transform-origin: 0 0;
+            transition: transform 0.05s linear;
+        }
+
+        /* UML CLASS CARD STYLE */
+        .class-node {
+            cursor: pointer;
+            transition: filter 0.3s;
+        }
+        
+        .class-bg {
+            fill: #0f172a;
+            stroke: #475569;
+            stroke-width: 1.5;
+            rx: 8;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+            transition: fill 0.3s, stroke 0.3s, stroke-width 0.3s;
+        }
+
+        .class-header {
+            fill: #1e293b;
+            rx: 8;
+            transition: fill 0.3s;
+        }
+
+        .class-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            fill: #ffffff;
+            text-anchor: middle;
+        }
+
+        .class-item {
+            font-family: 'Fira Code', monospace;
+            font-size: 10.5px;
+            fill: #e2e8f0;
+        }
+
+        .class-sep {
+            stroke: var(--border-color);
+            stroke-width: 1;
+        }
+
+        /* Hover glows by portal */
+        .core-class .class-bg { stroke: var(--color-core); }
+        .core-class .class-header { fill: rgba(59, 130, 246, 0.15); }
+        
+        .client-class .class-bg { stroke: var(--color-client); }
+        .client-class .class-header { fill: rgba(251, 146, 60, 0.15); }
+
+        .student-class .class-bg { stroke: var(--color-student); }
+        .student-class .class-header { fill: rgba(192, 132, 252, 0.15); }
+
+        .lawyer-class .class-bg { stroke: var(--color-lawyer); }
+        .lawyer-class .class-header { fill: rgba(251, 191, 36, 0.15); }
+
+        .ai-class .class-bg { stroke: var(--color-ai); }
+        .ai-class .class-header { fill: rgba(45, 212, 191, 0.15); }
+
+        /* Highlight classes dynamically */
+        .class-node:hover .class-bg, .class-node.active-node .class-bg {
+            stroke-width: 3px;
+            fill: #131c33;
+        }
+        
+        #node-user:hover .class-bg, #node-user.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-core)); }
+        #node-client:hover .class-bg, #node-client.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-client)); }
+        #node-student:hover .class-bg, #node-student.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-student)); }
+        #node-lawyer:hover .class-bg, #node-lawyer.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-lawyer)); }
+        #node-aichatbot:hover .class-bg, #node-aichatbot.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-ai)); }
+        #node-filing:hover .class-bg, #node-filing.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-client)); }
+        #node-filedcases:hover .class-bg, #node-filedcases.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-client)); }
+        #node-gpacalculator:hover .class-bg, #node-gpacalculator.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-student)); }
+        #node-legaldrafting:hover .class-bg, #node-legaldrafting.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-lawyer)); }
+        #node-casehistory:hover .class-bg, #node-casehistory.active-node .class-bg { filter: drop-shadow(0 0 15px var(--glow-lawyer)); }
+
+        .related-node .class-bg {
+            stroke-width: 2px;
+            stroke-dasharray: 4,4;
+        }
+
+        /* Relationship Paths */
+        path[data-relation] {
+            transition: stroke 0.3s, stroke-width 0.3s;
+        }
+
+        path.active-relation {
+            stroke-width: 3.5px !important;
+        }
+        
+        path.active-relation[data-source="client"], path.active-relation[data-target="client"] { stroke: var(--color-client); filter: drop-shadow(0 0 4px var(--glow-client)); }
+        path.active-relation[data-source="student"], path.active-relation[data-target="student"] { stroke: var(--color-student); filter: drop-shadow(0 0 4px var(--glow-student)); }
+        path.active-relation[data-source="lawyer"], path.active-relation[data-target="lawyer"] { stroke: var(--color-lawyer); filter: drop-shadow(0 0 4px var(--glow-lawyer)); }
+        path.active-relation[data-source="user"], path.active-relation[data-target="user"] { stroke: var(--color-core); filter: drop-shadow(0 0 4px var(--glow-core)); }
+
+        /* COLLABORATION DIAGRAM SVG STYLE */
+        .collab-bg {
+            rx: 10;
+            filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5));
+            transition: all 0.3s;
+        }
+
+        .collab-node {
+            cursor: pointer;
+        }
+        .collab-node:hover .collab-bg {
+            stroke-width: 3px;
+        }
+        #collab-flask:hover .collab-bg { filter: drop-shadow(0 0 15px var(--glow-core)); }
+        #collab-backend:hover .collab-bg { filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.4)); }
+        #collab-mongodb:hover path { stroke-width: 3px; filter: drop-shadow(0 0 15px var(--glow-green)); }
+        #collab-react:hover .collab-bg { filter: drop-shadow(0 0 15px var(--glow-ai)); }
+        #collab-lawyer:hover .collab-bg { filter: drop-shadow(0 0 15px var(--glow-lawyer)); }
+        #collab-client:hover .collab-bg { filter: drop-shadow(0 0 15px var(--glow-client)); }
+        #collab-student:hover .collab-bg { filter: drop-shadow(0 0 15px var(--glow-student)); }
+
+        .collab-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            text-anchor: middle;
+        }
+
+        .collab-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            text-anchor: middle;
+        }
+
+        .collab-item {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            text-anchor: middle;
+        }
+
+        .collab-bullet {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Flow Path Styling */
+        .flow-path {
+            stroke: #334155;
+            stroke-width: 2.5;
+            fill: none;
+            transition: all 0.3s;
+        }
+
+        .collab-node:hover ~ g .flow-path, .flow-path:hover {
+            stroke: #64748b;
+        }
+
+        .flow-dots circle {
+            transition: opacity 0.5s;
+        }
+
+        /* TOOLBAR CONTROLS */
+        .canvas-toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            z-index: 5;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .control-btn.active-filter {
+            background: var(--color-core);
+            color: #080c14;
+            font-weight: bold;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 6px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 10px;
+            margin-left: 5px;
+        }
+
+        /* INSPECTOR PANEL (RIGHT SIDE) */
+        .inspector-panel {
+            width: 380px;
+            background: rgba(11, 15, 25, 0.95);
+            border-left: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            z-index: 5;
+        }
+
+        .inspector-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: var(--text-secondary);
+            gap: 15px;
+        }
+
+        .inspector-placeholder svg {
+            color: var(--color-lawyer);
+            opacity: 0.4;
+            animation: pulse-gear 4s infinite linear;
+        }
+
+        @keyframes pulse-gear {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .inspector-content {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inspector-content.active {
+            display: flex;
+            animation: fade-in 0.3s ease-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .inspector-badge {
+            align-self: flex-start;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-core { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-client { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+        .badge-student { background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+        .badge-lawyer { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .badge-ai { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
+
+        .inspector-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-top: -5px;
+        }
+
+        .inspector-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .inspector-section-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .inspector-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inspector-list-item {
+            font-size: 0.82rem;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .item-decl {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 2px;
+        }
+
+        .item-desc {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .code-snippet {
+            background: #040711;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            max-height: 250px;
+        }
+
+        .code-snippet pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .code-keyword { color: #f43f5e; }
+        .code-type { color: #60a5fa; }
+        .code-method { color: #34d399; }
+        .code-comment { color: #64748b; font-style: italic; }
+
+        /* SCROLLBAR CUSTOMIZATION */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAV HEADER -->
+    <header>
+        <div class="header-logo-container">
+            <div class="logo-badge">W</div>
+            <div class="header-title-block">
+                <h1>LAWWISE DIAGRAMS</h1>
+                <p>Unified Practice Management & RAG-Driven System Overview</p>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="class" onclick="switchTab('class')">Class Diagram</button>
+            <button class="tab-btn" data-tab="collaboration" onclick="switchTab('collaboration')">Collaboration Diagram</button>
+        </div>
+    </header>
+
+    <!-- MAIN APP SCREEN -->
+    <div class="app-container">
+        
+        <!-- VISUAL CANVAS AREA -->
+        <div class="canvas-area">
+            
+            <!-- Toolbar for filters, zoom, downloads -->
+            <div class="canvas-toolbar">
+                <button class="control-btn" onclick="zoomIn()" title="Zoom In">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    Zoom In
+                </button>
+                <button class="control-btn" onclick="zoomOut()" title="Zoom Out">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12H4"/></svg>
+                    Zoom Out
+                </button>
+                <button class="control-btn" onclick="resetZoom()" title="Reset Zoom">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
+                    Reset
+                </button>
+                <button class="control-btn" onclick="downloadActiveSVG()" title="Export Diagram">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Export SVG
+                </button>
+
+                <!-- Class filters (only visible when in Class view) -->
+                <div class="filter-group" id="class-filters-group">
+                    <button class="control-btn active-filter" data-filter="all" onclick="filterClasses('all')">All</button>
+                    <button class="control-btn" data-filter="core" onclick="filterClasses('core')">Core</button>
+                    <button class="control-btn" data-filter="lawyer" onclick="filterClasses('lawyer')">Lawyer</button>
+                    <button class="control-btn" data-filter="client" onclick="filterClasses('client')">Client</button>
+                    <button class="control-btn" data-filter="student" onclick="filterClasses('student')">Student</button>
+                </div>
+
+                <!-- Animation controls (only visible in Collaboration view) -->
+                <div class="filter-group" id="collab-controls-group" style="display: none;">
+                    <button class="control-btn active-filter" id="btn-anim-toggle" onclick="toggleFlowAnimation()">
+                        Flow Animation: ON
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 1: CLASS DIAGRAM -->
+            <div id="class-view" class="diagram-view active">
+                <svg id="class-svg" class="diagram-svg" viewBox="0 0 1000 800" width="100%" height="100%">
+                    <defs>
+                        <!-- UML Generalization Arrow (Inheritance: points to superclass) -->
+                        <marker id="inheritance-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+                            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#0b0f19" stroke="#94a3b8" stroke-width="1.8" />
+                        </marker>
+                        <!-- UML Association Arrow -->
+                        <marker id="association-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0,2 L 8,5 L 0,8" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </marker>
+                        <!-- Ambient Matrix Grid -->
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148, 163, 184, 0.04)" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" pointer-events="none" />
+                    
+                    <g class="zoom-group" id="class-zoom-group">
+                        <!-- CONNECTION PATHS (CLASS RELATIONSHIPS) -->
+                        
+                        <!-- Client -> User (Inheritance) -->
+                        <path id="path-client-user" d="M 185,440 L 185,640" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#inheritance-arrow)" data-relation="inheritance" data-source="client" data-target="user" />
+                        
+                        <!-- Student -> User (Inheritance) -->
+                        <path id="path-student-user" d="M 380,690 L 300,690" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#inheritance-arrow)" data-relation="inheritance" data-source="student" data-target="user" />
+                        
+                        <!-- Lawyer -> User (Inheritance orthogonal bypass) -->
+                        <path id="path-lawyer-user" d="M 785,730 L 785,770 L 185,770 L 185,760" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#inheritance-arrow)" data-relation="inheritance" data-source="lawyer" data-target="user" />
+
+                        <!-- Client -> Filing (Association) -->
+                        <path id="path-client-filing" d="M 185,440 L 185,380" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="client" data-target="filing" />
+                        
+                        <!-- Client -> FiledCases (Parallel route on left) -->
+                        <path id="path-client-filedcases" d="M 120,440 L 120,200" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="client" data-target="filedcases" />
+                        
+                        <!-- Client -> AIChatbot -->
+                        <path id="path-client-chatbot" d="M 290,490 L 380,320" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="client" data-target="aichatbot" />
+
+                        <!-- Student -> GpaCalculator -->
+                        <path id="path-student-gpa" d="M 485,640 L 485,560" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="student" data-target="gpacalculator" />
+                        
+                        <!-- Student -> AIChatbot (Bypassing GpaCalculator to the left) -->
+                        <path id="path-student-chatbot" d="M 380,670 L 340,670 L 340,320 L 380,320" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="student" data-target="aichatbot" />
+
+                        <!-- Lawyer -> LegalDrafting -->
+                        <path id="path-lawyer-drafting" d="M 785,640 L 785,560" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="lawyer" data-target="legaldrafting" />
+                        
+                        <!-- Lawyer -> CaseHistory (Right side bypass) -->
+                        <path id="path-lawyer-casehistory" d="M 890,690 L 930,690 L 930,320 L 890,320" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="lawyer" data-target="casehistory" />
+
+                        <!-- Lawyer -> AIChatbot (Bypassing LegalDrafting to the left) -->
+                        <path id="path-lawyer-chatbot" d="M 680,670 L 630,670 L 630,320 L 590,320" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#association-arrow)" data-relation="association" data-source="lawyer" data-target="aichatbot" />
+
+                        <!-- INTERACTIVE CLASS NODES (UML BOXES) -->
+                        
+                        <!-- User Class -->
+                        <g class="class-node core-class" id="node-user" data-class="user" transform="translate(80, 640)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">User</text>
+                            <text class="class-item" x="15" y="52">+ userId: int</text>
+                            <text class="class-item" x="15" y="72">+ name: String</text>
+                            <text class="class-item" x="15" y="92">+ email: String</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="102" x2="210" y2="102" class="class-sep" />
+                        </g>
+
+                        <!-- Client Class -->
+                        <g class="class-node client-class" id="node-client" data-class="client" transform="translate(80, 440)">
+                            <rect class="class-bg" width="210" height="90" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">Client</text>
+                            <text class="class-item" x="15" y="55">+ contactNo: String</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="70" x2="210" y2="70" class="class-sep" />
+                        </g>
+
+                        <!-- Student Class -->
+                        <g class="class-node student-class" id="node-student" data-class="student" transform="translate(380, 640)">
+                            <rect class="class-bg" width="210" height="90" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">Student</text>
+                            <text class="class-item" x="15" y="55">+ semester: int</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="70" x2="210" y2="70" class="class-sep" />
+                        </g>
+
+                        <!-- Lawyer Class -->
+                        <g class="class-node lawyer-class" id="node-lawyer" data-class="lawyer" transform="translate(680, 640)">
+                            <rect class="class-bg" width="210" height="90" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">Lawyer</text>
+                            <text class="class-item" x="15" y="55">+ specialization: String</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="70" x2="210" y2="70" class="class-sep" />
+                        </g>
+
+                        <!-- Filing Class -->
+                        <g class="class-node client-class" id="node-filing" data-class="filing" transform="translate(80, 260)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">Filing</text>
+                            <text class="class-item" x="15" y="52">+ filingId: int</text>
+                            <text class="class-item" x="15" y="72">+ filingDetails: String</text>
+                            <text class="class-item" x="15" y="105">+ submitCase(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+
+                        <!-- FiledCases Class -->
+                        <g class="class-node client-class" id="node-filedcases" data-class="filedcases" transform="translate(80, 80)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">FiledCases</text>
+                            <text class="class-item" x="15" y="52">+ caseId: int</text>
+                            <text class="class-item" x="15" y="72">+ currentStatus: String</text>
+                            <text class="class-item" x="15" y="105">+ trackCase(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+
+                        <!-- GpaCalculator Class -->
+                        <g class="class-node student-class" id="node-gpacalculator" data-class="gpacalculator" transform="translate(380, 440)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">GpaCalculator</text>
+                            <text class="class-item" x="15" y="52">+ currentGPA: double</text>
+                            <text class="class-item" x="15" y="105">+ calculateGPA(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+
+                        <!-- LegalDrafting Class -->
+                        <g class="class-node lawyer-class" id="node-legaldrafting" data-class="legaldrafting" transform="translate(680, 440)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">LegalDrafting</text>
+                            <text class="class-item" x="15" y="52">+ draftId: int</text>
+                            <text class="class-item" x="15" y="72">+ documentType: String</text>
+                            <text class="class-item" x="15" y="105">+ generateDraft(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+
+                        <!-- CaseHistory Class -->
+                        <g class="class-node lawyer-class" id="node-casehistory" data-class="casehistory" transform="translate(680, 260)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">CaseHistory</text>
+                            <text class="class-item" x="15" y="52">+ caseId: int</text>
+                            <text class="class-item" x="15" y="72">+ status: String</text>
+                            <text class="class-item" x="15" y="105">+ viewHistory(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+
+                        <!-- AIChatbot Class -->
+                        <g class="class-node ai-class" id="node-aichatbot" data-class="aichatbot" transform="translate(380, 260)">
+                            <rect class="class-bg" width="210" height="120" />
+                            <rect class="class-header" width="210" height="30" />
+                            <text class="class-title" x="105" y="20">AIChatbot</text>
+                            <text class="class-item" x="15" y="52">+ query: String</text>
+                            <text class="class-item" x="15" y="72">+ response: String</text>
+                            <text class="class-item" x="15" y="105">+ askQuestion(): void</text>
+                            <line x1="0" y1="30" x2="210" y2="30" class="class-sep" />
+                            <line x1="0" y1="85" x2="210" y2="85" class="class-sep" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- VIEW 2: COLLABORATION DIAGRAM -->
+            <div id="collaboration-view" class="diagram-view">
+                <svg id="collaboration-svg" class="diagram-svg" viewBox="0 0 1000 800" width="100%" height="100%">
+                    <defs>
+                        <!-- Bidirectional connection arrow definition -->
+                        <marker id="collab-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                            <path d="M 0,1.5 L 10,5 L 0,8.5 Z" fill="#94a3b8" />
+                        </marker>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" pointer-events="none" />
+
+                    <g class="zoom-group" id="collab-zoom-group">
+                        
+                        <!-- DATA FLOW PATHS (DATA LINKS) -->
+                        
+                        <!-- DB Core Code <--> Backend Services -->
+                        <path id="flow-db-backend" d="M 280,125 L 380,125" class="flow-path" marker-start="url(#collab-arrow)" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- Backend Services <--> MongoDB Store -->
+                        <path id="flow-backend-mongo" d="M 620,125 L 730,125" class="flow-path" marker-start="url(#collab-arrow)" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- Backend Services -> External APIs -->
+                        <path id="flow-backend-extapi" d="M 620,170 L 730,280" class="flow-path" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- Backend Services <--> React JS App -->
+                        <path id="flow-backend-react" d="M 500,200 L 500,280" class="flow-path" marker-start="url(#collab-arrow)" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- DB Core Code -> React JS App -->
+                        <path id="flow-db-react" d="M 170,190 L 170,355 L 380,355" class="flow-path" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- React JS App -> Lawyer Portal -->
+                        <path id="flow-react-lawyer" d="M 420,430 L 420,450 L 180,450 L 180,500" class="flow-path" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- React JS App -> Client Portal -->
+                        <path id="flow-react-client" d="M 500,430 L 500,500" class="flow-path" marker-end="url(#collab-arrow)" />
+                        
+                        <!-- React JS App -> Student Portal -->
+                        <path id="flow-react-student" d="M 580,430 L 580,450 L 820,450 L 820,500" class="flow-path" marker-end="url(#collab-arrow)" />
+
+                        <!-- GLOWING DATA PACKET ANIMATIONS -->
+                        <g class="flow-dots" id="flow-animation-group">
+                            <circle r="4" class="pulse-dot fill-blue">
+                                <animateMotion dur="2.5s" repeatCount="indefinite">
+                                    <mpath href="#flow-db-backend" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-green">
+                                <animateMotion dur="2s" repeatCount="indefinite">
+                                    <mpath href="#flow-backend-mongo" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-slate">
+                                <animateMotion dur="3s" repeatCount="indefinite">
+                                    <mpath href="#flow-backend-extapi" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-indigo">
+                                <animateMotion dur="1.8s" repeatCount="indefinite">
+                                    <mpath href="#flow-backend-react" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-blue">
+                                <animateMotion dur="3.5s" repeatCount="indefinite">
+                                    <mpath href="#flow-db-react" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-gold">
+                                <animateMotion dur="2.2s" repeatCount="indefinite">
+                                    <mpath href="#flow-react-lawyer" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-orange">
+                                <animateMotion dur="2.2s" repeatCount="indefinite">
+                                    <mpath href="#flow-react-client" />
+                                </animateMotion>
+                            </circle>
+                            <circle r="4" class="pulse-dot fill-purple">
+                                <animateMotion dur="2.2s" repeatCount="indefinite">
+                                    <mpath href="#flow-react-student" />
+                                </animateMotion>
+                            </circle>
+                        </g>
+
+                        <!-- ARCHITECTURE DIAGRAM SYSTEM BLOCKS -->
+                        
+                        <!-- 1. Database Core Code -->
+                        <g class="collab-node" id="collab-flask" data-id="flask" transform="translate(60, 60)">
+                            <rect class="collab-bg" width="220" height="130" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" />
+                            <text x="110" y="32" class="collab-title" fill="#ffffff">Database Core Code</text>
+                            <line x1="20" y1="46" x2="200" y2="46" stroke="rgba(255,255,255,0.05)" />
+                            <text x="110" y="66" class="collab-item" fill="#cbd5e1">Backend Python Flask</text>
+                            <text x="110" y="86" class="collab-item" fill="#94a3b8">Pymongo & SQLAlchemy</text>
+                            <text x="110" y="108" class="collab-item" fill="#60a5fa" font-size="10" font-weight="700">Relational 'Legal' Casebase</text>
+                        </g>
+
+                        <!-- 2. Backend Services -->
+                        <g class="collab-node" id="collab-backend" data-id="backend" transform="translate(380, 50)">
+                            <rect class="collab-bg" width="240" height="150" fill="#1e293b" stroke="#6366f1" stroke-width="1.5" />
+                            <text x="120" y="30" class="collab-title" fill="#ffffff">Backend Services</text>
+                            <line x1="20" y1="44" x2="220" y2="44" stroke="rgba(255,255,255,0.05)" />
+                            <text x="120" y="65" class="collab-item" fill="#cbd5e1">Express / Nest API Framework</text>
+                            <text x="120" y="85" class="collab-item" fill="#94a3b8">User Auth & Verification</text>
+                            <text x="120" y="105" class="collab-item" fill="#94a3b8">Triple-Fail-Safe AI RAG</text>
+                            <text x="120" y="125" class="collab-item" fill="#818cf8" font-size="10" font-weight="700">Database Integration Hub</text>
+                        </g>
+
+                        <!-- 3. MongoDB Store cylinder representation -->
+                        <g class="collab-node" id="collab-mongodb" data-id="mongodb" transform="translate(730, 60)">
+                            <path d="M 0,20 A 80,20 0 1,1 160,20 A 80,20 0 1,1 0,20 Z" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+                            <path d="M 0,20 L 0,110 A 80,20 0 0,0 160,110 L 160,20" fill="#1e293b" stroke="#10b981" stroke-width="1.5" fill-opacity="0.8" />
+                            <path d="M 0,50 A 80,15 0 0,0 160,50" fill="none" stroke="#10b981" stroke-width="1.2" stroke-dasharray="3,3" />
+                            <path d="M 0,80 A 80,15 0 0,0 160,80" fill="none" stroke="#10b981" stroke-width="1.2" stroke-dasharray="3,3" />
+                            <text x="80" y="68" class="collab-title" fill="#ffffff">MongoDB Store</text>
+                            <text x="80" y="88" class="collab-subtitle" fill="#10b981">NoSQL Database</text>
+                        </g>
+
+                        <!-- 4. External APIs -->
+                        <g class="collab-node" id="collab-extapi" data-id="extapi" transform="translate(730, 240)">
+                            <rect class="collab-bg" width="160" height="80" rx="10" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4" />
+                            <text x="80" y="38" class="collab-title" fill="#ffffff">External APIs</text>
+                            <text x="80" y="58" class="collab-subtitle" fill="#94a3b8">Payments & Calendars</text>
+                        </g>
+
+                        <!-- 5. React JS App -->
+                        <g class="collab-node" id="collab-react" data-id="react" transform="translate(380, 280)">
+                            <rect class="collab-bg" width="240" height="150" fill="#1e293b" stroke="#2dd4bf" stroke-width="1.5" />
+                            <text x="120" y="30" class="collab-title" fill="#ffffff">React JS App</text>
+                            <line x1="20" y1="44" x2="220" y2="44" stroke="rgba(255,255,255,0.05)" />
+                            <text x="120" y="65" class="collab-item" fill="#cbd5e1">LawWise Web Application</text>
+                            <text x="120" y="85" class="collab-item" fill="#94a3b8">Interactive Case Library</text>
+                            <text x="120" y="105" class="collab-item" fill="#94a3b8">AI Agent Chatbot Console</text>
+                            <text x="120" y="125" class="collab-item" fill="#2dd4bf" font-size="10" font-weight="700">Multi-Tenant UI Routers</text>
+                        </g>
+
+                        <!-- 6. Lawyer Portal -->
+                        <g class="collab-node" id="collab-lawyer" data-id="lawyer" transform="translate(50, 500)">
+                            <rect class="collab-bg" width="260" height="240" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5" />
+                            <rect width="260" height="40" rx="10" fill="#fbbf24" />
+                            <text x="130" y="25" class="collab-title" fill="#0b0f19" font-weight="900">Lawyer Portal</text>
+                            <text x="130" y="70" class="collab-subtitle" fill="#fbbf24">Case Management Platform</text>
+                            <line x1="20" y1="86" x2="240" y2="86" stroke="rgba(251,191,36,0.3)" />
+                            <text x="35" y="115" class="collab-bullet" fill="#ffffff">1. AI Chatbot Advisor (RAG)</text>
+                            <text x="35" y="142" class="collab-bullet" fill="#ffffff">2. Legal Drafting Generator</text>
+                            <text x="35" y="169" class="collab-bullet" fill="#ffffff">3. Legal Case History Search</text>
+                            <text x="35" y="196" class="collab-bullet" fill="#ffffff">4. Case Briefcase & Briefs</text>
+                            <text x="35" y="220" class="collab-bullet" fill="#94a3b8">5. Profile & Client Calendar</text>
+                        </g>
+
+                        <!-- 7. Client Portal -->
+                        <g class="collab-node" id="collab-client" data-id="client" transform="translate(370, 500)">
+                            <rect class="collab-bg" width="260" height="240" fill="#1e293b" stroke="#fb923c" stroke-width="1.5" />
+                            <rect width="260" height="40" rx="10" fill="#fb923c" />
+                            <text x="130" y="25" class="collab-title" fill="#0b0f19" font-weight="900">Client Portal</text>
+                            <text x="130" y="70" class="collab-subtitle" fill="#fb923c">Case Filing & Tracking System</text>
+                            <line x1="20" y1="86" x2="240" y2="86" stroke="rgba(251,146,60,0.3)" />
+                            <text x="35" y="120" class="collab-bullet" fill="#ffffff">1. Case E-Filing Hub</text>
+                            <text x="35" y="152" class="collab-bullet" fill="#ffffff">2. Filed Cases Progress Tracker</text>
+                            <text x="35" y="184" class="collab-bullet" fill="#ffffff">3. AI Chatbot Legal Advisory</text>
+                            <text x="35" y="215" class="collab-bullet" fill="#94a3b8">4. Professional Invoice Manager</text>
+                        </g>
+
+                        <!-- 8. Student Portal -->
+                        <g class="collab-node" id="collab-student" data-id="student" transform="translate(690, 500)">
+                            <rect class="collab-bg" width="260" height="240" fill="#1e293b" stroke="#c084fc" stroke-width="1.5" />
+                            <rect width="260" height="40" rx="10" fill="#c084fc" />
+                            <text x="130" y="25" class="collab-title" fill="#0b0f19" font-weight="900">Student Portal</text>
+                            <text x="130" y="70" class="collab-subtitle" fill="#c084fc">LexAcademy Academic Portal</text>
+                            <line x1="20" y1="86" x2="240" y2="86" stroke="rgba(192,132,252,0.3)" />
+                            <text x="35" y="120" class="collab-bullet" fill="#ffffff">1. GPA Grade Calculator</text>
+                            <text x="35" y="152" class="collab-bullet" fill="#ffffff">2. Study Planner & Milestones</text>
+                            <text x="35" y="184" class="collab-bullet" fill="#ffffff">3. Constitutional Study Manuals</text>
+                            <text x="35" y="215" class="collab-bullet" fill="#94a3b8">4. Local RAG Practice Exams</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- META DETAILS INFO PANEL (RIGHT PANEL) -->
+        <div class="inspector-panel">
+            
+            <!-- Placeholder default content -->
+            <div class="inspector-placeholder" id="inspector-placeholder">
+                <svg width="60" height="60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.991l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <h3>System Inspector</h3>
+                <p>Hover or click any class box or system component to view structural details, database configurations, and code implementation snippets.</p>
+            </div>
+
+            <!-- Detailed class/component metadata display card -->
+            <div class="inspector-content" id="inspector-content">
+                <span class="inspector-badge" id="insp-badge">Core Entity</span>
+                <h2 class="inspector-name" id="insp-name">Class Name</h2>
+                <p class="inspector-desc" id="insp-desc">This is a description of what the class does in the application.</p>
+                
+                <div id="attributes-section">
+                    <h4 class="inspector-section-title">Attributes</h4>
+                    <ul class="inspector-list" id="insp-attributes">
+                        <!-- populated by JS -->
+                    </ul>
+                </div>
+
+                <div id="methods-section">
+                    <h4 class="inspector-section-title">Methods</h4>
+                    <ul class="inspector-list" id="insp-methods">
+                        <!-- populated by JS -->
+                    </ul>
+                </div>
+
+                <div id="code-section">
+                    <h4 class="inspector-section-title">Source Interface Code</h4>
+                    <div class="code-snippet">
+                        <pre><code id="insp-code"></code></pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CODE SNIPPET AND COMPONENT DATABASE -->
+    <script>
+        const diagramData = {
+            // CLASS DIAGRAM DATA
+            user: {
+                badge: 'Core Entity',
+                badgeClass: 'badge-core',
+                name: 'User',
+                desc: 'The base model representing an authenticated user in the LawWise application. Serves as the generalized superclass containing common credentials for Clients, Students, and Lawyers.',
+                attributes: [
+                    { name: 'userId: int', desc: 'Primary Key. System identifier.' },
+                    { name: 'name: String', desc: 'The full profile name of the registered user.' },
+                    { name: 'email: String', desc: 'Verified email address, used as login credentials.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">User</span> {
+  userId: <span class="code-type">number</span>;
+  name: <span class="code-type">string</span>;
+  email: <span class="code-type">string</span>;
+
+  <span class="code-keyword">constructor</span>(userId: <span class="code-type">number</span>, name: <span class="code-type">string</span>, email: <span class="code-type">string</span>) {
+    <span class="code-keyword">this</span>.userId = userId;
+    <span class="code-keyword">this</span>.name = name;
+    <span class="code-keyword">this</span>.email = email;
+  }
+}`
+            },
+            client: {
+                badge: 'Client Portal Entity',
+                badgeClass: 'badge-client',
+                name: 'Client',
+                desc: 'Represents a client tenant. Inherits core account properties from User and handles case uploads, attorney messaging, and payment integrations.',
+                attributes: [
+                    { name: 'contactNo: String', desc: 'Registered telephone number forSMS updates.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">import</span> { <span class="code-type">User</span> } <span class="code-keyword">from</span> <span class="code-type">'./User'</span>;
+
+<span class="code-keyword">export class</span> <span class="code-type">Client</span> <span class="code-keyword">extends</span> <span class="code-type">User</span> {
+  contactNo: <span class="code-type">string</span>;
+
+  <span class="code-keyword">constructor</span>(id: <span class="code-type">number</span>, name: <span class="code-type">string</span>, email: <span class="code-type">string</span>, tel: <span class="code-type">string</span>) {
+    <span class="code-keyword">super</span>(id, name, email);
+    <span class="code-keyword">this</span>.contactNo = tel;
+  }
+}`
+            },
+            student: {
+                badge: 'Student Portal Entity',
+                badgeClass: 'badge-student',
+                name: 'Student',
+                desc: 'Represents an academic student user. Inherits from User and connects to study trackers, interactive curriculum models, and grade estimators.',
+                attributes: [
+                    { name: 'semester: int', desc: 'Current academic registration semester (1-10).' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">import</span> { <span class="code-type">User</span> } <span class="code-keyword">from</span> <span class="code-type">'./User'</span>;
+
+<span class="code-keyword">export class</span> <span class="code-type">Student</span> <span class="code-keyword">extends</span> <span class="code-type">User</span> {
+  semester: <span class="code-type">number</span>;
+
+  <span class="code-keyword">constructor</span>(id: <span class="code-type">number</span>, name: <span class="code-type">string</span>, email: <span class="code-type">string</span>, sem: <span class="code-type">number</span>) {
+    <span class="code-keyword">super</span>(id, name, email);
+    <span class="code-keyword">this</span>.semester = sem;
+  }
+}`
+            },
+            lawyer: {
+                badge: 'Lawyer Portal Entity',
+                badgeClass: 'badge-lawyer',
+                name: 'Lawyer',
+                desc: 'Represents a certified attorney. Inherits from User and is connected to case briefs, document drafting pipelines, client files, and calendar tracking.',
+                attributes: [
+                    { name: 'specialization: String', desc: 'Specialized legal practice area (e.g., Corporate, Criminal, Family).' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">import</span> { <span class="code-type">User</span> } <span class="code-keyword">from</span> <span class="code-type">'./User'</span>;
+
+<span class="code-keyword">export class</span> <span class="code-type">Lawyer</span> <span class="code-keyword">extends</span> <span class="code-type">User</span> {
+  specialization: <span class="code-type">string</span>;
+
+  <span class="code-keyword">constructor</span>(id: <span class="code-type">number</span>, name: <span class="code-type">string</span>, email: <span class="code-type">string</span>, spec: <span class="code-type">string</span>) {
+    <span class="code-keyword">super</span>(id, name, email);
+    <span class="code-keyword">this</span>.specialization = spec;
+  }
+}`
+            },
+            filing: {
+                badge: 'Client Portal Module',
+                badgeClass: 'badge-client',
+                name: 'Filing',
+                desc: 'Handles new case registration requests. Clients configure details and documents to submit to lawyers for official representation.',
+                attributes: [
+                    { name: 'filingId: int', desc: 'Primary Key. Identifier for filing records.' },
+                    { name: 'filingDetails: String', desc: 'Plain-text case summary and attachment file indices.' }
+                ],
+                methods: [
+                    { name: 'submitCase(): void', desc: 'Submits current filing documents to Backend database clusters.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">Filing</span> {
+  filingId: <span class="code-type">number</span>;
+  filingDetails: <span class="code-type">string</span>;
+
+  <span class="code-method">submitCase</span>(): <span class="code-type">void</span> {
+    <span class="code-comment">// Call client portal Express.js route</span>
+    <span class="code-keyword">const</span> endpoint = <span class="code-type">\`/api/filings/\${this.filingId}/submit\`</span>;
+    axios.post(endpoint, { details: <span class="code-keyword">this</span>.filingDetails });
+  }
+}`
+            },
+            filedcases: {
+                badge: 'Client Portal Module',
+                badgeClass: 'badge-client',
+                name: 'FiledCases',
+                desc: 'Controls case monitoring. Retrieves information from active databases to showcase status updates and trial timelines to clients.',
+                attributes: [
+                    { name: 'caseId: int', desc: 'Registration code of the active court file.' },
+                    { name: 'currentStatus: String', desc: 'Real-time case status (e.g., Assigned, Pre-trial, Completed).' }
+                ],
+                methods: [
+                    { name: 'trackCase(): void', desc: 'Fetches active hearing updates from MongoDB collections.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">FiledCases</span> {
+  caseId: <span class="code-type">number</span>;
+  currentStatus: <span class="code-type">string</span>;
+
+  <span class="code-method">trackCase</span>(): <span class="code-type">void</span> {
+    <span class="code-comment">// Query latest timeline updates from MongoDB</span>
+    db.collection(<span class="code-type">'cases'</span>).findOne({ caseId: <span class="code-keyword">this</span>.caseId })
+      .then(res => <span class="code-keyword">this</span>.currentStatus = res.status);
+  }
+}`
+            },
+            gpacalculator: {
+                badge: 'Student Portal Module',
+                badgeClass: 'badge-student',
+                name: 'GpaCalculator',
+                desc: 'Allows academic law students to calculate aggregate grade percentages and estimate semester GPAs for course assessments.',
+                attributes: [
+                    { name: 'currentGPA: double', desc: 'Aggregated GPA value (0.0 to 4.0).' }
+                ],
+                methods: [
+                    { name: 'calculateGPA(): void', desc: 'Processes grade values and returns a cumulative GPA metric.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">GpaCalculator</span> {
+  currentGPA: <span class="code-type">number</span>;
+
+  <span class="code-method">calculateGPA</span>(grades: { grade: <span class="code-type">number</span>; credits: <span class="code-type">number</span> }[]): <span class="code-type">void</span> {
+    <span class="code-keyword">let</span> sum = 0, credits = 0;
+    grades.forEach(g => {
+      sum += g.grade * g.credits;
+      credits += g.credits;
+    });
+    <span class="code-keyword">this</span>.currentGPA = sum / credits;
+  }
+}`
+            },
+            legaldrafting: {
+                badge: 'Lawyer Portal Module',
+                badgeClass: 'badge-lawyer',
+                name: 'LegalDrafting',
+                desc: 'Automates contract drafting. Synthesizes formal petitions, certificates, and legal agreements using predefined standard layouts and lawyer inputs.',
+                attributes: [
+                    { name: 'draftId: int', desc: 'Primary Key. Legal draft identifier.' },
+                    { name: 'documentType: String', desc: 'Type of draft (e.g., Power of Attorney, Lease Agreement).' }
+                ],
+                methods: [
+                    { name: 'generateDraft(): void', desc: 'Requests document synthesis from the primary GPT-4o drafting cluster.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">LegalDrafting</span> {
+  draftId: <span class="code-type">number</span>;
+  documentType: <span class="code-type">string</span>;
+
+  <span class="code-method">generateDraft</span>(inputs: <span class="code-type">any</span>): <span class="code-type">void</span> {
+    <span class="code-comment">// Route parameters to RAG drafting engine</span>
+    axios.post(<span class="code-type">'/api/drafting/generate'</span>, {
+      type: <span class="code-keyword">this</span>.documentType,
+      variables: inputs
+    }).then(res => saveFile(res.data.pdfPath));
+  }
+}`
+            },
+            casehistory: {
+                badge: 'Lawyer Portal Module',
+                badgeClass: 'badge-lawyer',
+                name: 'CaseHistory',
+                desc: 'A comprehensive archive module containing judgments, litigation records, and citation documents for legal research.',
+                attributes: [
+                    { name: 'caseId: int', desc: 'Reference key referencing historical records.' },
+                    { name: 'status: String', desc: 'Final litigation verdict status (e.g., Dismissed, Upheld).' }
+                ],
+                methods: [
+                    { name: 'viewHistory(): void', desc: 'Pulls litigation documents and past courtroom logs from the database core.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">CaseHistory</span> {
+  caseId: <span class="code-type">number</span>;
+  status: <span class="code-type">string</span>;
+
+  <span class="code-method">viewHistory</span>(): <span class="code-type">void</span> {
+    <span class="code-comment">// Direct query to Flask relational database core</span>
+    axios.get(<span class="code-type">\`/api/flask/history/\${this.caseId}\`</span>)
+      .then(res => renderDocViewer(res.data.historyLogs));
+  }
+}`
+            },
+            aichatbot: {
+                badge: 'AI Ecosystem Component',
+                badgeClass: 'badge-ai',
+                name: 'AIChatbot',
+                desc: 'RAG-driven legal advisory assistant. Available in all user portals, utilizing a triple-fail-safe pipeline (Gemini -> Llama -> Local Gemma) to answer queries.',
+                attributes: [
+                    { name: 'query: String', desc: 'The input query or legal request.' },
+                    { name: 'response: String', desc: 'Response text with citations from the Chroma DB database.' }
+                ],
+                methods: [
+                    { name: 'askQuestion(): void', desc: 'Initializes the RAG inference chain with user query parameters.' }
+                ],
+                code: `<span class="code-keyword">export class</span> <span class="code-type">AIChatbot</span> {
+  query: <span class="code-type">string</span>;
+  response: <span class="code-type">string</span>;
+
+  <span class="code-method">askQuestion</span>(txt: <span class="code-type">string</span>): <span class="code-type">void</span> {
+    <span class="code-keyword">this</span>.query = txt;
+    <span class="code-comment">// Triggers Express RAG pipeline</span>
+    socket.emit(<span class="code-type">'rag-query'</span>, { query: txt });
+    socket.on('rag-response', data => {
+      <span class="code-keyword">this</span>.response = data.answer;
+    });
+  }
+}`
+            },
+
+            // COLLABORATION DIAGRAM DATA
+            flask: {
+                badge: 'Database Core Service',
+                badgeClass: 'badge-core',
+                name: 'Flask DB Core',
+                desc: 'Built in Python, this subsystem performs direct interactions with transactional relational data models. Connects to Python scrapers and handles heavy relational analysis.',
+                attributes: [
+                    { name: 'Framework', type: 'Python Flask', desc: 'Microservice API.' },
+                    { name: 'ORM Engine', type: 'SQLAlchemy / Pymongo', desc: 'Bridges document and relational storage.' },
+                    { name: 'Function', type: 'Case Scrapers & Scans', desc: 'Aggregates legal database timelines.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">from</span> flask <span class="code-keyword">import</span> Flask, jsonify
+app = Flask(__name__)
+
+<span class="code-keyword">@app.route</span>(<span class="code-type">"/api/flask/history/&lt;int:case_id&gt;"</span>)
+<span class="code-keyword">def</span> <span class="code-method">get_case_history</span>(case_id):
+    <span class="code-comment"># Queries legal case history records from SQLAlchemy</span>
+    records = SQLSession.query(CaseRecord).filter_by(id=case_id).all()
+    <span class="code-keyword">return</span> jsonify([r.to_dict() <span class="code-keyword">for</span> r <span class="code-keyword">in</span> records])`
+            },
+            backend: {
+                badge: 'System Core Backend',
+                badgeClass: 'badge-core',
+                name: 'Backend Services',
+                desc: 'The central Express/Nest framework. Orchestrates API access, handles multi-tenant authorization, integrations, and hosts the RAG controller routing database vectors.',
+                attributes: [
+                    { name: 'Infrastructure', type: 'Node.js (Express / Nest)', desc: 'Enterprise gateway logic.' },
+                    { name: 'Core Tasks', type: 'User Auth, Caching, Logging', desc: 'Maintains system resilience.' },
+                    { name: 'RAG Pipeline', type: 'Triple-Fail-Safe AI Client', desc: 'Routes questions to LLMs.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">import</span> { NestFactory } <span class="code-keyword">from</span> <span class="code-type">'@nestjs/core'</span>;
+<span class="code-keyword">import</span> { AppModule } <span class="code-keyword">from</span> <span class="code-type">'./app.module'</span>;
+
+<span class="code-keyword">async function</span> <span class="code-method">bootstrap</span>() {
+  <span class="code-keyword">const</span> app = <span class="code-keyword">await</span> NestFactory.create(AppModule);
+  app.enableCors();
+  <span class="code-keyword">await</span> app.listen(<span class="code-type">3000</span>);
+  console.log(<span class="code-type">'Express/Nest API Gateway listening on port 3000'</span>);
+}
+bootstrap();`
+            },
+            mongodb: {
+                badge: 'Transactional Storage',
+                badgeClass: 'badge-client',
+                name: 'MongoDB Cluster',
+                desc: 'Primary NoSQL repository storing user data, structured profiles, active e-filings, tracking records, and configuration logs.',
+                attributes: [
+                    { name: 'Storage Model', type: 'NoSQL Document Store', desc: 'Dynamic flexible schemas.' },
+                    { name: 'Performance', type: 'Indexed Clusters', desc: 'Fast read/writes for users.' }
+                ],
+                methods: [],
+                code: `<span class="code-comment">// MongoDB User Profile Document Schema Structure</span>
+{
+  "_id": ObjectId("65c367d2645672c219"),
+  "userId": 10042,
+  "role": "Lawyer",
+  "name": "Arshad Nadeem",
+  "email": "arshad.nadeem@lawwise.pk",
+  "specialization": "Civil Advocacy",
+  "created_at": ISODate("2026-03-12T08:00:00Z")
+}`
+            },
+            extapi: {
+                badge: 'Third-Party Integration',
+                badgeClass: 'badge-slate',
+                name: 'External API Scrapers',
+                desc: 'Consolidates third-party utilities. Integrates payment systems (e.g. Stripe, local systems) and court schedules from government directories.',
+                attributes: [
+                    { name: 'Payment Integrations', type: 'Stripe, EasyPaisa API', desc: 'Executes secure retainer invoicing.' },
+                    { name: 'Calendar Integrations', type: 'Court Schedule Scrapers', desc: 'Synchronizes trial dates.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">export async function</span> <span class="code-method">createPaymentRetainer</span>(amount: <span class="code-type">number</span>) {
+  <span class="code-keyword">const</span> stripe = require(<span class="code-type">'stripe'</span>)(process.env.STRIPE_SECRET_KEY);
+  <span class="code-keyword">const</span> session = <span class="code-keyword">await</span> stripe.checkout.sessions.create({
+    payment_method_types: [<span class="code-type">'card'</span>],
+    line_items: [{ price_data: { currency: <span class="code-type">'pkr'</span> }, quantity: 1 }],
+  });
+  <span class="code-keyword">return</span> session.url;
+}`
+            },
+            react: {
+                badge: 'Client Interface Hub',
+                badgeClass: 'badge-ai',
+                name: 'React JS Frontend',
+                desc: 'The React/Next.js single page application hosting layout panels for Lawyers, Clients, and Students. Features real-time sockets for chatbots and briefings.',
+                attributes: [
+                    { name: 'Visual Framework', type: 'React 18 / Next.js', desc: 'Component-driven dashboards.' },
+                    { name: 'State Management', type: 'Redux Toolkit / Zustand', desc: 'Syncs system parameters.' }
+                ],
+                methods: [],
+                code: `<span class="code-keyword">import</span> React <span class="code-keyword">from</span> <span class="code-type">'react'</span>;
+<span class="code-keyword">import</span> { DashboardRouter } <span class="code-keyword">from</span> <span class="code-type">'./routers'</span>;
+
+<span class="code-keyword">export default function</span> <span class="code-method">App</span>() {
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-type">LawWiseThemeProvider</span>&gt;
+      &lt;<span class="code-type">DashboardRouter</span> /&gt;
+    &lt;/<span class="code-type">LawWiseThemeProvider</span>&gt;
+  );
+}`
+            }
+        };
+
+        // ZOOM AND PAN VARIABLES AND HANDLERS
+        let activeTab = 'class';
+        const transformStates = {
+            class: { scale: 1, x: 0, y: 0 },
+            collaboration: { scale: 1, x: 0, y: 0 }
+        };
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let stickyNode = null;
+
+        // TAB SWITCHER
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabId);
+            });
+            document.querySelectorAll('.diagram-view').forEach(view => {
+                view.classList.toggle('active', view.id === `${tabId}-view`);
+            });
+
+            // Adjust toolbar display elements
+            document.getElementById('class-filters-group').style.display = tabId === 'class' ? 'flex' : 'none';
+            document.getElementById('collab-controls-group').style.display = tabId === 'collaboration' ? 'flex' : 'none';
+
+            // Clear inspector info
+            resetInspector();
+            resetZoom();
+        }
+
+        // ZOOM CONTROLS
+        function updateTransform() {
+            const group = document.getElementById(`${activeTab}-zoom-group`);
+            if (group) {
+                const state = transformStates[activeTab];
+                group.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+            }
+        }
+
+        function zoomIn() {
+            const state = transformStates[activeTab];
+            state.scale = Math.min(state.scale * 1.25, 4);
+            updateTransform();
+        }
+
+        function zoomOut() {
+            const state = transformStates[activeTab];
+            state.scale = Math.max(state.scale / 1.25, 0.4);
+            updateTransform();
+        }
+
+        function resetZoom() {
+            const state = transformStates[activeTab];
+            state.scale = 1;
+            state.x = 0;
+            state.y = 0;
+            updateTransform();
+        }
+
+        // DRAG & PAN CONTROLS
+        const canvas = document.querySelector('.canvas-area');
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.canvas-toolbar') || e.target.closest('.inspector-panel')) return;
+            isDragging = true;
+            canvas.style.cursor = 'grabbing';
+            const state = transformStates[activeTab];
+            startX = e.clientX - state.x;
+            startY = e.clientY - state.y;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const state = transformStates[activeTab];
+            state.x = e.clientX - startX;
+            state.y = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const state = transformStates[activeTab];
+            const zoomFactor = 1.08;
+            if (e.deltaY < 0) {
+                state.scale = Math.min(state.scale * zoomFactor, 4);
+            } else {
+                state.scale = Math.max(state.scale / zoomFactor, 0.4);
+            }
+            updateTransform();
+        });
+
+        // HIGHLIGHTS & CLASS INTERACTION IN CLASS VIEW
+        document.querySelectorAll('.class-node').forEach(node => {
+            node.addEventListener('mouseenter', () => {
+                if (stickyNode) return;
+                const className = node.dataset.class;
+                highlightClassNode(className);
+            });
+
+            node.addEventListener('mouseleave', () => {
+                if (stickyNode) return;
+                clearClassHighlights();
+            });
+
+            node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const className = node.dataset.class;
+                if (stickyNode === className) {
+                    stickyNode = null;
+                    clearClassHighlights();
+                } else {
+                    stickyNode = className;
+                    highlightClassNode(className);
+                }
+            });
+        });
+
+        function highlightClassNode(className) {
+            // Remove previous active classes
+            document.querySelectorAll('.class-node').forEach(n => {
+                n.classList.remove('active-node');
+                n.classList.remove('related-node');
+            });
+            document.querySelectorAll('path[data-relation]').forEach(p => p.classList.remove('active-relation'));
+
+            // Set current node as active
+            const node = document.querySelector(`#node-${className}`);
+            if (node) node.classList.add('active-node');
+
+            // Highlight connections and target nodes
+            document.querySelectorAll(`path[data-source="${className}"], path[data-target="${className}"]`).forEach(path => {
+                path.classList.add('active-relation');
+                const src = path.dataset.source;
+                const tgt = path.dataset.target;
+                
+                const srcNode = document.querySelector(`#node-${src}`);
+                const tgtNode = document.querySelector(`#node-${tgt}`);
+                
+                if (srcNode && src !== className) srcNode.classList.add('related-node');
+                if (tgtNode && tgt !== className) tgtNode.classList.add('related-node');
+            });
+
+            // Update details sidebar inspector
+            updateInspector(className);
+        }
+
+        function clearClassHighlights() {
+            document.querySelectorAll('.class-node').forEach(n => {
+                n.classList.remove('active-node');
+                n.classList.remove('related-node');
+            });
+            document.querySelectorAll('path[data-relation]').forEach(p => p.classList.remove('active-relation'));
+            resetInspector();
+        }
+
+        // COLLABORATION NODE INTERACTION
+        document.querySelectorAll('.collab-node').forEach(node => {
+            const nodeName = node.dataset.id;
+            
+            node.addEventListener('mouseenter', () => {
+                if (stickyNode) return;
+                updateInspector(nodeName);
+            });
+
+            node.addEventListener('mouseleave', () => {
+                if (stickyNode) return;
+                resetInspector();
+            });
+
+            node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (stickyNode === nodeName) {
+                    stickyNode = null;
+                    resetInspector();
+                } else {
+                    stickyNode = nodeName;
+                    updateInspector(nodeName);
+                }
+            });
+        });
+
+        // Click canvas background to release sticky focus
+        canvas.addEventListener('click', () => {
+            stickyNode = null;
+            clearClassHighlights();
+            resetInspector();
+        });
+
+        // CLASS TYPE CATEGORY FILTERING
+        function filterClasses(category) {
+            document.querySelectorAll('#class-filters-group .control-btn').forEach(btn => {
+                btn.classList.toggle('active-filter', btn.dataset.filter === category);
+            });
+
+            const nodes = document.querySelectorAll('.class-node');
+            const paths = document.querySelectorAll('path[data-relation]');
+
+            if (category === 'all') {
+                nodes.forEach(n => n.style.opacity = '1');
+                paths.forEach(p => p.style.opacity = '1');
+            } else {
+                nodes.forEach(n => {
+                    const isMatch = n.classList.contains(`${category}-class`) || n.classList.contains('core-class');
+                    n.style.opacity = isMatch ? '1' : '0.15';
+                });
+                paths.forEach(p => {
+                    const src = p.dataset.source;
+                    const tgt = p.dataset.target;
+                    const srcNode = document.querySelector(`#node-${src}`);
+                    const tgtNode = document.querySelector(`#node-${tgt}`);
+                    const isSrcMatch = srcNode && (srcNode.classList.contains(`${category}-class`) || srcNode.classList.contains('core-class'));
+                    const isTgtMatch = tgtNode && (tgtNode.classList.contains(`${category}-class`) || tgtNode.classList.contains('core-class'));
+                    p.style.opacity = (isSrcMatch && isTgtMatch) ? '1' : '0.1';
+                });
+            }
+        }
+
+        // ANIMATION CONTROL FOR COLLABORATION
+        let animationsEnabled = true;
+        function toggleFlowAnimation() {
+            animationsEnabled = !animationsEnabled;
+            const animGroup = document.getElementById('flow-animation-group');
+            const btn = document.getElementById('btn-anim-toggle');
+            
+            if (animationsEnabled) {
+                animGroup.style.display = 'block';
+                btn.innerText = 'Flow Animation: ON';
+                btn.classList.add('active-filter');
+            } else {
+                animGroup.style.display = 'none';
+                btn.innerText = 'Flow Animation: OFF';
+                btn.classList.remove('active-filter');
+            }
+        }
+
+        // INSPECTOR POPULATION
+        function updateInspector(key) {
+            const data = diagramData[key];
+            if (!data) return;
+
+            // Set badge class and text
+            const badge = document.getElementById('insp-badge');
+            badge.innerText = data.badge;
+            badge.className = `inspector-badge ${data.badgeClass}`;
+
+            document.getElementById('insp-name').innerText = data.name;
+            document.getElementById('insp-desc').innerText = data.desc;
+
+            // Populate attributes
+            const attrsList = document.getElementById('insp-attributes');
+            attrsList.innerHTML = '';
+            if (data.attributes && data.attributes.length > 0) {
+                document.getElementById('attributes-section').style.display = 'block';
+                data.attributes.forEach(attr => {
+                    attrsList.innerHTML += `
+                        <li class="inspector-list-item">
+                            <div class="item-decl">${attr.name}</div>
+                            <div class="item-desc">${attr.desc}</div>
+                        </li>
+                    `;
+                });
+            } else {
+                document.getElementById('attributes-section').style.display = 'none';
+            }
+
+            // Populate methods
+            const methodsList = document.getElementById('insp-methods');
+            methodsList.innerHTML = '';
+            if (data.methods && data.methods.length > 0) {
+                document.getElementById('methods-section').style.display = 'block';
+                data.methods.forEach(m => {
+                    methodsList.innerHTML += `
+                        <li class="inspector-list-item">
+                            <div class="item-decl">${m.name}</div>
+                            <div class="item-desc">${m.desc}</div>
+                        </li>
+                    `;
+                });
+            } else {
+                document.getElementById('methods-section').style.display = 'none';
+            }
+
+            // Populate source snippet
+            if (data.code) {
+                document.getElementById('code-section').style.display = 'block';
+                document.getElementById('insp-code').innerHTML = data.code;
+            } else {
+                document.getElementById('code-section').style.display = 'none';
+            }
+
+            document.getElementById('inspector-placeholder').style.display = 'none';
+            document.getElementById('inspector-content').classList.add('active');
+        }
+
+        function resetInspector() {
+            if (stickyNode) {
+                updateInspector(stickyNode);
+                return;
+            }
+            document.getElementById('inspector-content').classList.remove('active');
+            document.getElementById('inspector-placeholder').style.display = 'flex';
+        }
+
+        // SVG EXPORT IMPLEMENTATION
+        function downloadActiveSVG() {
+            const svgEl = document.getElementById(`${activeTab}-svg`);
+            if (!svgEl) return;
+
+            const serializer = new XMLSerializer();
+            
+            // Create a deep copy of the SVG to clean zoom/pan translate values before download
+            const svgCopy = svgEl.cloneNode(true);
+            const zoomGroup = svgCopy.querySelector('.zoom-group');
+            if (zoomGroup) {
+                // reset inline styles so downloaded SVG is perfectly oriented and scaled
+                zoomGroup.removeAttribute('style');
+            }
+
+            let source = serializer.serializeToString(svgCopy);
+            
+            // Add namespaces if missing
+            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            if (!source.match(/^<svg[^>]+xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+            }
+            
+            const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+            const trigger = document.createElement('a');
+            trigger.href = url;
+            trigger.download = `lawwise_${activeTab}_diagram.svg`;
+            document.body.appendChild(trigger);
+            trigger.click();
+            document.body.removeChild(trigger);
+        }
+    </script>
+</body>
+</html>

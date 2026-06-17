@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/services/api';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/StudentNotes.css';
 
 const StudentNotesPage = () => {
@@ -13,9 +14,6 @@ const StudentNotesPage = () => {
     const [loading, setLoading] = useState(true);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showFolderModal, setShowFolderModal] = useState(false);
-    const [showAIModal, setShowAIModal] = useState(false);
-    const [aiExplanation, setAiExplanation] = useState(null);
-    const [explainingId, setExplainingId] = useState(null);
     const [openShareId, setOpenShareId] = useState(null);
 
     const [uploadData, setUploadData] = useState({
@@ -119,24 +117,6 @@ const StudentNotesPage = () => {
         }
     };
 
-    const handleAIExplain = async (id) => {
-        setExplainingId(id);
-        setAiExplanation(null);
-        setShowAIModal(true);
-        try {
-            const result = await authService.getNoteAIExplanation(id);
-            if (result.success) {
-                setAiExplanation(result.explanation);
-            } else {
-                setAiExplanation(result.error);
-            }
-        } catch (error) {
-            setAiExplanation('Error generating AI explanation.');
-        } finally {
-            setExplainingId(null);
-        }
-    };
-
     const handleDownload = async (id, fileUrl) => {
         try {
             await authService.downloadNote(id);
@@ -145,20 +125,6 @@ const StudentNotesPage = () => {
             window.open(absoluteUrl, '_blank');
         } catch (error) {
             console.error('Download error:', error);
-        }
-    };
-
-    const handleGenerateQuiz = async (id) => {
-        try {
-            setUploading(true);
-            const result = await authService.generateNoteQuiz(id);
-            if (result.success) {
-                router.push(`/student-quizzes?quizId=${result.quizId}`);
-            }
-        } catch (error) {
-            alert('Failed to generate quiz');
-        } finally {
-            setUploading(false);
         }
     };
 
@@ -181,30 +147,10 @@ const StudentNotesPage = () => {
     };
 
     return (
-        <div className="notes-page-container">
-            <div className="notes-sidebar">
+        <div className="notes-page-container" style={{ display: 'flex', background: '#f8fafc' }}>
+            <StudentSidebar />
+            <div className="notes-sidebar" style={{ borderLeft: '1px solid #e2e8f0', marginLeft: '0' }}>
                 <div className="sidebar-section">
-                    <button 
-                        onClick={() => router.push('/student-dashboard')}
-                        style={{ 
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', 
-                            border: 'none', 
-                            color: 'white', 
-                            padding: '12px 20px', 
-                            borderRadius: '12px', 
-                            fontWeight: '700', 
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '25px',
-                            width: '100%',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        ← Dashboard
-                    </button>
                     <h3>My Organization</h3>
                     <div className="folder-list">
                         <div
@@ -307,12 +253,7 @@ const StudentNotesPage = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <button onClick={() => handleAIExplain(note._id)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', background: '#f0f9ff', color: '#0369a1', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                            ✨ AI Explanation
-                                        </button>
-                                        <button onClick={() => handleGenerateQuiz(note._id)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', background: '#fef3c7', color: '#b45309', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                            🧠 Take Quiz
-                                        </button>
+
                                     </div>
                                 </div>
                             ))
@@ -425,32 +366,7 @@ const StudentNotesPage = () => {
                 </div>
             )}
 
-            {/* AI Explanation Modal */}
-            {showAIModal && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: 'white', padding: '35px', borderRadius: '24px', width: '90%', maxWidth: '700px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-                            <h2 style={{ margin: 0, color: '#1e293b' }}>✨ AI Professor Explanation</h2>
-                            <button onClick={() => setShowAIModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>✕</button>
-                        </div>
-                        <div className="ai-modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                            {explainingId ? (
-                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                    <div style={{ fontSize: '2rem', marginBottom: '15px' }}>🤖</div>
-                                    <p style={{ color: '#64748b' }}>AI is analyzing the legal context of your notes...</p>
-                                </div>
-                            ) : (
-                                <div className="ai-exp-text" style={{ whiteSpace: 'pre-wrap', color: '#334155', lineHeight: '1.6' }}>
-                                    {aiExplanation}
-                                </div>
-                            )}
-                        </div>
-                        {!explainingId && (
-                            <button onClick={() => setShowAIModal(false)} style={{ width: '100%', marginTop: '30px', padding: '12px', borderRadius: '10px', border: 'none', background: '#2563eb', color: '#fff', fontWeight: '600', cursor: 'pointer' }}>Got it, thanks!</button>
-                        )}
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 };

@@ -3,11 +3,27 @@ const axios = require("axios");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const getChatResponse = async (chatHistory, userMessage, context = "") => {
+const getChatResponse = async (chatHistory, userMessage, context = "", isDocumentAnalysis = false) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `
+    const prompt = isDocumentAnalysis ? `
+      You are an AI Legal Document Analyst for a Pakistani Law Portal.
+      Your task is to provide a clear, professional summary and analysis of the provided documents based on the user's request.
+      
+      User Request: ${userMessage}
+      
+      Document Context:
+      ${context || "No documents provided."}
+      
+      CRITICAL INSTRUCTIONS:
+      - Provide a comprehensive legal analysis and summary of the documents.
+      - Highlight key clauses, obligations, and any potential legal risks or noteworthy points under Pakistani Law.
+      - Use standard Markdown formatting ONLY (e.g., **bold**, - lists, ### headings).
+      - DO NOT use any custom HTML tags like <law-statute> or <law-details>.
+      - Keep the tone objective, professional, and concise. Do not write a formal legal advisory preamble or mandatory case law unless directly relevant to the document content.
+      - Focus ONLY on the contents of the document.
+    ` : `
       You are a Senior Legal Expert in the Laws of Pakistan with comprehensive knowledge of all Pakistani statutes, case law, and legal principles.
       Your task is to provide a highly structured, professional, and detailed legal advisory response.
       
@@ -147,12 +163,9 @@ const getChatResponse = async (chatHistory, userMessage, context = "") => {
       // GROQ CLOUD FALLBACK
       if (process.env.GROQ_API_KEY) {
         console.log("Calling Groq Cloud API...");
-        const groqResponse = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            {
-              role: "system",
-              content: `You are a Senior Legal Expert in the Laws of Pakistan. Use the following structure:
+        const groqSystemContent = isDocumentAnalysis 
+          ? "You are an AI Legal Document Analyst. Provide a clear, professional summary and analysis of the documents using standard Markdown. Do not use custom HTML tags." 
+          : `You are a Senior Legal Expert in the Laws of Pakistan. Use the following structure:
               1. Initial Summary
               2. Primary Legal Finding (Apply Initial Dishonest Intent test)
               3. Applicable Statutes (Use <law-statute> and <law-details> tags)
@@ -160,11 +173,18 @@ const getChatResponse = async (chatHistory, userMessage, context = "") => {
               5. Legal Test / Key Determination
               6. Analysis and Advisory (Use <law-penalty> and <law-details> tags)
               7. Risk Assessment
-              8. Reference Links & Sources`
+              8. Reference Links & Sources`;
+              
+        const groqResponse = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            {
+              role: "system",
+              content: groqSystemContent
             },
             {
               role: "user",
-              content: `Context from database: ${context}\n\nUser Question: ${userMessage}\n\nPlease generate a detailed response following all Pakistani legal principles and the mandatory structure.`
+              content: `Context from database: ${context}\n\nUser Question: ${userMessage}\n\nPlease generate a detailed response.`
             }
           ]
         }, {

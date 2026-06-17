@@ -9,8 +9,8 @@
 
 /* ─── Left Sidebar ─────────────────────────────────────────────────────── */
 .dashboard-sidebar {
-    width: 260px;
-    min-width: 260px;
+    width: 280px;
+    min-width: 280px;
     background: #111827;
     height: 100vh;
     display: flex;
@@ -469,28 +469,4 @@
         grid-template-columns: 1fr;
     }
 }
-
-* ─── Responsive ───────────────────────────────────────────────────────── */ @media (max-width: 1024px) {
-    .dashboard-sidebar {
-        width: 220px;
-        min-width: 220px;
-    }
-}
-
-@media (max-width: 768px) {
-    .dashboard-sidebar {
-        display: none;
-    }
-
-    .dashboard-container {
-        padding: 20px 16px;
-    }
-
-    .profile-card {
-        padding: 24px 20px;
-    }
-
-    .dashboard-features {
-        grid-template-columns: 1fr;
-    }
-}
+

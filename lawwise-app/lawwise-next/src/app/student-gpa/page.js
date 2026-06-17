@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/StudentNotes.css';
 import '@/styles/StudentGPA.css';
 
@@ -91,39 +92,19 @@ const StudentGPAPage = () => {
     };
 
     return (
-        <div className="notes-page-container">
-            <div className="notes-sidebar">
+        <div className="notes-page-container" style={{ display: 'flex', background: '#f8fafc' }}>
+            <StudentSidebar />
+            <div className="notes-sidebar" style={{ borderLeft: '1px solid #e2e8f0', marginLeft: '0' }}>
                 <div className="sidebar-section">
-                    <button 
-                        onClick={() => router.push('/student-dashboard')}
-                        style={{ 
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', 
-                            border: 'none', 
-                            color: 'white', 
-                            padding: '12px 20px', 
-                            borderRadius: '12px', 
-                            fontWeight: '700', 
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '25px',
-                            width: '100%',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        ← Dashboard
-                    </button>
                     <h3>GPA Tools</h3>
                     <div className="folder-list">
-                        <div 
+                        <div
                             className={`folder-item ${activeTab === 'calculate' ? 'active' : ''}`}
                             onClick={() => setActiveTab('calculate')}
                         >
                             📈 Calculator
                         </div>
-                        <div 
+                        <div
                             className={`folder-item ${activeTab === 'history' ? 'active' : ''}`}
                             onClick={() => setActiveTab('history')}
                         >
@@ -146,8 +127,8 @@ const StudentGPAPage = () => {
                             {activeTab === 'calculate' ? 'GPA Calculator' : 'Grade History'}
                         </h1>
                         <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-                            {activeTab === 'calculate' 
-                                ? 'Enter your subject marks and credit hours to calculate your GPA instantly.' 
+                            {activeTab === 'calculate'
+                                ? 'Enter your subject marks and credit hours to calculate your GPA instantly.'
                                 : 'View your saved semester results and academic progress.'}
                         </p>
                     </div>
@@ -164,23 +145,23 @@ const StudentGPAPage = () => {
 
                         {subjects.map((subject) => (
                             <div key={subject.id} className="gpa-input-row">
-                                <input 
-                                    type="text" 
-                                    placeholder="e.g. Constitutional Law" 
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Constitutional Law"
                                     className="gpa-input"
                                     value={subject.name}
                                     onChange={(e) => updateSubject(subject.id, 'name', e.target.value)}
                                 />
-                                <input 
-                                    type="number" 
-                                    placeholder="Marks" 
+                                <input
+                                    type="number"
+                                    placeholder="Marks"
                                     className="gpa-input"
                                     value={subject.marks}
                                     onChange={(e) => updateSubject(subject.id, 'marks', e.target.value)}
                                 />
-                                <input 
-                                    type="number" 
-                                    placeholder="CH" 
+                                <input
+                                    type="number"
+                                    placeholder="CH"
                                     className="gpa-input"
                                     value={subject.creditHours}
                                     onChange={(e) => updateSubject(subject.id, 'creditHours', e.target.value)}
@@ -195,10 +176,10 @@ const StudentGPAPage = () => {
                             <div className="gpa-label">Your Estimated GPA</div>
                             <div className="gpa-value">{gpa}</div>
                             <div className={`grade-badge ${getGpaColor(parseFloat(gpa))}`}>
-                                {parseFloat(gpa) >= 3.5 ? 'Excellent (A)' : 
-                                 parseFloat(gpa) >= 3.0 ? 'Very Good (B)' :
-                                 parseFloat(gpa) >= 2.0 ? 'Good (C)' :
-                                 parseFloat(gpa) >= 1.0 ? 'Pass (D)' : 'Needs Improvement'}
+                                {parseFloat(gpa) >= 3.5 ? 'Excellent (A)' :
+                                    parseFloat(gpa) >= 3.0 ? 'Very Good (B)' :
+                                        parseFloat(gpa) >= 2.0 ? 'Good (C)' :
+                                            parseFloat(gpa) >= 1.0 ? 'Pass (D)' : 'Needs Improvement'}
                             </div>
                         </div>
 
@@ -207,9 +188,9 @@ const StudentGPAPage = () => {
                             <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                                 <div style={{ flex: 1, minWidth: '200px' }}>
                                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>Semester / Title</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="e.g. Semester 1 Final" 
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Semester 1 Final"
                                         className="gpa-input"
                                         value={saveTitle}
                                         onChange={(e) => setSaveTitle(e.target.value)}
@@ -217,15 +198,15 @@ const StudentGPAPage = () => {
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                    <button 
+                                    <button
                                         onClick={saveToHistory}
-                                        style={{ 
-                                            background: '#2563eb', 
-                                            color: 'white', 
-                                            border: 'none', 
-                                            padding: '12px 25px', 
-                                            borderRadius: '12px', 
-                                            fontWeight: '700', 
+                                        style={{
+                                            background: '#2563eb',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '12px 25px',
+                                            borderRadius: '12px',
+                                            fontWeight: '700',
                                             cursor: 'pointer',
                                             height: '48px',
                                             transition: 'all 0.3s ease',
@@ -244,21 +225,21 @@ const StudentGPAPage = () => {
                         {history.length > 0 ? (
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
                                 {history.map(item => (
-                                    <div key={item.id} className="sidebar-card" style={{ 
-                                        padding: '0', 
-                                        position: 'relative', 
+                                    <div key={item.id} className="sidebar-card" style={{
+                                        padding: '0',
+                                        position: 'relative',
                                         overflow: 'hidden',
                                         border: '1.5px solid #e2e8f0',
                                         transition: 'transform 0.2s ease'
                                     }}>
                                         {/* Color strip based on GPA */}
-                                        <div style={{ 
-                                            height: '6px', 
-                                            background: parseFloat(item.gpa) >= 3.5 ? '#22c55e' : 
-                                                        parseFloat(item.gpa) >= 3.0 ? '#3b82f6' : 
-                                                        parseFloat(item.gpa) >= 2.0 ? '#eab308' : '#ef4444' 
+                                        <div style={{
+                                            height: '6px',
+                                            background: parseFloat(item.gpa) >= 3.5 ? '#22c55e' :
+                                                parseFloat(item.gpa) >= 3.0 ? '#3b82f6' :
+                                                    parseFloat(item.gpa) >= 2.0 ? '#eab308' : '#ef4444'
                                         }}></div>
-                                        
+
                                         <div style={{ padding: '25px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                                 <div style={{ background: '#f1f5f9', padding: '10px 15px', borderRadius: '12px' }}>
@@ -273,9 +254,9 @@ const StudentGPAPage = () => {
 
                                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                                 <div className={`grade-badge ${getGpaColor(parseFloat(item.gpa))}`} style={{ fontSize: '0.8rem', padding: '4px 12px' }}>
-                                                    {parseFloat(item.gpa) >= 3.5 ? 'Excellent' : 
-                                                     parseFloat(item.gpa) >= 3.0 ? 'Good' :
-                                                     parseFloat(item.gpa) >= 2.0 ? 'Average' : 'Fail'}
+                                                    {parseFloat(item.gpa) >= 3.5 ? 'Excellent' :
+                                                        parseFloat(item.gpa) >= 3.0 ? 'Good' :
+                                                            parseFloat(item.gpa) >= 2.0 ? 'Average' : 'Fail'}
                                                 </div>
                                                 <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
                                                     {item.subjects?.length || 0} Subjects
@@ -283,19 +264,19 @@ const StudentGPAPage = () => {
                                             </div>
                                         </div>
 
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 const updated = history.filter(h => h.id !== item.id);
                                                 setHistory(updated);
                                                 localStorage.setItem('gpaHistory', JSON.stringify(updated));
                                             }}
-                                            style={{ 
-                                                position: 'absolute', 
-                                                top: '10px', 
-                                                right: '10px', 
-                                                background: '#fee2e2', 
-                                                border: 'none', 
-                                                color: '#ef4444', 
+                                            style={{
+                                                position: 'absolute',
+                                                top: '10px',
+                                                right: '10px',
+                                                background: '#fee2e2',
+                                                border: 'none',
+                                                color: '#ef4444',
                                                 cursor: 'pointer',
                                                 width: '24px',
                                                 height: '24px',
@@ -317,8 +298,8 @@ const StudentGPAPage = () => {
                                 <div style={{ fontSize: '3rem', marginBottom: '20px' }}>📋</div>
                                 <h3>No History Found</h3>
                                 <p>Calculate your GPA and save it to see it here.</p>
-                                <button 
-                                    className="add-subject-btn" 
+                                <button
+                                    className="add-subject-btn"
                                     style={{ width: 'auto', padding: '10px 30px', marginTop: '20px' }}
                                     onClick={() => setActiveTab('calculate')}
                                 >

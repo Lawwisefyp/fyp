@@ -8,6 +8,8 @@ import '@/styles/LawyerMiniLawLibrary.css';
 import { authService } from '@/lib/services/api';
 import mammoth from 'mammoth';
 import axios from 'axios';
+import { Bot, Loader2, Sparkles, MessageCircle, FileText, ChevronRight, AlertCircle } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const LawyerMiniLawLibraryPage = () => {
     const router = useRouter();
@@ -17,13 +19,53 @@ const LawyerMiniLawLibraryPage = () => {
     const [showChatSelectionModal, setShowChatSelectionModal] = useState(false);
     const [selectedChatDocs, setSelectedChatDocs] = useState([]);
 
-    const handleStartAIChat = () => {
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [briefcaseHistory, setBriefcaseHistory] = useState([]);
+
+    const handleLoadAnalysis = async (sessionId) => {
+        try {
+            setIsAnalyzing(true);
+            const session = await authService.getChatSession(sessionId);
+            if (session && session.messages && session.messages.length > 1) {
+                setAnalysisResult({
+                    content: session.messages[1].content,
+                    timestamp: session.updatedAt,
+                    docCount: "Saved"
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load analysis:', error);
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleStartAIChat = async () => {
         if (selectedChatDocs.length === 0) {
             alert('Please select at least one document to discuss.');
             return;
         }
-        const docIds = selectedChatDocs.join(',');
-        router.push(`/chatbot?docs=${docIds}`);
+        
+        try {
+            setIsAnalyzing(true);
+            setShowChatSelectionModal(false);
+            
+            const data = await authService.startAnalysis(selectedChatDocs);
+            if (data && (data.response || data.answer)) {
+                setAnalysisResult({
+                    content: data.response || data.answer,
+                    timestamp: new Date(),
+                    docCount: selectedChatDocs.length
+                });
+                fetchData();
+            }
+        } catch (error) {
+            console.error('Analysis failed:', error);
+            alert('AI Analysis failed. Please try again later.');
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const toggleDocSelection = (docId) => {
@@ -55,13 +97,15 @@ const LawyerMiniLawLibraryPage = () => {
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const [docRes, folderRes] = await Promise.all([
+            const [docRes, folderRes, historyRes] = await Promise.all([
                 authService.getDocuments(),
-                authService.getFolders()
+                authService.getFolders(),
+                authService.getBriefcaseHistory().catch(() => [])
             ]);
 
             if (docRes.success) setDocuments(docRes.documents);
             if (folderRes.success) setFolders(folderRes.folders);
+            if (historyRes) setBriefcaseHistory(historyRes);
         } catch (error) {
             console.error('Failed to fetch data:', error);
         } finally {
@@ -359,22 +403,70 @@ const LawyerMiniLawLibraryPage = () => {
                                     <div className="folder-content-right">
                                         <div className="section-header">
                                             <div className="section-title">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                                                <h3>Discussions</h3>
-                                                <span className="count-badge">0</span>
+                                                <Bot size={18} style={{ color: '#6366f1' }} />
+                                                <h3>AI Insights</h3>
+                                                {analysisResult && <span className="count-badge">1</span>}
                                             </div>
-                                            <button className="btn-upload-black" onClick={() => setShowChatSelectionModal(true)}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                                                New Chat
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {analysisResult && briefcaseHistory.length > 0 && (
+                                                    <button className="btn-upload-black" style={{ background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} onClick={() => setAnalysisResult(null)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                                        History
+                                                    </button>
+                                                )}
+                                                <button className="btn-upload-black" onClick={() => {
+                                                    setAnalysisResult(null);
+                                                    setShowChatSelectionModal(true);
+                                                }}>
+                                                    <Sparkles size={16} />
+                                                    {analysisResult ? 'New Analysis' : 'Start AI Analysis'}
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <div className="empty-discussions">
-                                            <div className="empty-icon-box">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
-                                            </div>
-                                            <h4>No discussions yet</h4>
-                                            <p>Start a new chat to analyze documents in this folder using AI.</p>
+                                        <div className="analysis-display-container">
+                                            {isAnalyzing ? (
+                                                <div className="analysis-loading-state">
+                                                    <Loader2 className="animate-spin" size={32} style={{ color: '#6366f1', marginBottom: '15px' }} />
+                                                    <h4>Analyzing Documents...</h4>
+                                                    <p>Our AI is reviewing your legal files. This may take a few moments.</p>
+                                                </div>
+                                            ) : analysisResult ? (
+                                                <div className="analysis-result-content">
+                                                    <div className="analysis-meta-info">
+                                                        <span><FileText size={14} /> {analysisResult.docCount} Documents</span>
+                                                        <span>{new Date(analysisResult.timestamp).toLocaleTimeString()}</span>
+                                                    </div>
+                                                    <div className="markdown-body">
+                                                        <ReactMarkdown>{analysisResult.content}</ReactMarkdown>
+                                                    </div>
+                                                    <div className="analysis-disclaimer">
+                                                        <AlertCircle size={12} />
+                                                        <span>AI-generated insights should be verified by a legal professional.</span>
+                                                    </div>
+                                                </div>
+                                            ) : briefcaseHistory.length > 0 ? (
+                                                <div className="briefcase-history-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', height: '100%', overflowY: 'auto' }}>
+                                                    <h4 style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Previous Analyses</h4>
+                                                    {briefcaseHistory.map(session => (
+                                                        <div key={session._id} onClick={() => handleLoadAnalysis(session._id)} style={{ padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column', gap: '6px' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366f1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(99, 102, 241, 0.05)'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.boxShadow = 'none'; }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <strong style={{ fontSize: '14px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '70%' }}>{session.title || 'Document Analysis'}</strong>
+                                                                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{new Date(session.updatedAt).toLocaleDateString()}</span>
+                                                            </div>
+                                                            <p style={{ fontSize: '13px', color: '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{session.messages[0]?.content}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="empty-discussions">
+                                                    <div className="empty-icon-box">
+                                                        <Bot size={24} style={{ color: '#94a3b8' }} />
+                                                    </div>
+                                                    <h4>AI Briefcase Assistant</h4>
+                                                    <p>Select documents to generate an instant legal summary and risk analysis right here.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

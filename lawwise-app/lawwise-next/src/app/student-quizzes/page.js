@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/services/api';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/StudentQuiz.css';
 
 const StudentQuizPage = () => {
@@ -78,62 +79,10 @@ const StudentQuizPage = () => {
 
     const initials = 'S'; // Fallback
 
-    // ── SIDEBAR ───────────────────────────────────────────────
-    const UnifiedSidebar = () => (
-        <aside className="dashboard-sidebar">
-            <div className="sidebar-logo">
-                <h1>LAW<span>WISE</span></h1>
-                <p>Student Academy</p>
-            </div>
-
-            <nav className="sidebar-nav">
-                <div className="sidebar-section-label">Main</div>
-                <div className="sidebar-nav-item" onClick={() => router.push('/student-dashboard')}>
-                    <span className="sidebar-nav-icon">🏠</span> Dashboard
-                </div>
-
-                <div className="sidebar-section-label">Academic Tools</div>
-                <div className="sidebar-nav-item" onClick={() => router.push('/student-notes')}>
-                    <span className="sidebar-nav-icon">📁</span> My Notes
-                </div>
-                <div className="sidebar-nav-item" onClick={() => router.push('/student-past-papers')}>
-                    <span className="sidebar-nav-icon">📜</span> Past Papers
-                </div>
-                <div className="sidebar-nav-item" onClick={() => router.push('/student-library')}>
-                    <span className="sidebar-nav-icon">📖</span> Resource Hub
-                </div>
-                <div className="sidebar-nav-item" onClick={() => router.push('/student-learning')}>
-                    <span className="sidebar-nav-icon">🎓</span> Personalized Learning
-                </div>
-
-                <div className="sidebar-section-label">Quiz Status</div>
-                <div className={`sidebar-nav-item ${view === 'home' ? 'active' : ''}`} style={{ opacity: view === 'home' ? 1 : 0.6 }}>
-                    <span className="sidebar-nav-icon">1️⃣</span> Get Started
-                </div>
-                <div className={`sidebar-nav-item ${view === 'pick-note' ? 'active' : ''}`} style={{ opacity: view === 'pick-note' ? 1 : 0.6 }}>
-                    <span className="sidebar-nav-icon">2️⃣</span> Select Note
-                </div>
-                <div className={`sidebar-nav-item ${view === 'quiz' ? 'active' : ''}`} style={{ opacity: view === 'quiz' ? 1 : 0.6 }}>
-                    <span className="sidebar-nav-icon">3️⃣</span> Take Quiz
-                </div>
-            </nav>
-
-            <div className="sidebar-footer">
-                <div className="sidebar-user">
-                    <div className="sidebar-avatar">{initials}</div>
-                    <div className="sidebar-user-info">
-                        <h4>Law Student</h4>
-                        <p>Academic Portal</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-    );
-
     // ── LAYOUT WRAPPER ─────────────────────────────────────────
     const Layout = ({ children }) => (
         <div className="dashboard-body">
-            <UnifiedSidebar />
+            <StudentSidebar />
             <div className="dashboard-main">
                 <header className="top-header">
                     <div className="top-header-left">

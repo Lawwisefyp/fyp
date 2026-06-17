@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import StudentSidebar from '@/components/StudentSidebar';
 import { authService } from '@/lib/services/api';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -52,29 +53,10 @@ const StudentLearningPage = () => {
     if (!student && !loading) return null;
 
     return (
-        <div className="learning-body">
-            <div className="learning-container">
+        <div className="learning-body" style={{ display: 'flex' }}>
+            <StudentSidebar />
+            <div className="learning-container" style={{ flex: 1 }}>
                 <div className="learning-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '15px' }}>
-                    <button
-                        onClick={() => router.push('/student-dashboard')}
-                        style={{
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-                            border: 'none',
-                            color: 'white',
-                            padding: '12px 20px',
-                            borderRadius: '12px',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
-                            transition: 'all 0.3s ease',
-                            textDecoration: 'none'
-                        }}
-                    >
-                        ← Back to Dashboard
-                    </button>
                     <h1 style={{ fontSize: '2.5rem', color: '#1e293b', fontWeight: '800', margin: '0 0 10px 0' }}>Smart Study Assistant</h1>
                     <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>Your personalized hub for tracking progress and improving weak areas.</p>
                 </div>
@@ -124,20 +106,14 @@ const StudentLearningPage = () => {
                                         <div className="activity-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>📜</div>
                                         <div className="activity-detail">
                                             <div>{analytics?.papersCount || 0} Papers</div>
-                                            <div>Accessed & Practiced</div>
+                                            <div>Uploaded & Shared</div>
                                         </div>
                                     </div>
-                                    <div className="activity-item">
-                                        <div className="activity-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>🧠</div>
-                                        <div className="activity-detail">
-                                            <div>{analytics?.quizzesCount || 0} Quizzes</div>
-                                            <div>Tests Completed</div>
-                                        </div>
-                                    </div>
+
                                     <div className="activity-item">
                                         <div className="activity-icon" style={{ background: '#f0f9ff', color: '#0288d1' }}>⏱️</div>
                                         <div className="activity-detail">
-                                            <div>{Math.floor((analytics?.notesCount || 0) * 15 + (analytics?.quizzesCount || 0) * 10)} Mins</div>
+                                            <div>{Math.floor((analytics?.notesCount || 0) * 15 + (analytics?.papersCount || 0) * 20)} Mins</div>
                                             <div>Est. Study Time</div>
                                         </div>
                                     </div>

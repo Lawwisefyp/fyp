@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/StudentNotes.css';
 import '@/styles/StudentInsights.css';
 
@@ -168,30 +169,10 @@ const StudentInsightsPage = () => {
     ];
 
     return (
-        <div className="notes-page-container">
-            <div className="notes-sidebar">
+        <div className="notes-page-container" style={{ display: 'flex', background: '#f8fafc' }}>
+            <StudentSidebar />
+            <div className="notes-sidebar" style={{ borderLeft: '1px solid #e2e8f0', marginLeft: '0' }}>
                 <div className="sidebar-section">
-                    <button 
-                        onClick={() => router.push('/student-dashboard')}
-                        style={{ 
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', 
-                            border: 'none', 
-                            color: 'white', 
-                            padding: '12px 20px', 
-                            borderRadius: '12px', 
-                            fontWeight: '700', 
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '25px',
-                            width: '100%',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        ← Dashboard
-                    </button>
                     <h3>Explore Guides</h3>
                     <div className="folder-list">
                         <div className="folder-item active">📚 All Insights</div>

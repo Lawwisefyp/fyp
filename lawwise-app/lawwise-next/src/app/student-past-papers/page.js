@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/services/api';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/StudentQuiz.css';
 import '@/styles/StudentNotes.css';
 
@@ -115,30 +116,10 @@ const StudentPastPapersPage = () => {
     const initials = student?.fullName ? student.fullName.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase() : 'S';
 
     return (
-        <div className="notes-page-container">
-            <div className="notes-sidebar">
+        <div className="notes-page-container" style={{ display: 'flex', background: '#f8fafc' }}>
+            <StudentSidebar />
+            <div className="notes-sidebar" style={{ borderLeft: '1px solid #e2e8f0', marginLeft: '0' }}>
                 <div className="sidebar-section">
-                    <button
-                        onClick={() => router.push('/student-dashboard')}
-                        style={{
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-                            border: 'none',
-                            color: 'white',
-                            padding: '12px 20px',
-                            borderRadius: '12px',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '25px',
-                            width: '100%',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        ← Dashboard
-                    </button>
                     <h3>LLB Years</h3>
                     <div className="folder-list">
                         {[1, 2, 3, 4, 5].map(year => (

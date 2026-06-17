@@ -19,7 +19,8 @@ import {
     LogOut,
     Bot,
     X,
-    CalendarDays
+    CalendarDays,
+    Star
 } from 'lucide-react';
 import { authService } from '@/lib/services/api';
 import '@/styles/Dashboard.css';
@@ -90,8 +91,8 @@ const LawyerSidebar = () => {
         { title: 'Briefcase', icon: Briefcase, path: '/law-library' },
         { title: 'Communication', icon: Mail, path: '/communication' },
         { title: 'Professional Networking', icon: Users, path: '/networking' },
-        { title: 'Notifications', icon: Bell, path: '/notifications' },
         { title: 'Digital Guidance', icon: HelpCircle, path: '/digital-guidance' },
+        { title: 'Client Reviews', icon: Star, path: '/lawyer-reputation' },
         { title: 'Analytics', icon: Activity, path: '/analytics' },
         { title: 'Case Marketplace', icon: Briefcase, path: '/lawyer-marketplace' }
     ];

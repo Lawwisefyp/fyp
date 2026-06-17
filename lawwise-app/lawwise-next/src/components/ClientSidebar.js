@@ -13,7 +13,8 @@ import {
     LogOut,
     User,
     Menu,
-    X
+    X,
+    Folder
 } from 'lucide-react';
 import '@/styles/Dashboard.css';
 
@@ -41,6 +42,7 @@ const ClientSidebar = () => {
         { title: 'Notifications', icon: Bell, path: '/client-notifications' },
         { title: 'Communication', icon: MessageSquare, path: '/client-communication' },
         { title: 'E-Filing Case', icon: Upload, path: '/client-efiling' },
+        { title: 'Filed Cases', icon: Folder, path: '/client-my-cases' },
         { title: 'Lawyer Filtering', icon: Search, path: '/search-lawyers' },
         { title: 'Lawyer Reviews', icon: Star, path: '/lawyer-reviews' }
     ];

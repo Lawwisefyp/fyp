@@ -130,7 +130,9 @@ a {
 .page-container:has(.dashboard-body),
 .page-container:has(.dashboard-container),
 .page-container:has(.lawyer-dashboard-container),
-.page-container:has(.client-dashboard-container) {
+.page-container:has(.client-dashboard-container),
+.page-container:has(.learning-body),
+.page-container:has(.notes-page-container) {
     padding-top: 0 !important;
 }
 

@@ -404,6 +404,22 @@ export const authService = {
         const response = await api.post(`/students/past-papers/download/${id}`);
         return response.data;
     },
+    startAnalysis: async (documentIds) => {
+        const response = await api.post('/chat', {
+            message: "Please provide a comprehensive legal analysis and summary of the selected documents. Highlight key clauses, obligations, and any potential legal risks or noteworthy points.",
+            documentIds: documentIds,
+            isDocumentAnalysis: true
+        });
+        return response.data;
+    },
+    getBriefcaseHistory: async () => {
+        const response = await api.get('/chat/history?module=briefcase');
+        return response.data;
+    },
+    getChatSession: async (sessionId) => {
+        const response = await api.get(`/chat/history/${sessionId}`);
+        return response.data;
+    },
 };
 
 export const appointmentService = {
@@ -417,6 +433,25 @@ export const appointmentService = {
     },
     getMyAppointments: async () => {
         const response = await api.get('/appointments/my-appointments');
+        return response.data;
+    }
+};
+
+export const reviewService = {
+    submitReview: async (reviewData) => {
+        const response = await api.post('/reviews', reviewData);
+        return response.data;
+    },
+    getLawyerReviews: async (lawyerId) => {
+        const response = await api.get(`/reviews/lawyer/${lawyerId}`);
+        return response.data;
+    },
+    getClientReviews: async () => {
+        const response = await api.get('/reviews/client');
+        return response.data;
+    },
+    replyToReview: async (reviewId, reply) => {
+        const response = await api.put(`/reviews/${reviewId}/reply`, { reply });
         return response.data;
     }
 };

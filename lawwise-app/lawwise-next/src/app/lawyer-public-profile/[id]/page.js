@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authService } from '@/lib/services/api';
+import { authService, reviewService } from '@/lib/services/api';
 import LawyerSidebar from '@/components/LawyerSidebar';
 import ClientSidebar from '@/components/ClientSidebar';
 import { 
@@ -32,6 +32,8 @@ const LawyerPublicProfilePage = () => {
     const [userType, setUserType] = useState(null);
     const [loading, setLoading] = useState(true);
     const [connectionStatus, setConnectionStatus] = useState('none'); // 'none' | 'pending' | 'accepted' | 'rejected'
+    const [reviews, setReviews] = useState([]);
+    const [reviewStats, setReviewStats] = useState(null);
 
     const API_BASE = 'http://localhost:5001';
 
@@ -42,16 +44,21 @@ const LawyerPublicProfilePage = () => {
         const loadData = async () => {
             setLoading(true);
             try {
-                const [profileRes, lawyerRes, connRes] = await Promise.all([
+                const [profileRes, lawyerRes, connRes, reviewRes] = await Promise.all([
                     type === 'lawyer' ? authService.getLawyerProfile().catch(() => ({ success: false })) : Promise.resolve({ success: false }),
                     authService.getLawyerDetails(id),
-                    type === 'client' ? authService.getConnectionStatus(id).catch(() => ({ success: false })) : Promise.resolve({ success: false })
+                    type === 'client' ? authService.getConnectionStatus(id).catch(() => ({ success: false })) : Promise.resolve({ success: false }),
+                    reviewService.getLawyerReviews(id).catch(() => ({ reviews: [], stats: null }))
                 ]);
 
                 if (profileRes.success) setCurrentUser(profileRes.lawyer);
                 if (lawyerRes.success) setLawyer(lawyerRes.lawyer);
                 if (connRes.success && connRes.status) {
                     setConnectionStatus(connRes.status); // 'pending', 'accepted', 'rejected', or 'none'
+                }
+                if (reviewRes.reviews) {
+                    setReviews(reviewRes.reviews);
+                    setReviewStats(reviewRes.stats);
                 }
             } catch (error) {
                 console.error('Failed to load profile data:', error);
@@ -122,9 +129,14 @@ const LawyerPublicProfilePage = () => {
                                         {name} <ShieldCheck size={26} style={{ color: '#0a66c2' }} />
                                     </h1>
                                     <p style={{ fontSize: '1.15rem', color: '#333', margin: '0 0 12px', fontWeight: '600' }}>{lawyer.specialization || 'Legal Professional'}</p>
-                                    <div style={{ display: 'flex', gap: '20px', color: '#666', fontSize: '1rem' }}>
+                                    <div style={{ display: 'flex', gap: '20px', color: '#666', fontSize: '1rem', alignItems: 'center' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={18} /> {lawyer.personalInfo?.city || 'Location N/A'}</span>
                                         <span style={{ color: '#0a66c2', fontWeight: '800' }}>Verified Expert</span>
+                                        {reviewStats && (
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#c19651', fontWeight: '700' }}>
+                                                ★ {reviewStats.overall} ({reviewStats.totalReviews} Reviews)
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 
@@ -216,6 +228,85 @@ const LawyerPublicProfilePage = () => {
                                                 )}
                                             </div>
                                         )) : <p style={{ color: '#94a3b8' }}>No educational details listed.</p>}
+                                    </div>
+
+                                    {/* Verified Client Reviews Section */}
+                                    <div style={{ background: 'white', borderRadius: '10px', border: '1px solid #e0e0e0', padding: '24px' }}>
+                                        <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            ★ Verified Client Reviews
+                                        </h2>
+                                        
+                                        {reviewStats && (
+                                            <div style={{ display: 'flex', gap: '20px', padding: '15px', background: '#f8fafc', borderRadius: '8px', marginBottom: '20px' }}>
+                                                <div style={{ textAlign: 'center', paddingRight: '20px', borderRight: '1px solid #e2e8f0' }}>
+                                                    <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#0f172a' }}>{reviewStats.overall}</div>
+                                                    <div style={{ color: '#c19651', fontSize: '1.2rem' }}>{'★'.repeat(Math.round(reviewStats.overall))}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '5px' }}>{reviewStats.totalReviews} Reviews</div>
+                                                </div>
+                                                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9rem', alignContent: 'center' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ color: '#64748b' }}>Communication</span>
+                                                        <span style={{ fontWeight: '600' }}>{reviewStats.communication}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ color: '#64748b' }}>Expertise</span>
+                                                        <span style={{ fontWeight: '600' }}>{reviewStats.expertise}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ color: '#64748b' }}>Professionalism</span>
+                                                        <span style={{ fontWeight: '600' }}>{reviewStats.professionalism}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ color: '#64748b' }}>Value</span>
+                                                        <span style={{ fontWeight: '600' }}>{reviewStats.value}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                            {reviews.length > 0 ? reviews.map(review => (
+                                                <div key={review._id} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '20px' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <div style={{ width: '35px', height: '35px', borderRadius: '50%', background: '#0f172a', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
+                                                                {review.isAnonymous ? 'A' : (review.clientId?.fullName?.charAt(0) || 'C')}
+                                                            </div>
+                                                            <div>
+                                                                <h5 style={{ margin: '0', fontSize: '1rem', color: '#0f172a' }}>
+                                                                    {review.isAnonymous ? 'Verified Client (Anonymous)' : review.clientId?.fullName}
+                                                                </h5>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                                                                    <span style={{ color: '#c19651', fontSize: '0.85rem' }}>{'★'.repeat(review.overallRating)}</span>
+                                                                    <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#166534', background: '#f0fdf4', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '700' }}>
+                                                            <ShieldCheck size={14} /> Verified
+                                                        </div>
+                                                    </div>
+                                                    {review.tags && review.tags.length > 0 && (
+                                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                                                            {review.tags.map(t => (
+                                                                <span key={t} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', color: '#64748b' }}>{t}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    <p style={{ margin: '0', color: '#475569', fontSize: '0.95rem', lineHeight: '1.5', fontStyle: 'italic' }}>
+                                                        "{review.reviewText}"
+                                                    </p>
+                                                    {review.lawyerReply && (
+                                                        <div style={{ marginTop: '12px', padding: '12px', background: '#f8fafc', borderLeft: '3px solid #0f172a', borderRadius: '0 8px 8px 0' }}>
+                                                            <h6 style={{ margin: '0 0 4px', color: '#0f172a', fontSize: '0.8rem', textTransform: 'uppercase' }}>Adv. {name} replied:</h6>
+                                                            <p style={{ margin: '0', color: '#475569', fontSize: '0.9rem' }}>{review.lawyerReply}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )) : (
+                                                <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px' }}>No reviews yet for this lawyer.</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </>
                             )}

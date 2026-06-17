@@ -15,10 +15,24 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd lawwise-app/ba
 Start-Sleep -Seconds 5
 
 # 2. Start Backend
+Write-Host "Checking Backend dependencies..." -ForegroundColor Yellow
+if (-not (Test-Path "lawwise-app/backend/node_modules")) {
+    Write-Host "Installing Backend dependencies..." -ForegroundColor Yellow
+    Push-Location lawwise-app/backend
+    npm install
+    Pop-Location
+}
 Write-Host "Starting Backend Server..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd lawwise-app/backend; npm run dev" -WindowStyle Normal
 
 # 3. Start Frontend (Next.js)
+Write-Host "Checking Frontend dependencies..." -ForegroundColor Yellow
+if (-not (Test-Path "lawwise-app/lawwise-next/node_modules")) {
+    Write-Host "Installing Frontend dependencies..." -ForegroundColor Yellow
+    Push-Location lawwise-app/lawwise-next
+    npm install
+    Pop-Location
+}
 Write-Host "Starting Frontend (Next.js)..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd lawwise-app/lawwise-next; npm run dev" -WindowStyle Normal
 

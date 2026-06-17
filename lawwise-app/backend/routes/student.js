@@ -73,10 +73,8 @@ router.get('/analytics', auth, async (req, res) => {
         // Get total taken quizzes
         const quizzesCount = await Quiz.countDocuments({ owner: studentId });
 
-        // Get total past papers accessed (estimated by downloads count if not tracked per student)
-        // For now, we'll count how many papers they've interacted with (if we had a join table)
-        // Let's just return a placeholder or count system-wide papers if specific tracking is missing
-        const papersCount = await PastPaper.countDocuments({}); 
+        // Get total past papers uploaded
+        const papersCount = await PastPaper.countDocuments({ uploader: studentId });
 
         // Get recent notes aggregated by day for the graph (last 7 days)
         const sevenDaysAgo = new Date();

@@ -2,14 +2,23 @@ const express = require("express");
 const router = express.Router();
 const { queryVectorStore } = require("../services/vectorService");
 const { getChatResponse } = require("../services/aiService");
-const { searchLegalCases } = require("../services/legalSearchService");
 const auth = require("../middleware/auth");
 const ChatSession = require("../models/ChatSession");
+const pdf = require("pdf-parse");
+const mammoth = require("mammoth");
 
 // GET /api/chat/history - Fetch user's chat history
 router.get("/history", auth, async (req, res) => {
     try {
-        const sessions = await ChatSession.find({ userId: req.user._id })
+        const isBriefcaseQuery = req.query.module === 'briefcase';
+        const query = { userId: req.user._id };
+        if (isBriefcaseQuery) {
+            query.isBriefcase = true;
+        } else {
+            query.$or = [{ isBriefcase: false }, { isBriefcase: { $exists: false } }];
+        }
+
+        const sessions = await ChatSession.find(query)
             .select('-messages.context') // Exclude heavy context data from list view
             .sort({ updatedAt: -1 });
         res.json(sessions);
@@ -32,7 +41,7 @@ router.get("/history/:id", auth, async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
-  const { message, question, history, sessionId } = req.body;
+  const { message, question, history, sessionId, isDocumentAnalysis } = req.body;
   const userQuery = message || question;
 
   console.log("Received chat request:", userQuery);
@@ -49,9 +58,7 @@ router.post("/", auth, async (req, res) => {
       console.log("First Local Doc Snippet:", localContext[0].substring(0, 100));
     }
 
-    console.log("Searching Legal Cases (External Knowledge)...");
-    const externalContext = (await searchLegalCases(userQuery)) || [];
-    console.log(`Legal Search Result: ${externalContext.length} results found`);
+
 
     const Document = require('../models/Document');
     let selectedDocsContext = "";
@@ -61,11 +68,35 @@ router.post("/", auth, async (req, res) => {
         const docs = await Document.find({ _id: { $in: req.body.documentIds } });
         for (const doc of docs) {
             if (doc.fileData) {
-                // simple extraction for text files, or base64 for others if we pass to multimodal AI,
-                // but since we only have text prompts here, let's try to decode as text.
-                // For PDF/DOCX this might be gibberish without parsing, but it will work perfectly for .txt
-                const textContent = doc.fileData.toString('utf-8').substring(0, 5000); // limit to 5000 chars to avoid token limits
-                selectedDocsContext += `\nDOCUMENT: ${doc.title}\nCONTENT:\n${textContent}\n---\n`;
+                let textContent = "";
+                const fileTypeUpper = (doc.fileType || "").toUpperCase();
+
+                if (fileTypeUpper === "PDF") {
+                    try {
+                        console.log(`Parsing PDF document: ${doc.title}`);
+                        const parser = new pdf.PDFParse({ data: doc.fileData });
+                        const parsed = await parser.getText();
+                        textContent = parsed.text || "";
+                    } catch (pdfErr) {
+                        console.error(`Failed to parse PDF document ${doc.title}:`, pdfErr);
+                        textContent = doc.fileData.toString('utf-8');
+                    }
+                } else if (fileTypeUpper === "DOCX") {
+                    try {
+                        console.log(`Parsing DOCX document: ${doc.title}`);
+                        const parsed = await mammoth.extractRawText({ buffer: doc.fileData });
+                        textContent = parsed.value || "";
+                    } catch (docxErr) {
+                        console.error(`Failed to parse DOCX document ${doc.title}:`, docxErr);
+                        textContent = doc.fileData.toString('utf-8');
+                    }
+                } else {
+                    textContent = doc.fileData.toString('utf-8');
+                }
+
+                // limit to 10000 chars to avoid token limits
+                const truncatedText = textContent.substring(0, 10000);
+                selectedDocsContext += `\nDOCUMENT: ${doc.title}\nCONTENT:\n${truncatedText}\n---\n`;
             }
         }
       } catch (err) {
@@ -79,9 +110,6 @@ ${selectedDocsContext}
 
 LOCAL STATUTES/KNOWLEDGE:
 ${Array.isArray(localContext) ? localContext.join("\n") : ""}
-
-EXTERNAL CASE LAW:
-${Array.isArray(externalContext) ? externalContext.map((c) => `${c.title}: ${c.snippet}`).join("\n") : ""}
     `;
 
     console.log("Calling Gemini AI...");
@@ -89,6 +117,7 @@ ${Array.isArray(externalContext) ? externalContext.map((c) => `${c.title}: ${c.s
       history,
       userQuery,
       combinedContext,
+      isDocumentAnalysis
     );
 
     // Save to Database
@@ -106,7 +135,8 @@ ${Array.isArray(externalContext) ? externalContext.map((c) => `${c.title}: ${c.s
         userId: req.user._id,
         userType: req.role === 'lawyer' ? 'Lawyer' : (req.role === 'student' ? 'Student' : 'Client'),
         title: title,
-        messages: []
+        messages: [],
+        isBriefcase: !!isDocumentAnalysis
       });
     }
 
@@ -118,7 +148,7 @@ ${Array.isArray(externalContext) ? externalContext.map((c) => `${c.title}: ${c.s
     session.messages.push({
       role: 'ai',
       content: aiResponse,
-      context: { local: localContext, external: externalContext }
+      context: { local: localContext }
     });
 
     await session.save();
@@ -127,7 +157,7 @@ ${Array.isArray(externalContext) ? externalContext.map((c) => `${c.title}: ${c.s
       sessionId: session._id,
       response: aiResponse,
       answer: aiResponse,
-      context: { local: localContext, external: externalContext },
+      context: { local: localContext },
     });
   } catch (error) {
     console.error("Chat API Error:", error);

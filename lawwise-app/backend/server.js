@@ -30,6 +30,7 @@ const videoRoutes = require('./routes/videos');
 const analyticsRoutes = require('./routes/analytics');
 const caseRequestRoutes = require('./routes/caseRequest');
 const appointmentRoutes = require('./routes/appointment');
+const reviewsRoutes = require('./routes/reviews');
 const jwt = require('jsonwebtoken');
 
 
@@ -89,6 +90,7 @@ app.use('/api/draft', draftRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 
 // Root route for GET /

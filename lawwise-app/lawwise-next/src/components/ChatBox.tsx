@@ -490,46 +490,7 @@ export default function ChatBox() {
                       </div>
                     )}
 
-                    {/* Sources */}
-                    {msg.role === "ai" && msg.context?.external && msg.context.external.length > 0 && (
-                      <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid #e2e8f0" }}>
-                        <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", color: "#94a3b8", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}>
-                          <Info size={10} />
-                          International Case Laws
-                        </p>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                          {msg.context.external.map((res, i) => (
-                            <a
-                              key={i}
-                              href={res.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "8px 12px",
-                                background: "white",
-                                borderRadius: 10,
-                                border: "1px solid #e2e8f0",
-                                textDecoration: "none",
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: "#0f172a",
-                                transition: "border-color 0.15s",
-                              }}
-                            >
-                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{res.title}</span>
-                              {res.citation && (
-                                <span style={{ marginLeft: 10, flexShrink: 0, fontSize: 9, fontWeight: 900, background: "rgba(193,150,81,0.1)", color: "#c19651", padding: "2px 8px", borderRadius: 99 }}>
-                                  {res.citation}
-                                </span>
-                              )}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+
                   </div>
                 </motion.div>
               ))}

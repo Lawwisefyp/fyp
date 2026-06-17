@@ -2,6 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { 
+    Target, 
+    FileText, 
+    Library, 
+    Share2, 
+    Calculator, 
+    Lightbulb, 
+    Calendar,
+    LogOut,
+    User,
+    Home,
+    AlertCircle,
+    Flame
+} from 'lucide-react';
+import StudentSidebar from '@/components/StudentSidebar';
 import '@/styles/Dashboard.css';
 
 const StudentDashboard = () => {
@@ -47,66 +62,66 @@ const StudentDashboard = () => {
     const features = [
         {
             title: 'Personalized Learning',
-            icon: '🎯',
+            icon: Target,
             desc: "Tailored study materials and recommendations based on your law subjects.",
             path: '/student-learning',
-            color1: '#0288d1',
-            color2: '#039be5',
-            bg: '#e1f5fe'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'Past Papers',
-            icon: '📜',
+            icon: FileText,
             desc: "Access and upload past examination papers and model answers.",
             path: '/student-past-papers',
-            color1: '#388e3c',
-            color2: '#43a047',
-            bg: '#e8f5e9'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'Mini-Library',
-            icon: '📚',
+            icon: Library,
             desc: "Digital collection of notes, past papers, and case summaries in one place.",
             path: '/student-library',
-            color1: '#7b1fa2',
-            color2: '#9c27b0',
-            bg: '#f3e5f5'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'Notes Sharing',
-            icon: '📝',
+            icon: Share2,
             desc: "Upload your notes and access useful study material shared by others.",
             path: '/student-notes',
-            color1: '#f57c00',
-            color2: '#fb8c00',
-            bg: '#fff3e0'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'GPA Calculator',
-            icon: '📊',
+            icon: Calculator,
             desc: "Calculate your semester GPA instantly based on marks and credits.",
             path: '/student-gpa',
-            color1: '#d32f2f',
-            color2: '#f44336',
-            bg: '#ffebee'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'Insights & Guides',
-            icon: '💡',
+            icon: Lightbulb,
             desc: "Expert-curated articles on LAT prep, university rankings, and research.",
             path: '/student-insights',
-            color1: '#f9a825',
-            color2: '#fbc02d',
-            bg: '#fff9c4'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         },
         {
             title: 'Study Planner',
-            icon: '📅',
+            icon: Calendar,
             desc: "Plan your daily study schedule, track topics, and mark tasks as completed.",
             path: '/student-planner',
-            color1: '#00796b',
-            color2: '#00897b',
-            bg: '#e0f2f1'
+            color1: '#0f172a',
+            color2: '#1e293b',
+            bg: '#f1f5f9'
         }
     ];
 
@@ -114,45 +129,7 @@ const StudentDashboard = () => {
 
     return (
         <div className="dashboard-body">
-            {/* ── Left Sidebar ── */}
-            <aside className="dashboard-sidebar">
-                <div className="sidebar-logo">
-                    <h1>LAW<span>WISE</span></h1>
-                    <p>Student Academy</p>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className="sidebar-section-label">Main</div>
-                    <div className="sidebar-nav-item active">
-                        <span className="sidebar-nav-icon">🏠</span> Dashboard
-                    </div>
-
-                    <div className="sidebar-section-label">Learning Modules</div>
-                    {features.map((f, i) => (
-                        <div key={i} className="sidebar-nav-item" onClick={() => router.push(f.path)}>
-                            <span className="sidebar-nav-icon">{f.icon}</span> {f.title}
-                        </div>
-                    ))}
-
-                    <div className="sidebar-section-label">Account</div>
-                    <div className="sidebar-nav-item" onClick={() => router.push('/student-profile')}>
-                        <span className="sidebar-nav-icon">👤</span> My Profile
-                    </div>
-                    <div className="sidebar-nav-item" onClick={logout}>
-                        <span className="sidebar-nav-icon">🚪</span> Logout
-                    </div>
-                </nav>
-
-                <div className="sidebar-footer">
-                    <div className="sidebar-user">
-                        <div className="sidebar-avatar">{initials}</div>
-                        <div className="sidebar-user-info">
-                            <h4>{student.fullName}</h4>
-                            <p>{student.university || 'Law Student'}</p>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+            <StudentSidebar />
 
             {/* ── Main Content ── */}
             <div className="dashboard-main">
@@ -175,24 +152,24 @@ const StudentDashboard = () => {
                     {/* Reminder Notification */}
                     {plannerStats.tomorrowsTasksCount > 0 && (
                         <div style={{ 
-                            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)', 
-                            border: '1px solid #fecaca', 
-                            padding: '15px 25px', 
-                            borderRadius: '16px', 
+                            background: '#f8fafc', 
+                            borderLeft: '4px solid #c19651', 
+                            padding: '20px 25px', 
+                            borderRadius: '12px', 
                             marginBottom: '25px',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '15px',
-                            boxShadow: '0 4px 15px rgba(220, 38, 38, 0.08)'
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                            <AlertCircle size={32} color="#c19651" />
                             <div>
-                                <h4 style={{ color: '#991b1b', margin: 0, fontSize: '0.95rem', fontWeight: '800' }}>Upcoming Study Goal</h4>
-                                <p style={{ color: '#b91c1c', margin: 0, fontSize: '0.85rem' }}>You have {plannerStats.tomorrowsTasksCount} task(s) due tomorrow. Get ready!</p>
+                                <h4 style={{ color: '#0f172a', margin: 0, fontSize: '1rem', fontWeight: '800' }}>Upcoming Study Goal</h4>
+                                <p style={{ color: '#64748b', margin: 0, fontSize: '0.9rem' }}>You have {plannerStats.tomorrowsTasksCount} task(s) due tomorrow. Get ready!</p>
                             </div>
                             <button 
                                 onClick={() => router.push('/student-planner')}
-                                style={{ marginLeft: 'auto', background: '#dc2626', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '0.8rem', transition: 'all 0.2s' }}
+                                style={{ marginLeft: 'auto', background: '#0f172a', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}
                             >
                                 Open Planner
                             </button>
@@ -208,17 +185,13 @@ const StudentDashboard = () => {
                                     <h2 className="profile-name">{student.fullName}</h2>
                                     <div className="profile-title">{student.yearOfStudy} Law Student | {student.university}</div>
                                     <div className="profile-stats">
-                                        <div className="stat-item" style={{ background: '#fff7ed', border: '1px solid #ffedd5' }}>
-                                            <span className="stat-value" style={{ color: '#ea580c' }}>🔥 {plannerStats.streak}</span>
+                                        <div className="stat-item" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                            <span className="stat-value" style={{ color: '#c19651', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}><Flame size={18} fill="#c19651" /> {plannerStats.streak}</span>
                                             <span className="stat-label">Study Streak</span>
                                         </div>
                                         <div className="stat-item">
                                             <span className="stat-value">5</span>
                                             <span className="stat-label">Active Courses</span>
-                                        </div>
-                                        <div className="stat-item">
-                                            <span className="stat-value">12</span>
-                                            <span className="stat-label">Quizzes Passed</span>
                                         </div>
                                     </div>
                                 </div>
@@ -230,15 +203,20 @@ const StudentDashboard = () => {
                         <div>
                             <div className="dashboard-section-title">Academic Modules</div>
                             <div className="dashboard-features" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
-                                {features.map((f, i) => (
-                                    <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2 }}>
-                                        <div className="feature-header">
-                                            <div className="feature-icon" style={{ background: f.bg, color: f.color1 }}>{f.icon}</div>
-                                            <h3 className="feature-title">{f.title}</h3>
+                                {features.map((f, i) => {
+                                    const Icon = f.icon;
+                                    return (
+                                        <div key={i} className="feature-card" onClick={() => router.push(f.path)} style={{ '--card-color-1': f.color1, '--card-color-2': f.color2, background: 'white', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                                            <div className="feature-header">
+                                                <div className="feature-icon" style={{ background: f.bg, color: f.color1, padding: '10px', borderRadius: '8px' }}>
+                                                    <Icon size={24} color="#0f172a" />
+                                                </div>
+                                                <h3 className="feature-title" style={{ color: '#0f172a' }}>{f.title}</h3>
+                                            </div>
+                                            <p className="feature-desc" style={{ fontSize: '0.85rem', color: '#64748b' }}>{f.desc}</p>
                                         </div>
-                                        <p className="feature-desc" style={{ fontSize: '0.8rem' }}>{f.desc}</p>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -248,10 +226,12 @@ const StudentDashboard = () => {
                                 {plannerStats.todaysTasks.length > 0 ? (
                                     <div style={{ display: 'flex', flex_direction: 'column', gap: '15px' }}>
                                         {plannerStats.todaysTasks.map(task => (
-                                            <div key={task._id} style={{ padding: '12px', background: '#f8fafc', borderRadius: '12px', borderLeft: '4px solid #2563eb' }}>
-                                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#2563eb', textTransform: 'uppercase' }}>{task.subject}</div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#1e293b' }}>{task.title}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>⏱️ {task.duration || 'N/A'}</div>
+                                            <div key={task._id} style={{ padding: '15px', background: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #c19651' }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#c19651', textTransform: 'uppercase', marginBottom: '4px' }}>{task.subject}</div>
+                                                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>{task.title}</div>
+                                                <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <Calendar size={14} /> {task.duration || 'N/A'}
+                                                </div>
                                             </div>
                                         ))}
                                         <button 
@@ -262,12 +242,12 @@ const StudentDashboard = () => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div style={{ textAlign: 'center', color: '#94a3b8', padding: '20px 0' }}>
-                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>☕</div>
-                                        <p style={{ fontSize: '0.9rem' }}>No tasks for today.</p>
+                                    <div style={{ textAlign: 'center', color: '#64748b', padding: '30px 0' }}>
+                                        <Calendar size={48} color="#cbd5e1" style={{ marginBottom: '15px' }} />
+                                        <p style={{ fontSize: '0.95rem', margin: 0 }}>No tasks for today.</p>
                                         <button 
                                             onClick={() => router.push('/student-planner')}
-                                            style={{ marginTop: '15px', color: '#2563eb', background: 'none', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                                            style={{ marginTop: '15px', color: '#c19651', background: 'none', border: 'none', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' }}
                                         >
                                             + Create a Plan
                                         </button>

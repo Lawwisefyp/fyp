@@ -8,7 +8,8 @@ const chatSessionSchema = new mongoose.Schema({
         role: { type: String, enum: ['user', 'ai'], required: true },
         content: { type: String, required: true },
         context: { type: mongoose.Schema.Types.Mixed }
-    }]
+    }],
+    isBriefcase: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('ChatSession', chatSessionSchema);
